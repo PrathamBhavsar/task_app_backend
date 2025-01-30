@@ -2,8 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
-
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
@@ -26,7 +26,7 @@ db.connect((err) => {
 
 // Default Route
 app.get('/', (req, res) => {
-    res.send('Hello, World!');
+    res.send('Hello, World! This is running on Vercel 🚀');
 });
 
 // API Route to Check MySQL Connection
@@ -39,8 +39,5 @@ app.get('/api/check-db', (req, res) => {
     });
 });
 
-// Start the Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// Export as Vercel Serverless Function
+module.exports = app;
