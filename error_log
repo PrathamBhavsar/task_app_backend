@@ -1,0 +1,22 @@
+[06-Feb-2025 04:44:40 America/Boise] PHP Warning:  require_once(auth.php): Failed to open stream: No such file or directory in /home4/drapesho/public_html/api/index.php on line 3
+[06-Feb-2025 04:44:40 America/Boise] PHP Fatal error:  Uncaught Error: Failed opening required 'auth.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home4/drapesho/public_html/api/index.php:3
+Stack trace:
+#0 {main}
+  thrown in /home4/drapesho/public_html/api/index.php on line 3
+[06-Feb-2025 04:47:07 America/Boise] PHP Warning:  require_once(auth.php): Failed to open stream: No such file or directory in /home4/drapesho/public_html/api/index.php on line 3
+[06-Feb-2025 04:47:07 America/Boise] PHP Fatal error:  Uncaught Error: Failed opening required 'auth.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home4/drapesho/public_html/api/index.php:3
+Stack trace:
+#0 {main}
+  thrown in /home4/drapesho/public_html/api/index.php on line 3
+[06-Feb-2025 04:47:11 America/Boise] PHP Warning:  require_once(auth.php): Failed to open stream: No such file or directory in /home4/drapesho/public_html/api/index.php on line 3
+[06-Feb-2025 04:47:11 America/Boise] PHP Fatal error:  Uncaught Error: Failed opening required 'auth.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home4/drapesho/public_html/api/index.php:3
+Stack trace:
+#0 {main}
+  thrown in /home4/drapesho/public_html/api/index.php on line 3
+[06-Feb-2025 04:47:15 America/Boise] PHP Warning:  require_once(auth.php): Failed to open stream: No such file or directory in /home4/drapesho/public_html/api/index.php on line 3
+[06-Feb-2025 04:47:15 America/Boise] PHP Fatal error:  Uncaught Error: Failed opening required 'auth.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home4/drapesho/public_html/api/index.php:3
+Stack trace:
+#0 {main}
+  thrown in /home4/drapesho/public_html/api/index.php on line 3
+[06-Feb-2025 04:51:26 America/Boise] PHP Warning:  Undefined variable $requestUri in /home4/drapesho/public_html/api/index.php on line 12
+[06-Feb-2025 04:51:26 America/Boise] PHP Warning:  Trying to access array offset on value of type null in /home4/drapesho/public_html/api/index.php on line 12
