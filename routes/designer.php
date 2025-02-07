@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../controllers/DesignerController.php';
+require_once 'controllers/DesignerController.php';
 require_once 'middleware/AuthMiddleware.php';
 
 // Enable error reporting for debugging

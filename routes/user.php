@@ -1,21 +1,21 @@
 <?php
 
-require_once 'controllers/ClientController.php';
+require_once 'controllers/UserController.php';
 require_once 'middleware/AuthMiddleware.php';
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-function handleClientRoutes($method)
+function handleUserRoutes($method)
 {
     authenticate(); // Check Bearer Token
 
-    $clientController = new ClientController();
+    $userController = new UserController();
 
     switch ($method) {
         case 'GET':
-            $clientController->getClients();
+            $userController->getUsers();
             break;
         case 'POST':
             $data = json_decode(file_get_contents("php://input"), true);
@@ -27,13 +27,13 @@ function handleClientRoutes($method)
 
             switch ($data['action']) {
                 case 'create':
-                    $clientController->createClient();
+                    $userController->createUser();
                     break;
                 case 'update':
-                    $clientController->updateClient();
+                    $userController->updateUser();
                     break;
                 case 'delete':
-                    $clientController->deleteClient();
+                    $userController->deleteUser();
                     break;
                 default:
                     http_response_code(400);
