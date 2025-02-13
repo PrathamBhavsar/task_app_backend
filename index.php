@@ -5,6 +5,7 @@ require_once 'config/auth.php'; // Calls `authenticate()` from authmiddleware.ph
 require_once 'routes/designer.php';
 require_once 'routes/client.php';
 require_once 'routes/user.php';
+require_once 'routes/status.php';
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -19,6 +20,9 @@ switch ($request_uri) {
         break;
     case '/api/user':
         handleUserRoutes($requestMethod);
+        break;
+    case '/api/status':
+        handleStatusRoutes($requestMethod);
         break;
     default:
         http_response_code(404);
