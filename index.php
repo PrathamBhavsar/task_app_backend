@@ -7,6 +7,7 @@ require_once 'routes/client.php';
 require_once 'routes/user.php';
 require_once 'routes/status.php';
 require_once 'routes/priority.php';
+require_once 'routes/task.php';
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -27,6 +28,9 @@ switch ($request_uri) {
         break;
     case '/api/priority':
         handlePriorityRoutes($requestMethod);
+        break;
+    case '/api/task':
+        handleTaskRoutes($requestMethod);
         break;
     default:
         http_response_code(404);
