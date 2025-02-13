@@ -50,7 +50,7 @@ class Task
                 $data['status']
             ]);
 
-            // Insert related records
+            // Insert related records (clients, designers, agencies, salespersons, attachments)
             $this->insertTaskRelatedRecords($taskId, $data);
 
             $this->conn->commit();
@@ -60,7 +60,6 @@ class Task
             return ["error" => $e->getMessage()];
         }
     }
-
 
     private function insertTaskRelatedRecords($taskId, $data)
     {
@@ -91,6 +90,15 @@ class Task
             }
         }
 
+        // Insert Task Salespersons
+        if (!empty($data['salespersons'])) {
+            $query = "INSERT INTO task_salespersons (task_id, user_id, created_at) VALUES (UNHEX(?), UNHEX(?), CURRENT_TIMESTAMP)";
+            $stmt = $this->conn->prepare($query);
+            foreach ($data['salespersons'] as $userId) {
+                $stmt->execute([$taskId, $userId]);
+            }
+        }
+
         // Insert Task Attachments
         if (!empty($data['attachments'])) {
             $query = "INSERT INTO task_attachments (id, task_id, attachment_url, attachment_name, created_at) 
@@ -102,7 +110,6 @@ class Task
             }
         }
     }
-
 
     public function updateTask($data)
     {
@@ -136,10 +143,9 @@ class Task
         }
     }
 
-
     private function deleteTaskRelatedRecords($taskId)
     {
-        $tables = ['task_clients', 'task_designers', 'task_agencies', 'task_attachments'];
+        $tables = ['task_clients', 'task_designers', 'task_agencies', 'task_salespersons', 'task_attachments'];
         foreach ($tables as $table) {
             $query = "DELETE FROM $table WHERE task_id=UNHEX(?)";
             $stmt = $this->conn->prepare($query);
@@ -167,6 +173,5 @@ class Task
             return ["error" => $e->getMessage()];
         }
     }
-
 }
 ?>
