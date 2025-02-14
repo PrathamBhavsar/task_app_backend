@@ -54,5 +54,50 @@ class UserController
             echo json_encode(["status" => "error", "message" => "Failed to delete User"]);
         }
     }
+
+    // ✅ Register new user
+    public function register()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['name'], $data['email'], $data['password'], $data['role'])) {
+            http_response_code(400);
+            echo json_encode(["status" => "error", "message" => "All fields are required"]);
+            return;
+        }
+
+        if ($this->userModel->findByEmail($data['email'])) {
+            http_response_code(400);
+            echo json_encode(["status" => "error", "message" => "Email already exists"]);
+            return;
+        }
+
+        if ($this->userModel->registerUser($data)) {
+            http_response_code(201);
+            echo json_encode(["status" => "success", "message" => "User registered successfully"]);
+        } else {
+            http_response_code(500);
+            echo json_encode(["status" => "error", "message" => "Registration failed"]);
+        }
+    }
+
+    // ✅ User login
+    public function login()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['email'], $data['password'])) {
+            http_response_code(400);
+            echo json_encode(["status" => "error", "message" => "Email and password are required"]);
+            return;
+        }
+
+        $user = $this->userModel->findByEmail($data['email']);
+        if (!$user || !password_verify($data['password'], $user['password'])) {
+            http_response_code(401);
+            echo json_encode(["status" => "error", "message" => "Invalid credentials"]);
+            return;
+        }
+
+        $token = bin2hex(random_bytes(32)); // Simple token (replace with JWT in production)
+        echo json_encode(["status" => "success", "message" => "Login successful", "token" => $token]);
+    }
 }
-?>

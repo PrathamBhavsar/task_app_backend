@@ -9,12 +9,11 @@ ini_set('display_errors', 1);
 
 function handleUserRoutes($method)
 {
-    authenticate(); // Check Bearer Token
-
     $userController = new UserController();
 
     switch ($method) {
         case 'GET':
+            authenticate(); // Check Bearer Token
             $userController->getUsers();
             break;
         case 'POST':
@@ -26,13 +25,22 @@ function handleUserRoutes($method)
             }
 
             switch ($data['action']) {
+                case 'register':
+                    $userController->register();
+                    break;
+                case 'login':
+                    $userController->login();
+                    break;
                 case 'create':
+                    authenticate();
                     $userController->createUser();
                     break;
                 case 'update':
+                    authenticate();
                     $userController->updateUser();
                     break;
                 case 'delete':
+                    authenticate();
                     $userController->deleteUser();
                     break;
                 default:
@@ -45,4 +53,3 @@ function handleUserRoutes($method)
             echo json_encode(["status" => "error", "message" => "Method Not Allowed"]);
     }
 }
-?>

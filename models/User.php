@@ -44,5 +44,24 @@ class User
         $stmt->execute([$id]);
         return $stmt->rowCount();
     }
+
+    // ✅ Register new user
+    public function registerUser($data)
+    {
+        $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT);
+        $query = "INSERT INTO users (id, name, email, password, role, profile_bg_color, created_at)
+                  VALUES (UNHEX(?), ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        $stmt = $this->conn->prepare($query);
+        $id = bin2hex(random_bytes(16));
+        return $stmt->execute([$id, $data['name'], $data['email'], $hashedPassword, $data['role'], $data['profile_bg_color']]);
+    }
+
+    // ✅ Find user by email
+    public function findByEmail($email)
+    {
+        $query = "SELECT HEX(id) AS id, name, email, password, role FROM users WHERE email = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
-?>
