@@ -1,99 +1,121 @@
 <?php
-require_once 'models/Task.php';
+require_once __DIR__ . '/../models/Task.php';
+require_once __DIR__ . '/../errorHandler.php';
+require_once __DIR__ . '/../helpers/response.php';
 
-class TaskController {
+class TaskController
+{
     private $taskModel;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->taskModel = new Task();
     }
 
     /**
      * Get all tasks
      */
-    public function getTasks() {
-        $tasks = $this->taskModel->getAllTasks();
-        echo json_encode(["status" => "success", "data" => $tasks]);
+    public function getTasks()
+    {
+        try {
+            $tasks = $this->taskModel->getAllTasks();
+
+            if (!$tasks) {
+                sendError("No tasks found", 404);
+            }
+
+            sendResponse("Tasks retrieved successfully", $tasks);
+        } catch (PDOException $e) {
+            error_log("Database error: " . $e->getMessage());
+            sendError("Database error: Unable to fetch tasks", 500);
+        } catch (Exception $e) {
+            error_log("Unexpected error: " . $e->getMessage());
+            sendError("An unexpected error occurred. Please try again later.", 500);
+        }
     }
 
     /**
      * Create a new task
      */
-    public function createTask() {
+    public function createTask()
+    {
         $data = json_decode(file_get_contents("php://input"), true);
-    
+
         if (!$this->validateTaskData($data)) return;
-    
-        $result = $this->taskModel->createTask($data);
-    
-        if ($result && isset($result['id'])) {
-            http_response_code(201);
-            echo json_encode(["status" => "success", "message" => "Task created", "task_id" => $result['id']]);
-        } else {
-            http_response_code(500);
-            echo json_encode(["status" => "error", "message" => "Failed to create Task"]);
+
+        try {
+            $result = $this->taskModel->createTask($data);
+
+            if ($result && isset($result['id'])) {
+                sendResponse("Task created successfully", ["task_id" => $result['id']], 201);
+            } else {
+                sendError("Failed to create task", 500);
+            }
+        } catch (Exception $e) {
+            sendError("Database error: Unable to create task", 500);
         }
     }
 
     /**
      * Update an existing task
      */
-    public function updateTask() {
+    public function updateTask()
+    {
         $data = json_decode(file_get_contents("php://input"), true);
-    
+
         if (!isset($data['id'])) {
-            http_response_code(400);
-            echo json_encode(["status" => "error", "message" => "Missing task ID"]);
-            return;
+            sendError("Task ID is required", 400);
         }
-    
+
         if (!$this->validateTaskData($data)) return;
-    
-        $updatedRows = $this->taskModel->updateTask($data);
-    
-        if ($updatedRows > 0) {
-            http_response_code(200);
-            echo json_encode(["status" => "success", "message" => "Task updated"]);
-        } else {
-            http_response_code(500);
-            echo json_encode(["status" => "error", "message" => "Failed to update Task"]);
+
+        try {
+            $updatedRows = $this->taskModel->updateTask($data);
+
+            if ($updatedRows > 0) {
+                sendResponse("Task updated successfully");
+            } else {
+                sendError("No changes made or failed to update task", 500);
+            }
+        } catch (Exception $e) {
+            sendError("Database error: Unable to update task", 500);
         }
     }
 
     /**
-     * Delete a task and its related records
+     * Delete a task
      */
-    public function deleteTask() {
+    public function deleteTask()
+    {
         $data = json_decode(file_get_contents("php://input"), true);
-    
+
         if (!isset($data['id'])) {
-            http_response_code(400);
-            echo json_encode(["status" => "error", "message" => "Missing task ID"]);
-            return;
+            sendError("Task ID is required", 400);
         }
-    
-        $deletedRows = $this->taskModel->deleteTask($data['id']);
-    
-        if ($deletedRows > 0) {
-            http_response_code(200);
-            echo json_encode(["status" => "success", "message" => "Task deleted"]);
-        } else {
-            http_response_code(500);
-            echo json_encode(["status" => "error", "message" => "Failed to delete Task"]);
+
+        try {
+            $deletedRows = $this->taskModel->deleteTask($data['id']);
+
+            if ($deletedRows > 0) {
+                sendResponse("Task deleted successfully");
+            } else {
+                sendError("Failed to delete task", 500);
+            }
+        } catch (Exception $e) {
+            sendError("Database error: Unable to delete task", 500);
         }
     }
-    
 
     /**
      * Validate required task data fields
      */
-    private function validateTaskData($data) {
+    private function validateTaskData($data)
+    {
         $requiredFields = ['deal_no', 'name', 'start_date', 'due_date', 'priority', 'created_by', 'status'];
 
         foreach ($requiredFields as $field) {
             if (!isset($data[$field]) || empty($data[$field])) {
-                http_response_code(400);
-                echo json_encode(["status" => "error", "message" => "Missing or empty field: $field"]);
+                sendError("Missing or empty field: $field", 400);
                 return false;
             }
         }

@@ -1,9 +1,7 @@
 <?php
 require_once 'models/Status.php';
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+require_once 'errorHandler.php';
+require_once 'helpers/response.php';
 
 class StatusController
 {
@@ -14,44 +12,101 @@ class StatusController
         $this->statusModel = new Status();
     }
 
+    /**
+     * Get all statuses
+     */
     public function getStatuses()
     {
-        echo json_encode(["status" => "success", "data" => $this->statusModel->getAllStatuses()]);
+        try {
+            $statuses = $this->statusModel->getAllStatuses();
+
+            if (!$statuses) {
+                sendError("No statuses found", 404);
+            }
+
+            sendResponse("Statuses retrieved successfully", $statuses);
+        } catch (PDOException $e) {
+            error_log("Database error: " . $e->getMessage());
+            sendError("Database error: Unable to fetch statuses", 500);
+        } catch (Exception $e) {
+            error_log("Unexpected error: " . $e->getMessage());
+            sendError("An unexpected error occurred. Please try again later.", 500);
+        }
     }
 
+    /**
+     * Create a new status
+     */
     public function createStatus()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        if ($this->statusModel->createStatus($data)) {
-            http_response_code(201);
-            echo json_encode(["status" => "success", "message" => "Status created"]);
-        } else {
-            http_response_code(500);
-            echo json_encode(["status" => "error", "message" => "Failed to create Status"]);
+
+        if (!isset($data['name'])) {
+            sendError("Missing required field: name", 400);
+        }
+
+        try {
+            if ($this->statusModel->createStatus($data)) {
+                sendResponse("Status created successfully", [], 201);
+            } else {
+                sendError("Failed to create status", 500);
+            }
+        } catch (Exception $e) {
+            sendError("Database error: Unable to create status", 500);
         }
     }
 
+    /**
+     * Update an existing status
+     */
     public function updateStatus()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        if ($this->statusModel->updateStatus($data)) {
-            http_response_code(200);
-            echo json_encode(["status" => "success", "message" => "Status updated"]);
-        } else {
-            http_response_code(500);
-            echo json_encode(["status" => "error", "message" => "Failed to update Status"]);
+
+        if (!isset($data['id'], $data['name'])) {
+            sendError("Missing required fields", 400);
+        }
+
+        $status = $this->statusModel->findById($data['id']);
+        if (!$status) {
+            sendError("Status not found", 404);
+        }
+
+        try {
+            if ($this->statusModel->updateStatusById($data['id'], $data)) {
+                sendResponse("Status updated successfully");
+            } else {
+                sendError("No changes made or failed to update status", 500);
+            }
+        } catch (Exception $e) {
+            sendError("Database error: Unable to update status", 500);
         }
     }
 
+    /**
+     * Delete a status
+     */
     public function deleteStatus()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        if ($this->statusModel->deleteStatus($data['id'])) {
-            http_response_code(200);
-            echo json_encode(["status" => "success", "message" => "Status deleted"]);
-        } else {
-            http_response_code(500);
-            echo json_encode(["status" => "error", "message" => "Failed to delete Status"]);
+
+        if (!isset($data['id'])) {
+            sendError("Status ID is required", 400);
+        }
+
+        $status = $this->statusModel->findById($data['id']);
+        if (!$status) {
+            sendError("Status not found", 404);
+        }
+
+        try {
+            if ($this->statusModel->deleteStatusById($data['id'])) {
+                sendResponse("Status deleted successfully");
+            } else {
+                sendError("Failed to delete status", 500);
+            }
+        } catch (Exception $e) {
+            sendError("Database error: Unable to delete status", 500);
         }
     }
 }
