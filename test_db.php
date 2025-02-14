@@ -1,10 +1,12 @@
 <?php
 require_once 'config/database.php';
-$database = new Database();
-$conn = $database->getConnection();
+
+$db = new Database();
+$conn = $db->getConnection();
+
 if ($conn) {
-    echo "Database connected successfully!";
+    echo json_encode(["status" => "success", "message" => "Database connected successfully"]);
 } else {
-    echo "Database connection failed!";
+    echo json_encode(["status" => "error", "message" => "Database connection failed"]);
 }
 ?>

@@ -1,22 +1,24 @@
 <?php
-function authenticate() {
+require_once __DIR__ . '/../errorHandler.php';
+
+/**
+ * Authenticate API Requests
+ */
+function authenticate()
+{
     $headers = getallheaders();
 
     // Check if Authorization header exists
     if (!isset($headers['Authorization'])) {
-        http_response_code(401);
-        echo json_encode(["status" => "error", "message" => "Unauthorized: Missing token"]);
-        exit;
+        sendError("Unauthorized: Missing token", 401);
     }
 
     // Extract and validate the token
     $token = str_replace("Bearer ", "", $headers['Authorization']);
-    $valid_token = "your-secure-api-token"; // Store securely in an env or config file
+    $valid_token = "your-secure-api-token"; // Securely store in an env or config file
 
     if ($token !== $valid_token) {
-        http_response_code(401);
-        echo json_encode(["status" => "error", "message" => "Unauthorized: Invalid token"]);
-        exit;
+        sendError("Unauthorized: Invalid token", 401);
     }
 }
 ?>
