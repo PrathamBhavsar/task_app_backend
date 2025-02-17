@@ -64,7 +64,10 @@ class UserController
         $token = $this->userModel->registerUser($data);
 
         if ($token) {
-            sendResponse("User registered successfully", ["token" => $token], 201);
+            $user = $this->userModel->findByEmail($data['email']);
+            unset($user['password']);
+
+            sendResponse("User registered successfully", $user, 201);
         } else {
             sendError("Registration failed", 500);
         }
@@ -85,9 +88,12 @@ class UserController
             sendError("Invalid credentials", 401);
         }
 
-        // Return the stored token
-        sendResponse("Login successful", ["token" => $user['api_token']]);
+        // Remove sensitive data before sending response
+        unset($user['password']);
+
+        sendResponse("Login successful", $user);
     }
+
 
 
     public function updateUser()
