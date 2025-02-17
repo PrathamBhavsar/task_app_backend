@@ -63,17 +63,17 @@ class PriorityController
     {
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!isset($data['id'], $data['name'])) {
+        if (!isset($data['name'])) {
             sendError("Missing required fields", 400);
         }
 
-        $priority = $this->priorityModel->findById($data['id']);
+        $priority = $this->priorityModel->findByName($data['name']);
         if (!$priority) {
             sendError("Priority not found", 404);
         }
 
         try {
-            if ($this->priorityModel->updatePriorityById($data['id'], $data)) {
+            if ($this->priorityModel->updatePriorityByName($data['name'], $data)) {
                 sendResponse("Priority updated successfully");
             } else {
                 sendError("No changes made or failed to update priority", 500);
@@ -90,17 +90,17 @@ class PriorityController
     {
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!isset($data['id'])) {
-            sendError("Priority ID is required", 400);
+        if (!isset($data['name'])) {
+            sendError("Priority name is required", 400);
         }
 
-        $priority = $this->priorityModel->findById($data['id']);
+        $priority = $this->priorityModel->findByName($data['name']);
         if (!$priority) {
             sendError("Priority not found", 404);
         }
 
         try {
-            if ($this->priorityModel->deletePriorityById($data['id'])) {
+            if ($this->priorityModel->deletePriorityByName($data['name'])) {
                 sendResponse("Priority deleted successfully");
             } else {
                 sendError("Failed to delete priority", 500);

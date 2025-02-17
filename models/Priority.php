@@ -14,7 +14,7 @@ class Priority
     public function getAllPriorities()
     {
         try {
-            $query = "SELECT HEX(id) AS id, name, color, created_at FROM task_priority";
+            $query = "SELECT name, color, created_at FROM task_priority";
             $stmt = $this->conn->prepare($query);
             $stmt->execute();
             $priorities = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -33,13 +33,12 @@ class Priority
                 throw new Exception("Missing required fields");
             }
 
-            $query = "INSERT INTO task_priority (id, name, color, created_at)
-                      VALUES (UNHEX(?), ?, ?, CURRENT_TIMESTAMP)";
+            $query = "INSERT INTO task_priority (name, color, created_at)
+                      VALUES (?, ?, CURRENT_TIMESTAMP)";
             $stmt = $this->conn->prepare($query);
-            $id = bin2hex(random_bytes(16));
 
-            if ($stmt->execute([$id, $data['name'], $data['color']])) {
-                return ["id" => $id];
+            if ($stmt->execute([$data['name'], $data['color']])) {
+                return ["message" => "Priority created successfully"];
             } else {
                 throw new Exception("Failed to create priority");
             }
@@ -49,63 +48,66 @@ class Priority
         }
     }
 
-    public function updatePriorityById($id, $data)
+
+
+    public function updatePriorityByName($name, $data)
     {
         try {
             if (!isset($data['name'], $data['color'])) {
                 throw new Exception("Missing required fields");
             }
 
-            $priority = $this->findById($id);
+            $priority = $this->findByName($name);
             if (!$priority) {
                 throw new Exception("Priority not found");
             }
 
-            $query = "UPDATE task_priority SET name=?, color=? WHERE id=UNHEX(?)";
+            $query = "UPDATE task_priority SET name=?, color=? WHERE name=?";
             $stmt = $this->conn->prepare($query);
 
-            if ($stmt->execute([$data['name'], $data['color'], $id])) {
+            if ($stmt->execute([$data['name'], $data['color'], $name])) {
                 return true;
             } else {
                 throw new Exception("No changes made or failed to update priority");
             }
         } catch (PDOException $e) {
-            error_log("Database Query Error (updatePriorityById): " . $e->getMessage());
+            error_log("Database Query Error (updatePriorityByName): " . $e->getMessage());
             throw new Exception("Database error while updating priority");
         }
     }
 
-    public function deletePriorityById($id)
+
+    public function deletePriorityByName($name)
     {
         try {
-            $priority = $this->findById($id);
+            $priority = $this->findByName($name);
             if (!$priority) {
                 throw new Exception("Priority not found");
             }
 
-            $query = "DELETE FROM task_priority WHERE id=UNHEX(?)";
+            $query = "DELETE FROM task_priority WHERE name=?";
             $stmt = $this->conn->prepare($query);
 
-            if ($stmt->execute([$id])) {
+            if ($stmt->execute([$name])) {
                 return true;
             } else {
                 throw new Exception("Failed to delete priority");
             }
         } catch (PDOException $e) {
-            error_log("Database Query Error (deletePriorityById): " . $e->getMessage());
+            error_log("Database Query Error (deletePriorityByName): " . $e->getMessage());
             throw new Exception("Database error while deleting priority");
         }
     }
 
-    public function findById($id)
+    public function findByName($name)
     {
         try {
-            $query = "SELECT HEX(id) AS id, name, color FROM task_priority WHERE id = UNHEX(?)";
+            $query = "SELECT name, color FROM task_priority WHERE name = ?";
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([$id]);
+            $stmt->execute([$name]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Database Query Error (findById): " . $e->getMessage());
+            error_log("Database Query Error (findByName): " . $e->getMessage());
             throw new Exception("Database error while fetching priority details");
         }
     }
