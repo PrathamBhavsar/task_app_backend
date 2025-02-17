@@ -80,7 +80,7 @@ class User
 
     public function findByEmail($email)
     {
-        $query = "SELECT HEX(id) AS id, name, email, password, role, api_token FROM users WHERE email = ?";
+        $query = "SELECT HEX(id) AS id, name, email, password, role, api_token, profile_bg_color, created_at FROM users WHERE email = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -89,7 +89,7 @@ class User
 
     public function findById($id)
     {
-        $query = "SELECT HEX(id) AS id, name, email, role FROM users WHERE id = UNHEX(?)";
+        $query = "SELECT HEX(id) AS id, name, email, role, profile_bg_color, created_at FROM users WHERE id = UNHEX(?)";
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);

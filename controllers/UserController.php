@@ -53,7 +53,7 @@ class UserController
     {
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!isset($data['name'], $data['email'], $data['password'], $data['role'])) {
+        if (!isset($data['name'], $data['email'], $data['password'], $data['role'],  $data['profile_bg_color'])) {
             sendError("All fields are required", 400);
         }
 
