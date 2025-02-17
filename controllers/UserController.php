@@ -49,10 +49,10 @@ class UserController
             sendError("Database error: Unable to create user", 500);
         }
     }
-
     public function register()
     {
         $data = json_decode(file_get_contents("php://input"), true);
+
         if (!isset($data['name'], $data['email'], $data['password'], $data['role'])) {
             sendError("All fields are required", 400);
         }
@@ -61,28 +61,34 @@ class UserController
             sendError("Email already exists", 400);
         }
 
-        if ($this->userModel->registerUser($data)) {
-            sendResponse("User registered successfully", [], 201);
+        $token = $this->userModel->registerUser($data);
+
+        if ($token) {
+            sendResponse("User registered successfully", ["token" => $token], 201);
         } else {
             sendError("Registration failed", 500);
         }
     }
 
+
     public function login()
     {
         $data = json_decode(file_get_contents("php://input"), true);
+
         if (!isset($data['email'], $data['password'])) {
             sendError("Email and password are required", 400);
         }
 
         $user = $this->userModel->findByEmail($data['email']);
+
         if (!$user || !password_verify($data['password'], $user['password'])) {
             sendError("Invalid credentials", 401);
         }
 
-        $token = bin2hex(random_bytes(32)); // Replace with JWT in production
-        sendResponse("Login successful", ["token" => $token]);
+        // Return the stored token
+        sendResponse("Login successful", ["token" => $user['api_token']]);
     }
+
 
     public function updateUser()
     {
