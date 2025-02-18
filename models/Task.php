@@ -25,7 +25,31 @@ class Task
             throw new Exception("Database error while fetching tasks");
         }
     }
-
+    public function getTasksByUserId($userId)
+    {
+        try {
+            $query = "
+                SELECT DISTINCT HEX(t.id) AS id, t.deal_no, t.name, t.created_at, t.start_date, t.due_date, 
+                                t.priority, HEX(t.created_by) AS created_by, t.remarks, t.status
+                FROM tasks t
+                LEFT JOIN task_salespersons ts ON t.id = ts.task_id
+                LEFT JOIN task_agencies ta ON t.id = ta.task_id
+                WHERE t.created_by = UNHEX(?) 
+                   OR ts.user_id = UNHEX(?)
+                   OR ta.user_id = UNHEX(?)
+            ";
+    
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([$userId, $userId, $userId]);
+            $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            return $tasks ?: [];
+        } catch (PDOException $e) {
+            error_log("Database Query Error (getTasksByUserId): " . $e->getMessage());
+            throw new Exception("Database error while fetching user-specific tasks");
+        }
+    }
+    
     public function getTaskById($id)
     {
         try {

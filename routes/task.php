@@ -34,6 +34,15 @@ function handleTaskRoutes($method)
         }
 
         switch ($data['action']) {
+            case 'specific':
+                if (!isset($data['id'])) {
+                    http_response_code(400);
+                    echo json_encode(["status" => "error", "message" => "User ID is required"]);
+                    break;
+                }
+                $taskController->specific();
+                break;
+            
             case 'create':
                 if (!validateTaskData($data)) break;
                 $taskController->createTask($data);

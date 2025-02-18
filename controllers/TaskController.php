@@ -34,6 +34,36 @@ class TaskController
         }
     }
 
+
+    /**
+     * Get specific tasks
+     */
+    public function specific()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!isset($data['id']) || empty($data['id'])) {
+            sendError("User ID is required", 400);
+        }
+
+        try {
+            $tasks = $this->taskModel->getTasksByUserId($data['id']);
+
+            if (!$tasks) {
+                sendError("No tasks found for the given user ID", 404);
+            }
+
+            sendResponse("Tasks retrieved successfully", $tasks);
+        } catch (PDOException $e) {
+            error_log("Database error: " . $e->getMessage());
+            sendError("Database error: Unable to fetch tasks", 500);
+        } catch (Exception $e) {
+            error_log("Unexpected error: " . $e->getMessage());
+            sendError("An unexpected error occurred. Please try again later.", 500);
+        }
+    }
+
+
     /**
      * Create a new task
      */
@@ -41,7 +71,8 @@ class TaskController
     {
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!$this->validateTaskData($data)) return;
+        if (!$this->validateTaskData($data))
+            return;
 
         try {
             $result = $this->taskModel->createTask($data);
@@ -67,7 +98,8 @@ class TaskController
             sendError("Task ID is required", 400);
         }
 
-        if (!$this->validateTaskData($data)) return;
+        if (!$this->validateTaskData($data))
+            return;
 
         try {
             $updatedRows = $this->taskModel->updateTask($data);
