@@ -10,6 +10,8 @@ require_once 'routes/user.php';
 require_once 'routes/status.php';
 require_once 'routes/priority.php';
 require_once 'routes/task.php';
+require_once 'routes/taskSalesperson.php';
+require_once 'routes/taskAgency.php';
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -34,6 +36,12 @@ try {
             break;
         case '/api/task':
             handleTaskRoutes($requestMethod);
+            break;
+        case '/api/taskSalesperson':
+            handleTaskSalespersonRoutes();
+            break;
+        case '/api/taskAgency':
+            handleTaskAgencyRoutes();
             break;
         default:
             sendError("No Route Found", 404);
