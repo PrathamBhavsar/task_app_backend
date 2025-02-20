@@ -38,18 +38,18 @@ class Task
                    OR ts.user_id = UNHEX(?)
                    OR ta.user_id = UNHEX(?)
             ";
-    
+
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$userId, $userId, $userId]);
             $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
             return $tasks ?: [];
         } catch (PDOException $e) {
             error_log("Database Query Error (getTasksByUserId): " . $e->getMessage());
             throw new Exception("Database error while fetching user-specific tasks");
         }
     }
-    
+
     public function getTaskById($id)
     {
         try {
@@ -98,6 +98,13 @@ class Task
 
     private function insertTaskRelatedRecords($taskId, $data)
     {
+        $columnMap = [
+            'clients' => 'client_id', // Double-check this in your DB
+            'designers' => 'designer_id',
+            'agencies' => 'user_id',
+            'salespersons' => 'user_id'
+        ];
+
         $relations = [
             'clients' => 'task_clients',
             'designers' => 'task_designers',
@@ -107,24 +114,16 @@ class Task
 
         foreach ($relations as $key => $table) {
             if (!empty($data[$key])) {
-                $query = "INSERT INTO $table (task_id, user_id, created_at) VALUES (UNHEX(?), UNHEX(?), CURRENT_TIMESTAMP)";
+                $column = $columnMap[$key] ?? 'user_id';
+                $query = "INSERT INTO $table (task_id, $column, created_at) VALUES (UNHEX(?), UNHEX(?), CURRENT_TIMESTAMP)";
                 $stmt = $this->conn->prepare($query);
                 foreach ($data[$key] as $userId) {
                     $stmt->execute([$taskId, $userId]);
                 }
             }
         }
-
-        if (!empty($data['attachments'])) {
-            $query = "INSERT INTO task_attachments (id, task_id, attachment_url, attachment_name, created_at) 
-                      VALUES (UNHEX(?), UNHEX(?), ?, ?, CURRENT_TIMESTAMP)";
-            $stmt = $this->conn->prepare($query);
-            foreach ($data['attachments'] as $attachment) {
-                $attachmentId = bin2hex(random_bytes(16));
-                $stmt->execute([$attachmentId, $taskId, $attachment['url'], $attachment['name']]);
-            }
-        }
     }
+
 
     public function updateTask($data)
     {
