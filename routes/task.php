@@ -1,4 +1,5 @@
 <?php
+
 require_once 'controllers/TaskController.php';
 require_once 'middleware/AuthMiddleware.php';
 
@@ -11,67 +12,62 @@ function handleTaskRoutes($method)
     authenticate(); // Check Bearer Token
 
     $taskController = new TaskController();
-    $data = json_decode(file_get_contents("php://input"), true);
 
-    // Handle GET requests
-    if ($method === 'GET') {
-        $taskController->getTasks();
-        exit;
-    }
+    switch ($method) {
+        case 'GET':
+            $taskController->getTasks();
+            break;
 
-    // Validate JSON input
-    if ($method === 'POST') {
-        if (!$data) {
-            http_response_code(400);
-            echo json_encode(["status" => "error", "message" => "Invalid or missing JSON body"]);
-            exit;
-        }
+        case 'POST':
+            $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!isset($data['action'])) {
-            http_response_code(400);
-            echo json_encode(["status" => "error", "message" => "Missing action"]);
-            exit;
-        }
-
-        switch ($data['action']) {
-            case 'specific':
-                if (!isset($data['id'])) {
-                    http_response_code(400);
-                    echo json_encode(["status" => "error", "message" => "User ID is required"]);
-                    break;
-                }
-                $taskController->specific();
-                break;
-            
-            case 'create':
-                if (!validateTaskData($data)) break;
-                $taskController->createTask($data);
-                break;
-
-            case 'update':
-                if (!isset($data['id']) || !validateTaskData($data)) break;
-                $taskController->updateTask($data);
-                break;
-
-            case 'delete':
-                if (!isset($data['id'])) {
-                    http_response_code(400);
-                    echo json_encode(["status" => "error", "message" => "Missing task ID"]);
-                    break;
-                }
-                $taskController->deleteTask($data['id']);
-                break;
-
-            default:
+            if (!isset($data['action'])) {
                 http_response_code(400);
-                echo json_encode(["status" => "error", "message" => "Invalid action"]);
-        }
-        exit;
-    }
+                echo json_encode(["status" => "error", "message" => "Missing action"]);
+                exit;
+            }
 
-    // Handle unsupported methods
-    http_response_code(405);
-    echo json_encode(["status" => "error", "message" => "Method Not Allowed"]);
+            switch ($data['action']) {
+                case 'specific':
+                    if (!isset($data['id'])) {
+                        http_response_code(400);
+                        echo json_encode(["status" => "error", "message" => "User ID is required"]);
+                        exit;
+                    }
+                    $taskController->getSpecificTasks($data['id']);
+                    break;
+
+                case 'create':
+                    if (!validateTaskData($data))
+                        exit;
+                    $taskController->createTask($data);
+                    break;
+
+                case 'update':
+                    if (!isset($data['id']) || !validateTaskData($data))
+                        exit;
+                    $taskController->updateTask($data);
+                    break;
+
+                case 'delete':
+                    if (!isset($data['id'])) {
+                        http_response_code(400);
+                        echo json_encode(["status" => "error", "message" => "Missing task ID"]);
+                        exit;
+                    }
+                    $taskController->deleteTask($data['id']);
+                    break;
+
+                default:
+                    http_response_code(400);
+                    echo json_encode(["status" => "error", "message" => "Invalid action"]);
+            }
+            break;
+
+        default:
+            http_response_code(405);
+            echo json_encode(["status" => "error", "message" => "Method Not Allowed"]);
+    }
 }
 
 /**

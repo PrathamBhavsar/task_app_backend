@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../models/Task.php';
-require_once __DIR__ . '/../errorHandler.php';
 require_once __DIR__ . '/../helpers/response.php';
 
 class TaskController
@@ -12,8 +11,9 @@ class TaskController
         $this->taskModel = new Task();
     }
 
+
     /**
-     * Get all tasks
+     * Get all Tasks
      */
     public function getTasks()
     {
@@ -36,21 +36,15 @@ class TaskController
 
 
     /**
-     * Get specific tasks
+     * Get tasks where salesperson_id or agency_id matches the given ID
      */
-    public function specific()
+    public function getSpecificTasks($id)
     {
-        $data = json_decode(file_get_contents("php://input"), true);
-
-        if (!isset($data['id']) || empty($data['id'])) {
-            sendError("User ID is required", 400);
-        }
-
         try {
-            $tasks = $this->taskModel->getTasksByUserId($data['id']);
+            $tasks = $this->taskModel->getTasksBySalespersonOrAgency($id);
 
             if (!$tasks) {
-                sendError("No tasks found for the given user ID", 404);
+                sendError("No tasks found for the given ID", 404);
             }
 
             sendResponse("Tasks retrieved successfully", $tasks);
@@ -63,16 +57,14 @@ class TaskController
         }
     }
 
-
     /**
      * Create a new task
      */
-    public function createTask()
+    public function createTask($data)
     {
-        $data = json_decode(file_get_contents("php://input"), true);
-
-        if (!$this->validateTaskData($data))
+        if (!$this->validateTaskData($data)) {
             return;
+        }
 
         try {
             $result = $this->taskModel->createTask($data);
@@ -90,16 +82,16 @@ class TaskController
     /**
      * Update an existing task
      */
-    public function updateTask()
+    public function updateTask($data)
     {
-        $data = json_decode(file_get_contents("php://input"), true);
-
         if (!isset($data['id'])) {
             sendError("Task ID is required", 400);
+            return;
         }
 
-        if (!$this->validateTaskData($data))
+        if (!$this->validateTaskData($data)) {
             return;
+        }
 
         try {
             $updatedRows = $this->taskModel->updateTask($data);
@@ -117,21 +109,15 @@ class TaskController
     /**
      * Delete a task
      */
-    public function deleteTask()
+    public function deleteTask($id)
     {
-        $data = json_decode(file_get_contents("php://input"), true);
-
-        if (!isset($data['id'])) {
-            sendError("Task ID is required", 400);
-        }
-
         try {
-            $deletedRows = $this->taskModel->deleteTask($data['id']);
+            $deletedRows = $this->taskModel->deleteTask($id);
 
             if ($deletedRows > 0) {
                 sendResponse("Task deleted successfully");
             } else {
-                sendError("Failed to delete task", 500);
+                sendError("Failed to delete task or task not found", 500);
             }
         } catch (Exception $e) {
             sendError("Database error: Unable to delete task", 500);

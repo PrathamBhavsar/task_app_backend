@@ -11,10 +11,21 @@ class Task
         $this->conn = $database->getConnection();
     }
 
+    /**
+     * Get all tasks from the database
+     */
     public function getAllTasks()
     {
         try {
-            $query = "SELECT HEX(id) AS id, deal_no, name, created_at, start_date, due_date, priority, HEX(created_by) AS created_by, remarks, status FROM tasks";
+            $query = "
+                SELECT HEX(id) AS id, deal_no, name, created_at, start_date, due_date, priority, 
+                       HEX(created_by) AS created_by, HEX(salesperson_id) AS salesperson_id, 
+                       HEX(agency_id) AS agency_id, HEX(client_id) AS client_id, 
+                       HEX(designer_id) AS designer_id, remarks, status 
+                FROM tasks
+                ORDER BY created_at DESC
+            ";
+
             $stmt = $this->conn->prepare($query);
             $stmt->execute();
             $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -25,51 +36,44 @@ class Task
             throw new Exception("Database error while fetching tasks");
         }
     }
-    public function getTasksByUserId($userId)
+
+    /**
+     * Get tasks where salesperson_id or agency_id matches the given ID
+     */
+    public function getTasksBySalespersonOrAgency($id)
     {
         try {
             $query = "
-                SELECT DISTINCT HEX(t.id) AS id, t.deal_no, t.name, t.created_at, t.start_date, t.due_date, 
-                                t.priority, HEX(t.created_by) AS created_by, t.remarks, t.status
-                FROM tasks t
-                LEFT JOIN task_salespersons ts ON t.id = ts.task_id
-                LEFT JOIN task_agencies ta ON t.id = ta.task_id
-                WHERE t.created_by = UNHEX(?) 
-                   OR ts.user_id = UNHEX(?)
-                   OR ta.user_id = UNHEX(?)
+                SELECT HEX(id) AS id, deal_no, name, created_at, start_date, due_date, priority, 
+                       HEX(created_by) AS created_by, HEX(salesperson_id) AS salesperson_id, 
+                       HEX(agency_id) AS agency_id, HEX(client_id) AS client_id, 
+                       HEX(designer_id) AS designer_id, remarks, status 
+                FROM tasks
+                WHERE salesperson_id = UNHEX(?) OR agency_id = UNHEX(?)
             ";
 
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([$userId, $userId, $userId]);
+            $stmt->execute([$id, $id]);
             $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             return $tasks ?: [];
         } catch (PDOException $e) {
-            error_log("Database Query Error (getTasksByUserId): " . $e->getMessage());
-            throw new Exception("Database error while fetching user-specific tasks");
+            error_log("Database Query Error (getTasksBySalespersonOrAgency): " . $e->getMessage());
+            throw new Exception("Database error while fetching specific tasks");
         }
     }
 
-    public function getTaskById($id)
-    {
-        try {
-            $query = "SELECT HEX(id) AS id, deal_no, name, created_at, start_date, due_date, priority, HEX(created_by) AS created_by, remarks, status FROM tasks WHERE id = UNHEX(?)";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([$id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Database Query Error (getTaskById): " . $e->getMessage());
-            throw new Exception("Database error while fetching task details");
-        }
-    }
-
+    /**
+     * Create a new task
+     */
     public function createTask($data)
     {
         try {
-            $this->conn->beginTransaction();
+            $query = "INSERT INTO tasks (id, deal_no, name, created_at, start_date, due_date, priority, created_by, 
+                                         salesperson_id, agency_id, client_id, designer_id, remarks, status)
+                      VALUES (UNHEX(?), ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, UNHEX(?), 
+                              UNHEX(?), UNHEX(?), UNHEX(?), UNHEX(?), ?, ?)";
 
-            $query = "INSERT INTO tasks (id, deal_no, name, created_at, start_date, due_date, priority, created_by, remarks, status)
-                      VALUES (UNHEX(?), ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, UNHEX(?), ?, ?)";
             $stmt = $this->conn->prepare($query);
             $taskId = bin2hex(random_bytes(16));
 
@@ -81,56 +85,33 @@ class Task
                 $data['due_date'],
                 $data['priority'],
                 $data['created_by'],
+                $data['salesperson_id'] ?? null,
+                $data['agency_id'] ?? null,
+                $data['client_id'] ?? null,
+                $data['designer_id'] ?? null,
                 $data['remarks'] ?? '',
                 $data['status']
             ]);
 
-            $this->insertTaskRelatedRecords($taskId, $data);
-            $this->conn->commit();
-
             return ["id" => $taskId];
         } catch (Exception $e) {
-            $this->conn->rollBack();
             error_log("Database Transaction Error (createTask): " . $e->getMessage());
             throw new Exception("Database error while creating task");
         }
     }
 
-    private function insertTaskRelatedRecords($taskId, $data)
-    {
-        $columnMap = [
-            'clients' => 'client_id', // Double-check this in your DB
-            'designers' => 'designer_id',
-            'agencies' => 'user_id',
-            'salespersons' => 'user_id'
-        ];
-
-        $relations = [
-            'clients' => 'task_clients',
-            'designers' => 'task_designers',
-            'agencies' => 'task_agencies',
-            'salespersons' => 'task_salespersons'
-        ];
-
-        foreach ($relations as $key => $table) {
-            if (!empty($data[$key])) {
-                $column = $columnMap[$key] ?? 'user_id';
-                $query = "INSERT INTO $table (task_id, $column, created_at) VALUES (UNHEX(?), UNHEX(?), CURRENT_TIMESTAMP)";
-                $stmt = $this->conn->prepare($query);
-                foreach ($data[$key] as $userId) {
-                    $stmt->execute([$taskId, $userId]);
-                }
-            }
-        }
-    }
-
-
+    /**
+     * Update an existing task
+     */
     public function updateTask($data)
     {
         try {
-            $this->conn->beginTransaction();
+            $query = "UPDATE tasks 
+                      SET deal_no=?, name=?, start_date=?, due_date=?, priority=?, created_by=UNHEX(?), 
+                          salesperson_id=UNHEX(?), agency_id=UNHEX(?), client_id=UNHEX(?), designer_id=UNHEX(?), 
+                          remarks=?, status=? 
+                      WHERE id=UNHEX(?)";
 
-            $query = "UPDATE tasks SET deal_no=?, name=?, start_date=?, due_date=?, priority=?, created_by=UNHEX(?), remarks=?, status=? WHERE id=UNHEX(?)";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([
                 $data['deal_no'],
@@ -139,45 +120,33 @@ class Task
                 $data['due_date'],
                 $data['priority'],
                 $data['created_by'],
+                $data['salesperson_id'] ?? null,
+                $data['agency_id'] ?? null,
+                $data['client_id'] ?? null,
+                $data['designer_id'] ?? null,
                 $data['remarks'] ?? '',
                 $data['status'],
                 $data['id']
             ]);
 
-            $this->deleteTaskRelatedRecords($data['id']);
-            $this->insertTaskRelatedRecords($data['id'], $data);
-
-            $this->conn->commit();
             return $stmt->rowCount();
         } catch (Exception $e) {
-            $this->conn->rollBack();
             error_log("Database Transaction Error (updateTask): " . $e->getMessage());
             throw new Exception("Database error while updating task");
         }
     }
 
-    private function deleteTaskRelatedRecords($taskId)
-    {
-        $tables = ['task_clients', 'task_designers', 'task_agencies', 'task_salespersons', 'task_attachments'];
-        foreach ($tables as $table) {
-            $query = "DELETE FROM $table WHERE task_id=UNHEX(?)";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([$taskId]);
-        }
-    }
-
+    /**
+     * Delete a task
+     */
     public function deleteTask($id)
     {
         try {
-            $this->conn->beginTransaction();
-            $this->deleteTaskRelatedRecords($id);
             $query = "DELETE FROM tasks WHERE id=UNHEX(?)";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$id]);
-            $this->conn->commit();
             return $stmt->rowCount();
         } catch (Exception $e) {
-            $this->conn->rollBack();
             error_log("Database Transaction Error (deleteTask): " . $e->getMessage());
             throw new Exception("Database error while deleting task");
         }
