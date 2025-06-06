@@ -1,55 +1,38 @@
 <?php
+require_once __DIR__ . '/../controllers/UserController.php';
+require_once __DIR__ . '/../config/database.php';
 
-require_once 'controllers/UserController.php';
-require_once 'middleware/AuthMiddleware.php';
+function handleUserRoutes($method) {
+    $db = (new Database())->getConnection();
+    $controller = new UserController($db);
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+    $id = $_GET['id'] ?? null;
+    $path = $_SERVER['REQUEST_URI'];
 
-function handleUserRoutes($method)
-{
-    $userController = new UserController();
+    if (strpos($path, '/api/user/register') !== false && $method === 'POST') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        $controller->register($data);
+        return;
+    }
+
+    if (strpos($path, '/api/user/login') !== false && $method === 'POST') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        $controller->login($data);
+        return;
+    }
 
     switch ($method) {
         case 'GET':
-            authenticate(); // Check Bearer Token
-            $userController->getUsers();
+            $id ? $controller->show($id) : $controller->index();
             break;
         case 'POST':
             $data = json_decode(file_get_contents("php://input"), true);
-            if (!isset($data['action'])) {
-                http_response_code(400);
-                echo json_encode(["status" => "error", "message" => "Missing action"]);
-                exit;
-            }
-
-            switch ($data['action']) {
-                case 'register':
-                    $userController->register();
-                    break;
-                case 'login':
-                    $userController->login();
-                    break;
-                case 'create':
-                    authenticate();
-                    $userController->createUser();
-                    break;
-                case 'update':
-                    authenticate();
-                    $userController->updateUser();
-                    break;
-                case 'delete':
-                    authenticate();
-                    $userController->deleteUser();
-                    break;
-                default:
-                    http_response_code(400);
-                    echo json_encode(["status" => "error", "message" => "Invalid action"]);
-            }
+            $controller->store($data);
             break;
         default:
-            http_response_code(405);
-            echo json_encode(["status" => "error", "message" => "Method Not Allowed"]);
+            sendError("Method not allowed", 405);
     }
 }
+
+
+?>

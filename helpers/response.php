@@ -1,15 +1,17 @@
 <?php
-/**
- * Send a formatted JSON success response
- */
-function sendResponse($message, $data = [], $code = 200)
-{
+function sendJson($data, $statusCode = 200) {
+    http_response_code($statusCode);
+    echo json_encode(["data" => $data]);
+    exit;
+}
+
+function sendError($message, $code = 400) {
     http_response_code($code);
     echo json_encode([
-        "status" => "success",
-        "code" => $code,
-        "message" => $message,
-        "data" => $data
+        "error" => [
+            "code" => $code,
+            "message" => $message
+        ]
     ]);
     exit;
 }
