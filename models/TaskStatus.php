@@ -2,6 +2,7 @@
 class TaskStatus {
     private $conn;
     private $table = 'task_statuses';
+    private $id = 'status_id';
 
     public function __construct($db) {
         $this->conn = $db;
@@ -14,14 +15,14 @@ class TaskStatus {
     }
 
     public function getById($id) {
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE status_id = :id");
+        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE {$this->id} = :id");
         $stmt->bindParam(':id', $id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
 public function create($data) {
-    $query = "INSERT INTO task_statuses (name, color, slug) VALUES (:name, :color, :slug)";
+    $query = "INSERT INTO {$this->table} (name, color, slug) VALUES (:name, :color, :slug)";
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':name', $data['name']);
     $stmt->bindParam(':color', $data['color']);
@@ -38,7 +39,7 @@ public function create($data) {
     public function update($id, $data) {
     $query = "UPDATE {$this->table} 
               SET name = :name, color = :color, slug = :slug 
-              WHERE status_id = :id";
+              WHERE {$this->id} = :id";
 
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':name', $data['name']);
@@ -54,7 +55,7 @@ public function create($data) {
 }
 
 public function delete($id) {
-    $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE status_id = :id");
+    $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE {$this->id} = :id");
     $stmt->bindParam(':id', $id);
     return $stmt->execute();
 }

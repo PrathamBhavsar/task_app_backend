@@ -2,6 +2,7 @@
 class User {
     private $conn;
     private $table = 'users';
+    private $id = 'user_id';
 
     public function __construct($db) {
         $this->conn = $db;
@@ -67,7 +68,7 @@ public function register($data) {
     }
 
     public function getById($id) {
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE user_id = :id");
+        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE {$this->id} = :id");
         $stmt->bindParam(':id', $id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -83,7 +84,7 @@ public function register($data) {
 public function update($id, $data) {
     $query = "UPDATE {$this->table} 
               SET name = :name, email = :email, contact_no = :contact_no, user_type = :user_type, profile_bg_color = :profile_bg_color 
-              WHERE user_id = :id";
+              WHERE {$this->id} = :id";
 
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':name', $data['name']);
@@ -102,7 +103,7 @@ public function update($id, $data) {
 
 
 public function delete($id) {
-    $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE user_id = :id");
+    $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE {$this->id} = :id");
     $stmt->bindParam(':id', $id);
     return $stmt->execute();
 }

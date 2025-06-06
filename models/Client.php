@@ -1,8 +1,8 @@
 <?php
-class TaskPriority {
+class Client {
     private $conn;
-    private $table = 'task_priorities';
-    private $id = 'priority_id';
+    private $table = 'clients';
+    private $id = 'client_id';
 
     public function __construct($db) {
         $this->conn = $db;
@@ -22,10 +22,12 @@ class TaskPriority {
     }
 
 public function create($data) {
-    $query = "INSERT INTO {$this->table} (name, color) VALUES (:name, :color)";
+    $query = "INSERT INTO {$this->table} (name, contact_no, email, address) VALUES (:name, :contact_no, :email, :address)";
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':name', $data['name']);
-    $stmt->bindParam(':color', $data['color']);
+    $stmt->bindParam(':contact_no', $data['contact_no']);
+    $stmt->bindParam(':email', $data['email']);
+    $stmt->bindParam(':address', $data['address']);
 
     if ($stmt->execute()) {
         $id = $this->conn->lastInsertId();
@@ -37,12 +39,14 @@ public function create($data) {
 
     public function update($id, $data) {
     $query = "UPDATE {$this->table} 
-              SET name = :name, color = :color 
+              SET name = :name, contact_no = :contact_no, email = :email, address = :address
               WHERE {$this->id} = :id";
 
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':name', $data['name']);
-    $stmt->bindParam(':color', $data['color']);
+    $stmt->bindParam(':contact_no', $data['contact_no']);
+    $stmt->bindParam(':email', $data['email']);
+    $stmt->bindParam(':address', $data['address']);
     $stmt->bindParam(':id', $id);
 
     if ($stmt->execute()) {

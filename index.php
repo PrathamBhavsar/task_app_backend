@@ -6,6 +6,7 @@ require_once 'helpers/response.php';
 require_once 'routes/user.php';
 require_once 'routes/taskPriority.php';
 require_once 'routes/taskStatus.php';
+require_once 'routes/client.php';
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -14,6 +15,7 @@ $routes = [
     'user' => 'handleUserRoutes',
     'priority' => 'handleTaskPriorityRoutes',
     'status' => 'handleTaskStatusRoutes',
+    'client' => 'handleClientRoutes',
 ];
 
 
@@ -21,7 +23,7 @@ $segments = explode('/', trim($requestUri, '/'));
 $resource = $segments[1] ?? null;
 
 if ($segments[0] !== 'api' || !isset($routes[$resource])) {
-    sendError("Route not found", 404);
+    sendError("Route {$segments[0]} not found", 404);
 }
 
 $handler = $routes[$resource];
