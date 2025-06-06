@@ -5,37 +5,24 @@ require_once 'errorHandler.php';
 require_once 'helpers/response.php';
 require_once 'routes/user.php';
 require_once 'routes/taskPriority.php';
+require_once 'routes/taskStatus.php';
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-switch ($requestUri) {
-    case '/api/user':
-        handleUserRoutes($requestMethod);
-        break;
-    case '/api/user/register':
-        handleUserRoutes($requestMethod);
-        break;
-    case '/api/user/login':
-        handleUserRoutes($requestMethod);
-        break;
-    case '/api/user/update':
-        handleUserRoutes($requestMethod);
-        break;
-    case '/api/user/delete':
-        handleUserRoutes($requestMethod);
-        break;
-    case '/api/priority':
-        handleTaskPriorityRoutes($requestMethod);
-        break;
-    case '/api/priority/update':
-        handleTaskPriorityRoutes($requestMethod);
-        break;
-    case '/api/priority/delete':
-        handleTaskPriorityRoutes($requestMethod);
-        break;
+$routes = [
+    'user' => 'handleUserRoutes',
+    'priority' => 'handleTaskPriorityRoutes',
+    'status' => 'handleTaskStatusRoutes',
+];
 
-    default:
-        sendError("Route not found", 404);
+
+$segments = explode('/', trim($requestUri, '/'));
+$resource = $segments[1] ?? null;
+
+if ($segments[0] !== 'api' || !isset($routes[$resource])) {
+    sendError("Route not found", 404);
 }
-?>
+
+$handler = $routes[$resource];
+$handler($requestMethod);

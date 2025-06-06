@@ -1,7 +1,7 @@
 <?php
-class TaskPriority {
+class TaskStatus {
     private $conn;
-    private $table = 'task_priorities';
+    private $table = 'task_statuses';
 
     public function __construct($db) {
         $this->conn = $db;
@@ -14,17 +14,18 @@ class TaskPriority {
     }
 
     public function getById($id) {
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE priority_id = :id");
+        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE status_id = :id");
         $stmt->bindParam(':id', $id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
 public function create($data) {
-    $query = "INSERT INTO task_priorities (name, color) VALUES (:name, :color)";
+    $query = "INSERT INTO task_statuses (name, color, slug) VALUES (:name, :color, :slug)";
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':name', $data['name']);
     $stmt->bindParam(':color', $data['color']);
+    $stmt->bindParam(':slug', $data['slug']);
 
     if ($stmt->execute()) {
         $id = $this->conn->lastInsertId();
@@ -36,12 +37,13 @@ public function create($data) {
 
     public function update($id, $data) {
     $query = "UPDATE {$this->table} 
-              SET name = :name, color = :color 
-              WHERE priority_id = :id";
+              SET name = :name, color = :color, slug = :slug 
+              WHERE status_id = :id";
 
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':name', $data['name']);
     $stmt->bindParam(':color', $data['color']);
+    $stmt->bindParam(':slug', $data['slug']);
     $stmt->bindParam(':id', $id);
 
     if ($stmt->execute()) {
@@ -52,7 +54,7 @@ public function create($data) {
 }
 
 public function delete($id) {
-    $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE priority_id = :id");
+    $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE status_id = :id");
     $stmt->bindParam(':id', $id);
     return $stmt->execute();
 }
