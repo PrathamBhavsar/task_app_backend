@@ -31,8 +31,6 @@ public function login($email, $password) {
     return false;
 }
 
-
-
 public function register($data) {
     // Check if email already exists
     if ($this->emailExists($data['email'])) {
@@ -81,5 +79,33 @@ public function register($data) {
         $stmt->bindParam(':email', $data['email']);
         return $stmt->execute();
     }
+
+public function update($id, $data) {
+    $query = "UPDATE {$this->table} 
+              SET name = :name, email = :email, contact_no = :contact_no, user_type = :user_type, profile_bg_color = :profile_bg_color 
+              WHERE user_id = :id";
+
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':name', $data['name']);
+    $stmt->bindParam(':email', $data['email']);
+    $stmt->bindParam(':contact_no', $data['contact_no']);
+    $stmt->bindParam(':user_type', $data['user_type']);
+    $stmt->bindParam(':profile_bg_color', $data['profile_bg_color']);
+    $stmt->bindParam(':id', $id);
+
+    if ($stmt->execute()) {
+        return $this->getById($id);
+    }
+
+    return false;
+}
+
+
+public function delete($id) {
+    $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE user_id = :id");
+    $stmt->bindParam(':id', $id);
+    return $stmt->execute();
+}
+
 }
 ?>

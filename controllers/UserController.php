@@ -56,5 +56,39 @@ public function register($data) {
         $success = $this->userModel->create($data);
         $success ? sendJson(["message" => "User created"]): sendError("User creation failed", 400);
     }
+
+public function update($id, $data) {
+    if (empty($data['name']) || empty($data['email'])) {
+        sendError("Name and email are required", 400);
+    }
+
+    $updatedUser = $this->userModel->update($id, $data);
+
+    if ($updatedUser) {
+        sendJson(["user" => $updatedUser]);
+    } else {
+        sendError("Update failed", 400);
+    }
+}
+
+public function delete($id) {
+    $user = $this->userModel->getById($id);
+
+    if (!$user) {
+        sendError("User not found", 404);
+    }
+
+    $success = $this->userModel->delete($id);
+
+    if ($success) {
+        sendJson(["user" => $user]);
+    } else {
+        sendError("Delete failed", 400);
+    }
+}
+
+
+
+
 }
 ?>
