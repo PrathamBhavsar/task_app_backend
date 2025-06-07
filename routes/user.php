@@ -27,12 +27,12 @@ function handleUserRoutes($method) {
         break;
     case 'POST':
         $data = json_decode(file_get_contents("php://input"), true);
-        $controller->store($data);
+        $controller->createUser($data);
         break;
     case 'PUT':
         if (!$id) sendError("User ID required for update", 400);
         $data = json_decode(file_get_contents("php://input"), true);
-        $controller->update($id, $data);
+        $controller->updateUser($id, $data);
         break;
     case 'DELETE':
         if (!$id) sendError("User ID required for deletion", 400);

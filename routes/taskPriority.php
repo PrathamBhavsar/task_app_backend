@@ -14,12 +14,12 @@ function handleTaskPriorityRoutes($method) {
             break;
         case 'POST':
             $data = json_decode(file_get_contents("php://input"), true);
-            $controller->store($data);
+            $controller->createTaskPriority($data);
             break;
         case 'PUT':
             if (!$id) sendError("Priority ID required for update", 400);
             $data = json_decode(file_get_contents("php://input"), true);
-            $controller->update($id, $data);
+            $controller->updateTaskPriority($id, $data);
             break;
         case 'DELETE':
             if (!$id) sendError("Priority ID required for deletion", 400);

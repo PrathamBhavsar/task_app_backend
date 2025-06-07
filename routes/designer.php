@@ -16,14 +16,14 @@ function handleDesignerRoutes($method)
 
         case 'POST':
             $data = json_decode(file_get_contents("php://input"), true);
-            $controller->store($data);
+            $controller->createDesigner($data);
             break;
 
         case 'PUT':
             if (!$id)
                 sendError("Designer ID required for update", 400);
             $data = json_decode(file_get_contents("php://input"), true);
-            $controller->update($id, $data);
+            $controller->updateDesigner($id, $data);
             break;
 
         case 'DELETE':

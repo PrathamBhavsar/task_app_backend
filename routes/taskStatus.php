@@ -14,12 +14,12 @@ function handleTaskStatusRoutes($method) {
             break;
         case 'POST':
             $data = json_decode(file_get_contents("php://input"), true);
-            $controller->store($data);
+            $controller->createTaskStatus($data);
             break;
         case 'PUT':
             if (!$id) sendError("Status ID required for update", 400);
             $data = json_decode(file_get_contents("php://input"), true);
-            $controller->update($id, $data);
+            $controller->updateTaskStatus($id, $data);
             break;
         case 'DELETE':
             if (!$id) sendError("Status ID required for deletion", 400);
