@@ -8,6 +8,7 @@ require_once 'routes/taskPriority.php';
 require_once 'routes/taskStatus.php';
 require_once 'routes/client.php';
 require_once 'routes/designer.php';
+require_once 'routes/task.php';
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -18,6 +19,7 @@ $routes = [
     'status' => 'handleTaskStatusRoutes',
     'client' => 'handleClientRoutes',
     'designer' => 'handleDesignerRoutes',
+    'task' => 'handleTaskRoutes',
 ];
 
 
