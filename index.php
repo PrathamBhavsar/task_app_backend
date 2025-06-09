@@ -10,6 +10,7 @@ require_once 'routes/client.php';
 require_once 'routes/designer.php';
 require_once 'routes/task.php';
 require_once 'routes/measurement.php';
+require_once 'routes/service.php';
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -22,6 +23,7 @@ $routes = [
     'designer' => 'handleDesignerRoutes',
     'task' => 'handleTaskRoutes',
     'measurement' => 'handleMeasurementRoutes',
+    'service' => 'handleServiceRoutes',
 ];
 
 
