@@ -8,11 +8,22 @@ class Task {
         $this->conn = $db;
     }
 
-    public function getAll() {
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->table}");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+public function getAll() {
+    $stmt = $this->conn->prepare("SELECT {$this->id} FROM {$this->table}");
+    $stmt->execute();
+    $taskIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $detailedTasks = [];
+    foreach ($taskIds as $taskId) {
+        $detailed = $this->getDetailedById($taskId);
+        if ($detailed) {
+            $detailedTasks[] = $detailed;
+        }
     }
+
+    return $detailedTasks;
+}
+
 
     public function getById($id) {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE {$this->id} = :id");
@@ -165,11 +176,12 @@ class Task {
             }
         }
 
-        return $this->getById($taskId);
+        return $this->getDetailedById($taskId);
     }
 
     return false;
 }
+
 
 
     public function update($id, $data) {
@@ -200,11 +212,9 @@ class Task {
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
-        // Delete existing task_users
         $this->conn->prepare("DELETE FROM task_users WHERE task_id = :task_id")
-                  ->execute([':task_id' => $id]);
+                   ->execute([':task_id' => $id]);
 
-        // Insert new assigned users
         if (!empty($data['assigned_users']) && is_array($data['assigned_users'])) {
             foreach ($data['assigned_users'] as $userId) {
                 $insertUser = $this->conn->prepare("INSERT INTO task_users (task_id, user_id) VALUES (:task_id, :user_id)");
@@ -214,11 +224,12 @@ class Task {
             }
         }
 
-        return $this->getById($id);
+        return $this->getDetailedById($id);
     }
 
     return false;
 }
+
 
 
     public function delete($id) {
