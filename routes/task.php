@@ -22,10 +22,19 @@ function handleTaskRoutes($method) {
             $data = json_decode(file_get_contents("php://input"), true);
             $controller->createTask($data);
             break;
-        case 'PUT':
-            if (!$id) sendError("Task ID required for update", 400);
+       case 'PUT':
             $data = json_decode(file_get_contents("php://input"), true);
-            $controller->updateTask($id, $data);
+            
+            if (!$id) sendError("Task ID required for update", 400);
+
+            if (isset($_GET['status'])) {
+                if (!isset($data['status_id']) || !isset($data['user_id'])) {
+                    sendError("status_id and user_id are required", 400);
+                }
+                $controller->updateStatus($id, $data['status_id'], $data['user_id']);
+            } else {
+                $controller->updateTask($id, $data);
+            }
             break;
         case 'DELETE':
             if (!$id) sendError("Task ID required for deletion", 400);

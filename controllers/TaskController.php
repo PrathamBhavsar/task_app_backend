@@ -19,6 +19,13 @@ class TaskController extends BaseController
         parent::store($data, $requiredFields);
     }
 
+    public function updateStatus($taskId, $statusId, $userId)
+    {
+        $task = $this->model->updateStatus($taskId, $statusId, $userId);
+        sendJson($task);
+    }
+
+
     public function updateTask($id, $data)
     {
         $requiredFields = [

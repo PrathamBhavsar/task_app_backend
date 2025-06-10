@@ -25,6 +25,42 @@ public function getAll() {
 }
 
 
+public function updateStatus($taskId, $statusId, $userId)
+{
+    try {
+        // Begin transaction
+        $this->conn->beginTransaction();
+
+        // 1. Update status_id in tasks table
+        $updateQuery = "UPDATE {$this->table} SET status_id = :status_id WHERE {$this->id} = :task_id";
+        $stmt = $this->conn->prepare($updateQuery);
+        $stmt->execute([
+            ':status_id' => $statusId,
+            ':task_id' => $taskId
+        ]);
+
+        // 2. Insert into task_timelines
+        $timelineQuery = "INSERT INTO task_timelines (user_id, task_id, status_id) VALUES (:user_id, :task_id, :status_id)";
+        $stmt = $this->conn->prepare($timelineQuery);
+        $stmt->execute([
+            ':user_id' => $userId,
+            ':task_id' => $taskId,
+            ':status_id' => $statusId
+        ]);
+
+        // 3. Commit transaction
+        $this->conn->commit();
+
+        // 4. Return detailed task
+        return $this->getDetailedById($taskId);
+    } catch (PDOException $e) {
+        // Rollback if something goes wrong
+        $this->conn->rollBack();
+        throw new Exception("Failed to update task status: " . $e->getMessage());
+    }
+}
+
+
     public function getById($id) {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE {$this->id} = :id");
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -175,7 +211,6 @@ public function getAll() {
         VALUES 
         (:deal_no, :name, :start_date, :due_date, :priority_id, :remarks, :status_id, :created_by, :client_id, :designer_id, :agency_id)";
 
-
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':deal_no', $data['deal_no']);
     $stmt->bindParam(':name', $data['name']);
@@ -192,6 +227,7 @@ public function getAll() {
     if ($stmt->execute()) {
         $taskId = $this->conn->lastInsertId();
 
+        // Insert into task_users
         if (!empty($data['assigned_users']) && is_array($data['assigned_users'])) {
             foreach ($data['assigned_users'] as $userId) {
                 $insertUser = $this->conn->prepare("INSERT INTO task_users (task_id, user_id) VALUES (:task_id, :user_id)");
@@ -201,11 +237,22 @@ public function getAll() {
             }
         }
 
+        // Insert into timeline
+        $timelineInsert = $this->conn->prepare("
+            INSERT INTO timeline (task_id, status_id, user_id)
+            VALUES (:task_id, :status_id, :user_id)
+        ");
+        $timelineInsert->bindParam(':task_id', $taskId, PDO::PARAM_INT);
+        $timelineInsert->bindValue(':status_id', 1, PDO::PARAM_INT); // fixed value
+        $timelineInsert->bindParam(':user_id', $data['created_by'], PDO::PARAM_INT);
+        $timelineInsert->execute();
+
         return $this->getDetailedById($taskId);
     }
 
     return false;
 }
+
 
 
 
