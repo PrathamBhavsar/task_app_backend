@@ -1,16 +1,17 @@
 <?php
 header("Content-Type: application/json");
 
-require_once 'errorHandler.php';
-require_once 'helpers/response.php';
-require_once 'routes/user.php';
-require_once 'routes/taskPriority.php';
-require_once 'routes/taskStatus.php';
-require_once 'routes/client.php';
-require_once 'routes/designer.php';
-require_once 'routes/task.php';
-require_once 'routes/measurement.php';
-require_once 'routes/service.php';
+require_once __DIR__ . '/../errorHandler.php';
+require_once __DIR__ . '/../helpers/response.php';
+require_once __DIR__ . '/../routes/user.php';
+require_once __DIR__ . '/../routes/taskPriority.php';
+require_once __DIR__ . '/../routes/taskStatus.php';
+require_once __DIR__ . '/../routes/client.php';
+require_once __DIR__ . '/../routes/designer.php';
+require_once __DIR__ . '/../routes/task.php';
+require_once __DIR__ . '/../routes/measurement.php';
+require_once __DIR__ . '/../routes/service.php';
+require_once __DIR__ . '/../routes/bill.php';
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -24,6 +25,7 @@ $routes = [
     'task' => 'handleTaskRoutes',
     'measurement' => 'handleMeasurementRoutes',
     'service' => 'handleServiceRoutes',
+    'bill' => 'handleBillRoutes',
 ];
 
 

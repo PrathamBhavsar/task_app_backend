@@ -41,6 +41,8 @@ public function getAll() {
             u.name AS created_by_name,
             u.email AS created_by_email,
             u.user_type AS created_by_role,
+            u.address AS created_by_address,
+            u.profile_bg_color AS created_by_profile_bg_color,
 
             tp.priority_id AS priority_id,
             tp.name AS priority_name,
@@ -62,7 +64,15 @@ public function getAll() {
             d.firm_name AS designer_firm,
             d.contact_no AS designer_contact,
             d.address AS designer_address,
-            d.profile_bg_color AS designer_color
+            d.profile_bg_color AS designer_color,
+
+            agency.user_id AS agency_id,
+            agency.name AS agency_name,
+            agency.email AS agency_email,
+            agency.contact_no AS agency_contact,
+            agency.address AS agency_address,
+            agency.user_type AS agency_user_type,
+            agency.profile_bg_color AS agency_color
 
         FROM tasks t
         LEFT JOIN users u ON t.created_by = u.user_id
@@ -70,6 +80,7 @@ public function getAll() {
         LEFT JOIN task_statuses ts ON t.status_id = ts.status_id
         LEFT JOIN clients c ON t.client_id = c.client_id
         LEFT JOIN designers d ON t.designer_id = d.designer_id
+        LEFT JOIN users agency ON t.agency_id = agency.user_id
         WHERE t.task_id = :id
         LIMIT 1
     ";
@@ -84,7 +95,7 @@ public function getAll() {
     }
 
     $userQuery = "
-        SELECT u.user_id, u.name, u.email, u.contact_no, u.user_type, u.profile_bg_color
+        SELECT u.user_id, u.name, u.email, u.contact_no, u.user_type, u.address, u.profile_bg_color
         FROM task_users tu
         JOIN users u ON tu.user_id = u.user_id
         WHERE tu.task_id = :task_id
@@ -107,7 +118,9 @@ public function getAll() {
             "user_id" => $row['created_by_user_id'],
             "name" => $row['created_by_name'],
             "email" => $row['created_by_email'],
-            "role" => $row['created_by_role']
+            "role" => $row['created_by_role'],
+            "address" => $row['created_by_address'],
+            "profile_bg_color" => $row['created_by_profile_bg_color'],
         ],
 
         "priority" => [
@@ -131,6 +144,16 @@ public function getAll() {
             "address" => $row['client_address']
         ],
 
+        "agency" => [
+            "user_id" => $row['agency_id'],
+            "name" => $row['agency_name'],
+            "email" => $row['agency_email'],
+            "contact_no" => $row['agency_contact'],
+            "address" => $row['agency_address'],
+            "user_type" => $row['agency_user_type'],
+            "profile_bg_color" => $row['agency_color']
+        ],
+
         "designer" => [
             "designer_id" => $row['designer_id'],
             "name" => $row['designer_name'],
@@ -148,9 +171,10 @@ public function getAll() {
 
     public function create($data) {
     $query = "INSERT INTO {$this->table} 
-        (deal_no, name, start_date, due_date, priority_id, remarks, status_id, created_by, client_id, designer_id)
+        (deal_no, name, start_date, due_date, priority_id, remarks, status_id, created_by, client_id, designer_id, agency_id)
         VALUES 
-        (:deal_no, :name, :start_date, :due_date, :priority_id, :remarks, :status_id, :created_by, :client_id, :designer_id)";
+        (:deal_no, :name, :start_date, :due_date, :priority_id, :remarks, :status_id, :created_by, :client_id, :designer_id, :agency_id)";
+
 
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':deal_no', $data['deal_no']);
@@ -162,6 +186,7 @@ public function getAll() {
     $stmt->bindParam(':status_id', $data['status_id']);
     $stmt->bindParam(':created_by', $data['created_by']);
     $stmt->bindParam(':client_id', $data['client_id']);
+    $stmt->bindParam(':agency_id', $data['agency_id']);
     $stmt->bindParam(':designer_id', $data['designer_id']);
 
     if ($stmt->execute()) {
@@ -195,8 +220,10 @@ public function getAll() {
         status_id = :status_id,
         created_by = :created_by,
         client_id = :client_id,
-        designer_id = :designer_id
+        designer_id = :designer_id,
+        agency_id = :agency_id
         WHERE {$this->id} = :id";
+
 
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':deal_no', $data['deal_no']);
@@ -208,6 +235,7 @@ public function getAll() {
     $stmt->bindParam(':status_id', $data['status_id']);
     $stmt->bindParam(':created_by', $data['created_by']);
     $stmt->bindParam(':client_id', $data['client_id']);
+    $stmt->bindParam(':agency_id', $data['agency_id']);
     $stmt->bindParam(':designer_id', $data['designer_id']);
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
