@@ -13,6 +13,7 @@ require_once __DIR__ . '/../routes/measurement.php';
 require_once __DIR__ . '/../routes/service.php';
 require_once __DIR__ . '/../routes/bill.php';
 require_once __DIR__ . '/../routes/timeline.php';
+require_once __DIR__ . '/../routes/message.php';
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -28,6 +29,7 @@ $routes = [
     'service' => 'handleServiceRoutes',
     'bill' => 'handleBillRoutes',
     'timeline' => 'handleTimelineRoutes',
+    'message' => 'handleMessageRoutes',
 ];
 
 

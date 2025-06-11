@@ -28,10 +28,10 @@ public function getAll() {
 public function updateStatus($taskId, $statusId, $userId)
 {
     try {
-        // Begin transaction
+        
         $this->conn->beginTransaction();
 
-        // 1. Update status_id in tasks table
+        
         $updateQuery = "UPDATE {$this->table} SET status_id = :status_id WHERE {$this->id} = :task_id";
         $stmt = $this->conn->prepare($updateQuery);
         $stmt->execute([
@@ -39,7 +39,7 @@ public function updateStatus($taskId, $statusId, $userId)
             ':task_id' => $taskId
         ]);
 
-        // 2. Insert into task_timelines
+        
         $timelineQuery = "INSERT INTO task_timelines (user_id, task_id, status_id) VALUES (:user_id, :task_id, :status_id)";
         $stmt = $this->conn->prepare($timelineQuery);
         $stmt->execute([
@@ -48,13 +48,13 @@ public function updateStatus($taskId, $statusId, $userId)
             ':status_id' => $statusId
         ]);
 
-        // 3. Commit transaction
+        
         $this->conn->commit();
 
-        // 4. Return detailed task
+        
         return $this->getDetailedById($taskId);
     } catch (PDOException $e) {
-        // Rollback if something goes wrong
+        
         $this->conn->rollBack();
         throw new Exception("Failed to update task status: " . $e->getMessage());
     }
