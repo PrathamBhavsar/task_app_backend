@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../controllers/MeasurementController.php';
 require_once __DIR__ . '/../config/database.php';
 
-function handleMeasurementRoutes($method) {
+function handleMeasurementRoutes($method)
+{
     $db = (new Database())->getConnection();
     $controller = new MeasurementController($db);
 
@@ -35,6 +36,3 @@ function handleMeasurementRoutes($method) {
             sendError("Method not allowed", 405);
     }
 }
-
-
-?>

@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../controllers/TimelineController.php';
 require_once __DIR__ . '/../config/database.php';
 
-function handleTimelineRoutes($method) {
+function handleTimelineRoutes($method)
+{
     $db = (new Database())->getConnection();
     $controller = new TimelineController($db);
 
@@ -35,6 +36,3 @@ function handleTimelineRoutes($method) {
             sendError("Method not allowed", 405);
     }
 }
-
-
-?>

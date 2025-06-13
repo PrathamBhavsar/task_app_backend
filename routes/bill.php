@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../controllers/BillController.php';
 require_once __DIR__ . '/../config/database.php';
 
-function handleBillRoutes($method) {
+function handleBillRoutes($method)
+{
     $db = (new Database())->getConnection();
     $controller = new BillController($db);
 
@@ -29,6 +30,3 @@ function handleBillRoutes($method) {
             sendError("Method not allowed", 405);
     }
 }
-
-
-?>

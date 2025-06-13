@@ -1,20 +1,24 @@
 <?php
-class Bill {
+class Bill
+{
     private $conn;
     private $table = 'bills';
     private $id = 'bill_id';
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
-    public function getAll() {
+    public function getAll()
+    {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table}");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getAllByTaskId($taskId) {
+    public function getAllByTaskId($taskId)
+    {
         $query = "
             SELECT b.*
             FROM bills b
@@ -27,7 +31,8 @@ class Bill {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getById($id) {
+    public function getById($id)
+    {
         $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE {$this->id} = :id");
         $stmt->bindParam(':id', $id);
         $stmt->execute();
@@ -35,66 +40,68 @@ class Bill {
     }
 
 
-public function recalculateForTask($taskId) {
-    // 1. Get all task_services for this task_id
-    $query = "SELECT quantity, unit_price FROM task_services WHERE task_id = :task_id";
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
-    $stmt->execute();
-    $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function recalculateForTask($taskId)
+    {
+        // 1. Get all task_services for this task_id
+        $query = "SELECT quantity, unit_price FROM task_services WHERE task_id = :task_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
+        $stmt->execute();
+        $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (!$services || count($services) === 0) {
-        return false; // No services, no bill
+        if (!$services || count($services) === 0) {
+            return false; // No services, no bill
+        }
+
+        // 2. Calculate subtotal
+        $subtotal = 0;
+        foreach ($services as $service) {
+            $subtotal += $service['quantity'] * $service['unit_price'];
+        }
+
+        // 3. Calculate tax (7%)
+        $tax = round($subtotal * 0.07, 2);
+
+        // 4. Calculate total
+        $total = round($subtotal + $tax, 2);
+
+        // 5. Check if a bill already exists for this task
+        $checkQuery = "SELECT bill_id FROM bills WHERE task_id = :task_id";
+        $checkStmt = $this->conn->prepare($checkQuery);
+        $checkStmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
+        $checkStmt->execute();
+        $existingBill = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($existingBill) {
+            // Update existing bill
+            $updateData = [
+                'due_date' => date('Y-m-d', strtotime('+7 days')),
+                'subtotal' => $subtotal,
+                'tax' => $tax,
+                'total' => $total,
+                'additional_notes' => null,
+                'status' => 'Pending',
+                'task_id' => $taskId
+            ];
+            return $this->update($existingBill['bill_id'], $updateData);
+        } else {
+            // Create new bill
+            $insertData = [
+                'due_date' => date('Y-m-d', strtotime('+7 days')),
+                'subtotal' => $subtotal,
+                'tax' => $tax,
+                'total' => $total,
+                'additional_notes' => null,
+                'status' => 'Pending',
+                'task_id' => $taskId
+            ];
+            return $this->create($insertData);
+        }
     }
 
-    // 2. Calculate subtotal
-    $subtotal = 0;
-    foreach ($services as $service) {
-        $subtotal += $service['quantity'] * $service['unit_price'];
-    }
 
-    // 3. Calculate tax (7%)
-    $tax = round($subtotal * 0.07, 2);
-
-    // 4. Calculate total
-    $total = round($subtotal + $tax, 2);
-
-    // 5. Check if a bill already exists for this task
-    $checkQuery = "SELECT bill_id FROM bills WHERE task_id = :task_id";
-    $checkStmt = $this->conn->prepare($checkQuery);
-    $checkStmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
-    $checkStmt->execute();
-    $existingBill = $checkStmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($existingBill) {
-        // Update existing bill
-        $updateData = [
-            'due_date' => date('Y-m-d', strtotime('+7 days')),
-            'subtotal' => $subtotal,
-            'tax' => $tax,
-            'total' => $total,
-            'additional_notes' => null,
-            'status' => 'Pending',
-            'task_id' => $taskId
-        ];
-        return $this->update($existingBill['bill_id'], $updateData);
-    } else {
-        // Create new bill
-        $insertData = [
-            'due_date' => date('Y-m-d', strtotime('+7 days')),
-            'subtotal' => $subtotal,
-            'tax' => $tax,
-            'total' => $total,
-            'additional_notes' => null,
-            'status' => 'Pending',
-            'task_id' => $taskId
-        ];
-        return $this->create($insertData);
-    }
-}
-
-
-    public function create($data) {
+    public function create($data)
+    {
         $query = "INSERT INTO {$this->table} 
             (due_date, subtotal, tax, total, additional_notes, status, task_id) 
             VALUES (:due_date, :subtotal, :tax, :total, :additional_notes, :status, :task_id)";
@@ -118,7 +125,8 @@ public function recalculateForTask($taskId) {
         return false;
     }
 
-    public function update($id, $data) {
+    public function update($id, $data)
+    {
         $query = "UPDATE {$this->table} 
             SET due_date = :due_date,
                 subtotal = :subtotal,
@@ -147,7 +155,8 @@ public function recalculateForTask($taskId) {
         return false;
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         // Unlink the bill from any task that references it
         $unlink = $this->conn->prepare("UPDATE tasks SET bill_id = NULL WHERE bill_id = :bill_id");
         $unlink->bindParam(':bill_id', $id, PDO::PARAM_INT);
@@ -158,4 +167,3 @@ public function recalculateForTask($taskId) {
         return $stmt->execute();
     }
 }
-?>

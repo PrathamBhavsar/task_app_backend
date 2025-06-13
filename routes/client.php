@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../controllers/ClientController.php';
 require_once __DIR__ . '/../config/database.php';
 
-function handleClientRoutes($method) {
+function handleClientRoutes($method)
+{
     $db = (new Database())->getConnection();
     $controller = new ClientController($db);
 
@@ -29,6 +30,3 @@ function handleClientRoutes($method) {
             sendError("Method not allowed", 405);
     }
 }
-
-
-?>

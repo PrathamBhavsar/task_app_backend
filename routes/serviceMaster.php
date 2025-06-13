@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../controllers/ServiceMasterController.php';
 require_once __DIR__ . '/../config/database.php';
 
-function handleServiceMasterRoutes($method) {
+function handleServiceMasterRoutes($method)
+{
     $db = (new Database())->getConnection();
     $controller = new ServiceMasterController($db);
 
@@ -29,6 +30,3 @@ function handleServiceMasterRoutes($method) {
             sendError("Method not allowed", 405);
     }
 }
-
-
-?>

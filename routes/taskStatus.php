@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../controllers/TaskStatusController.php';
 require_once __DIR__ . '/../config/database.php';
 
-function handleTaskStatusRoutes($method) {
+function handleTaskStatusRoutes($method)
+{
     $db = (new Database())->getConnection();
     $controller = new TaskStatusController($db);
 
@@ -29,6 +30,3 @@ function handleTaskStatusRoutes($method) {
             sendError("Method not allowed", 405);
     }
 }
-
-
-?>

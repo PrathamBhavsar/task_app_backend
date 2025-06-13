@@ -8,4 +8,3 @@ if ($db) {
 } else {
     echo "Failed to connect.";
 }
-?>

@@ -71,4 +71,3 @@ class Designer
         return $stmt->execute();
     }
 }
-?>

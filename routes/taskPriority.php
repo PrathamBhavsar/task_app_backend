@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../controllers/TaskPriorityController.php';
 require_once __DIR__ . '/../config/database.php';
 
-function handleTaskPriorityRoutes($method) {
+function handleTaskPriorityRoutes($method)
+{
     $db = (new Database())->getConnection();
     $controller = new TaskPriorityController($db);
 
@@ -29,6 +30,3 @@ function handleTaskPriorityRoutes($method) {
             sendError("Method not allowed", 405);
     }
 }
-
-
-?>

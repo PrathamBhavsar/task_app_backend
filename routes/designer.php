@@ -36,4 +36,3 @@ function handleDesignerRoutes($method)
             sendError("Method not allowed", 405);
     }
 }
-?>

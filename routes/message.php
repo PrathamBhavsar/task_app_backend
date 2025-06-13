@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../controllers/MessageController.php';
 require_once __DIR__ . '/../config/database.php';
 
-function handleMessageRoutes($method) {
+function handleMessageRoutes($method)
+{
     $db = (new Database())->getConnection();
     $controller = new MessageController($db);
 
@@ -35,6 +36,3 @@ function handleMessageRoutes($method) {
             sendError("Method not allowed", 405);
     }
 }
-
-
-?>
