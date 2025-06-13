@@ -6,11 +6,13 @@ class Service
     private $serviceMasterTable = 'service_master';
     private $taskServiceId = 'task_service_id';
     private $bill;
+    private $quote;
 
-    public function __construct($db, $bill)
+    public function __construct($db, $bill, $quote)
     {
         $this->conn = $db;
         $this->bill = $bill;
+        $this->quote = $quote;
     }
 
     public function getAll()
@@ -114,7 +116,8 @@ class Service
 
         if ($stmt->execute()) {
             $id = $this->conn->lastInsertId();
-            $this->bill->recalculateForTask($data['task_id']);
+            $this->bill->¸($data['task_id']);
+            $this->quote->recalculateForTask($data['task_id']);
             return $this->getDetailedById($id);
         }
 
@@ -141,7 +144,8 @@ class Service
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
-            $this->bill->recalculateForTask($data['task_id']); // 👈 Recalculate
+            $this->bill->recalculateForTask($data['task_id']);
+            $this->quote->recalculateForTask($data['task_id']);
             return $this->getDetailedById($id);
         }
 
@@ -164,6 +168,7 @@ class Service
 
         if ($deleteStmt->execute()) {
             $this->bill->recalculateForTask($taskId);
+            $this->quote->recalculateForTask($taskId);
             return true;
         }
 

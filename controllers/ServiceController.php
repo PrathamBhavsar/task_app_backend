@@ -1,13 +1,16 @@
 <?php
 require_once __DIR__ . '/BaseController.php';
 require_once __DIR__ . '/../models/Service.php';
+require_once __DIR__ . '/../models/Bill.php';
+require_once __DIR__ . '/../models/Quote.php';
 
 class ServiceController extends BaseController
 {
     public function __construct($db)
     {
         $bill = new Bill($db);
-        $service = new Service($db, $bill);
+        $quote = new Quote($db);
+        $service = new Service($db, $bill, $quote);
         parent::__construct($service, 'service');
     }
 

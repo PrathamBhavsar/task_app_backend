@@ -6,7 +6,9 @@ class MeasurementController extends BaseController
 {
     public function __construct($db)
     {
-        parent::__construct(new Measurement($db), 'measurement');
+        $quote = new Quote($db);
+        $measurement = new Measurement($db, $quote);
+        parent::__construct($measurement, 'measurement');
     }
 
     public function getAllByTaskId($taskId)

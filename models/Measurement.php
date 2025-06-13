@@ -4,10 +4,12 @@ class Measurement
     private $conn;
     private $table = 'measurements';
     private $id = 'measurement_id';
+    private $quote;
 
-    public function __construct($db)
+    public function __construct($db, $quote = null)
     {
         $this->conn = $db;
+        $this->quote = $quote;
     }
 
     public function getAll()
@@ -28,6 +30,14 @@ class Measurement
         $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function getQuoteIdByTaskId($taskId)
+    {
+        $stmt = $this->conn->prepare("SELECT quote_id FROM quotes WHERE task_id = :task_id");
+        $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchColumn();
     }
 
     public function getById($id)
@@ -51,14 +61,25 @@ class Measurement
         $stmt->bindParam(':task_id', $data['task_id']);
 
         if ($stmt->execute()) {
-            $id = $this->conn->lastInsertId();
+            $measurementId = $this->conn->lastInsertId();
 
-            return $this->getById($id);
+            $quoteId = $this->getQuoteIdByTaskId($data['task_id']);
+            if ($quoteId) {
+                $insertQuoteMeasurement = $this->conn->prepare("
+                INSERT INTO quote_measurements (quote_id, measurement_id)
+                VALUES (:quote_id, :measurement_id)
+            ");
+                $insertQuoteMeasurement->bindParam(':quote_id', $quoteId, PDO::PARAM_INT);
+                $insertQuoteMeasurement->bindParam(':measurement_id', $measurementId, PDO::PARAM_INT);
+                $insertQuoteMeasurement->execute();
+            }
+
+            $this->quote->recalculateForTask($data['task_id']);
+            return $this->getById($measurementId);
         }
 
         return false;
     }
-
 
     public function update($id, $data)
     {
@@ -75,7 +96,41 @@ class Measurement
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
+            // Sync quote_measurements
+            $quoteId = $this->getQuoteIdByTaskId($data['task_id']);
+            if ($quoteId) {
+                // Check if quote_measurement already exists
+                $checkStmt = $this->conn->prepare("
+                SELECT COUNT(*) FROM quote_measurements 
+                WHERE measurement_id = :measurement_id
+            ");
+                $checkStmt->bindParam(':measurement_id', $id, PDO::PARAM_INT);
+                $checkStmt->execute();
+                $exists = $checkStmt->fetchColumn();
 
+                if ($exists) {
+                    // Update quote_id in case it changed (e.g. new task)
+                    $updateQuoteStmt = $this->conn->prepare("
+                    UPDATE quote_measurements 
+                    SET quote_id = :quote_id 
+                    WHERE measurement_id = :measurement_id
+                ");
+                    $updateQuoteStmt->bindParam(':quote_id', $quoteId, PDO::PARAM_INT);
+                    $updateQuoteStmt->bindParam(':measurement_id', $id, PDO::PARAM_INT);
+                    $updateQuoteStmt->execute();
+                } else {
+                    // Insert new quote_measurement
+                    $insertStmt = $this->conn->prepare("
+                    INSERT INTO quote_measurements (quote_id, measurement_id, quantity, unit_price, total_price)
+                    VALUES (:quote_id, :measurement_id, 1, NULL, NULL)
+                ");
+                    $insertStmt->bindParam(':quote_id', $quoteId, PDO::PARAM_INT);
+                    $insertStmt->bindParam(':measurement_id', $id, PDO::PARAM_INT);
+                    $insertStmt->execute();
+                }
+            }
+
+            $this->quote->recalculateForTask($data['task_id']);
             return $this->getById($id);
         }
 
@@ -86,12 +141,25 @@ class Measurement
     public function delete($id)
     {
 
-        $unlink = $this->conn->prepare("DELETE FROM task_measurements WHERE measurement_id = :mid");
-        $unlink->bindParam(':mid', $id, PDO::PARAM_INT);
-        $unlink->execute();
+        $stmt = $this->conn->prepare("SELECT task_id FROM {$this->table} WHERE {$this->id} = :id");
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $taskId = $stmt->fetchColumn();
+
+        if (!$taskId) return false;
+
+        $unlinkQuote = $this->conn->prepare("DELETE FROM quote_measurements WHERE measurement_id = :mid");
+        $unlinkQuote->bindParam(':mid', $id, PDO::PARAM_INT);
+        $unlinkQuote->execute();
+
+        $unlinkTask = $this->conn->prepare("DELETE FROM measurements WHERE measurement_id = :mid");
+        $unlinkTask->bindParam(':mid', $id, PDO::PARAM_INT);
+        $unlinkTask->execute();
 
         $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE {$this->id} = :id");
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+        $this->quote->recalculateForTask($taskId);
         return $stmt->execute();
     }
 }
