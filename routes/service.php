@@ -21,12 +21,7 @@ function handleServiceRoutes($method) {
 
         case 'POST':
             $data = json_decode(file_get_contents("php://input"), true);
-            
-            if (isset($_GET['master'])) {
-                $controller->createMasterService($data);
-            } else {
-                $controller->createService($data);
-            }
+            $controller->createService($data);
             break;
 
         case 'PUT':

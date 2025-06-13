@@ -4,7 +4,6 @@ class Service {
     private $taskServiceTable = 'task_services';
     private $serviceMasterTable = 'service_master';
     private $taskServiceId = 'task_service_id';
-    private $serviceMasterId = 'service_master_id';
     private $bill;
 
 public function __construct($db, $bill) {
@@ -162,29 +161,6 @@ if ($deleteStmt->execute()) {
 return false;
 
     }
-
-    // Create a new service in the master table
-    public function createMasterService($data) {
-        $query = "INSERT INTO {$this->serviceMasterTable} (name, default_rate)
-                  VALUES (:name, :default_rate)";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':name', $data['name']);
-        $stmt->bindParam(':default_rate', $data['default_rate']);
-
-        if ($stmt->execute()) {
-            $id = $this->conn->lastInsertId();
-            return $this->getMasterServiceById($id);
-        }
-
-        return false;
-    }
-
-    public function getMasterServiceById($id) {
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->serviceMasterTable} WHERE {$this->serviceMasterId} = :id");
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+    
 }
 ?>
