@@ -18,23 +18,30 @@ function handleServiceRoutes($method) {
                 $controller->index();
             }
             break;
+
         case 'POST':
             $data = json_decode(file_get_contents("php://input"), true);
-            $controller->createService($data);
+            
+            if (isset($_GET['master'])) {
+                $controller->createMasterService($data);
+            } else {
+                $controller->createService($data);
+            }
             break;
+
         case 'PUT':
             if (!$id) sendError("Service ID required for update", 400);
             $data = json_decode(file_get_contents("php://input"), true);
             $controller->updateService($id, $data);
             break;
+
         case 'DELETE':
             if (!$id) sendError("Service ID required for deletion", 400);
             $controller->delete($id);
             break;
+
         default:
             sendError("Method not allowed", 405);
     }
 }
-
-
 ?>

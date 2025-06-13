@@ -16,10 +16,9 @@ class Measurement {
 
     public function getAllByTaskId($taskId) {
     $query = "
-        SELECT m.*
-        FROM measurements m
-        JOIN task_measurements tm ON m.measurement_id = tm.measurement_id
-        WHERE tm.task_id = :task_id
+        SELECT *
+        FROM measurements 
+        WHERE task_id = :task_id
     ";
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
@@ -35,24 +34,18 @@ class Measurement {
     }
 
 public function create($data) {
-    $query = "INSERT INTO {$this->table} (location, width, height, notes) 
-              VALUES (:location, :width, :height, :notes)";
+    $query = "INSERT INTO {$this->table} (location, width, height, notes, task_id) 
+              VALUES (:location, :width, :height, :notes, :task_id)";
     
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':location', $data['location']);
     $stmt->bindParam(':width', $data['width']);
     $stmt->bindParam(':height', $data['height']);
     $stmt->bindParam(':notes', $data['notes']);
+    $stmt->bindParam(':task_id', $data['task_id']);
 
     if ($stmt->execute()) {
         $id = $this->conn->lastInsertId();
-
-        if (!empty($data['task_id'])) {
-            $link = $this->conn->prepare("INSERT INTO task_measurements (measurement_id, task_id) VALUES (:mid, :tid)");
-            $link->bindParam(':mid', $id, PDO::PARAM_INT);
-            $link->bindParam(':tid', $data['task_id'], PDO::PARAM_INT);
-            $link->execute();
-        }
 
         return $this->getById($id);
     }
@@ -63,7 +56,7 @@ public function create($data) {
 
     public function update($id, $data) {
     $query = "UPDATE {$this->table} 
-              SET location = :location, width = :width, height = :height, notes = :notes
+              SET location = :location, width = :width, height = :height, notes = :notes, task_id = :task_id
               WHERE {$this->id} = :id";
 
     $stmt = $this->conn->prepare($query);
@@ -71,20 +64,10 @@ public function create($data) {
     $stmt->bindParam(':width', $data['width']);
     $stmt->bindParam(':height', $data['height']);
     $stmt->bindParam(':notes', $data['notes']);
+    $stmt->bindParam(':task_id', $data['task_id']);
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
-    if ($stmt->execute()) {
-        // If task_id is passed, update the mapping
-        if (!empty($data['task_id'])) {
-            $delete = $this->conn->prepare("DELETE FROM task_measurements WHERE measurement_id = :mid");
-            $delete->bindParam(':mid', $id, PDO::PARAM_INT);
-            $delete->execute();
-
-            $insert = $this->conn->prepare("INSERT INTO task_measurements (measurement_id, task_id) VALUES (:mid, :tid)");
-            $insert->bindParam(':mid', $id, PDO::PARAM_INT);
-            $insert->bindParam(':tid', $data['task_id'], PDO::PARAM_INT);
-            $insert->execute();
-        }
+    if ($stmt->execute()) {     
 
         return $this->getById($id);
     }

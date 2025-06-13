@@ -6,24 +6,41 @@ class ServiceController extends BaseController
 {
     public function __construct($db)
     {
-        parent::__construct(new Service($db), 'service');
+        $bill = new Bill($db);
+        $service = new Service($db, $bill);
+        parent::__construct($service, 'service');
     }
 
     public function getAllByTaskId($taskId)
     {
-        $service = $this->model->getAllByTaskId($taskId);
-        sendJson($service);
+        $services = $this->model->getAllByTaskId($taskId);
+        sendJson($services);
     }
 
     public function createService($data)
     {
-        $requiredFields = ['service_type', 'quantity', 'rate', 'amount', 'task_id'];
+        $requiredFields = ['task_id', 'service_master_id', 'quantity', 'unit_price', 'total_amount'];
         parent::store($data, $requiredFields);
     }
 
     public function updateService($id, $data)
     {
-        $requiredFields = ['service_type', 'quantity', 'rate', 'amount', 'task_id'];
+        $requiredFields = ['task_id', 'service_master_id', 'quantity', 'unit_price', 'total_amount'];
         parent::update($id, $data, $requiredFields);
+    }
+
+    public function createMasterService($data)
+    {
+        if (empty($data['name']) || !isset($data['default_rate'])) {
+            sendError("Missing required fields: name, default_rate", 400);
+        }
+
+        $result = $this->model->createMasterService($data);
+
+        if ($result) {
+            sendJson($result, 201);
+        } else {
+            sendError("Failed to create service master entry", 500);
+        }
     }
 }

@@ -11,13 +11,13 @@ class BillController extends BaseController
 
     public function createBill($data)
     {
-        $requiredFields = ['due_date', 'subtotal', 'tax', 'total', 'additional_notes', 'status'];
+        $requiredFields = ['due_date', 'subtotal', 'tax', 'total', 'additional_notes', 'status', 'task_id'];
         parent::store($data, $requiredFields);
     }
 
     public function updateBill($id, $data)
     {
-        $requiredFields = ['due_date', 'subtotal', 'tax', 'total', 'additional_notes', 'status'];
+        $requiredFields = ['due_date', 'subtotal', 'tax', 'total', 'additional_notes', 'status', 'task_id'];
         parent::update($id, $data, $requiredFields);
     }
 }

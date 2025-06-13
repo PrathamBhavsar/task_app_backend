@@ -1,108 +1,190 @@
 <?php
 class Service {
     private $conn;
-    private $table = 'services';
-    private $id = 'service_id';
+    private $taskServiceTable = 'task_services';
+    private $serviceMasterTable = 'service_master';
+    private $taskServiceId = 'task_service_id';
+    private $serviceMasterId = 'service_master_id';
+    private $bill;
 
-    public function __construct($db) {
-        $this->conn = $db;
+public function __construct($db, $bill) {
+    $this->conn = $db;
+    $this->bill = $bill;
+}
+
+public function getAll() {
+    $stmt = $this->conn->prepare("SELECT task_service_id FROM {$this->taskServiceTable}");
+    $stmt->execute();
+
+    $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $results = [];
+    foreach ($ids as $id) {
+        $detailed = $this->getDetailedById($id);
+        if ($detailed) $results[] = $detailed;
     }
 
-    public function getAll() {
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->table}");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    return $results;
+}
 
-    public function getAllByTaskId($taskId) {
+
+public function getDetailedById($id) {
     $query = "
-        SELECT m.*
-        FROM services m
-        JOIN task_services tm ON m.service_id = tm.service_id
-        WHERE tm.task_id = :task_id
+        SELECT 
+            ts.task_service_id,
+            ts.task_id,
+            ts.quantity,
+            ts.unit_price,
+            ts.total_amount,
+            sm.service_master_id,
+            sm.name AS service_name,
+            sm.default_rate
+        FROM {$this->taskServiceTable} ts
+        JOIN {$this->serviceMasterTable} sm ON ts.service_master_id = sm.service_master_id
+        WHERE ts.task_service_id = :id
     ";
+
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) return null;
+
+    return [
+        'task_service_id' => (int)$row['task_service_id'],
+        'task_id' => (int)$row['task_id'],
+        'service_master' => [
+            'service_master_id' => (int)$row['service_master_id'],
+            'name' => $row['service_name'],
+            'default_rate' => (float)$row['default_rate'],
+        ],
+        'quantity' => (int)$row['quantity'],
+        'unit_price' => (float)$row['unit_price'],
+        'total_amount' => (float)$row['total_amount']
+    ];
+}
+
+
+public function getAllByTaskId($taskId) {
+    $query = "SELECT task_service_id FROM {$this->taskServiceTable} WHERE task_id = :task_id";
     $stmt = $this->conn->prepare($query);
     $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
     $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $results = [];
+    foreach ($ids as $id) {
+        $detailed = $this->getDetailedById($id);
+        if ($detailed) $results[] = $detailed;
+    }
+
+    return $results;
 }
 
     public function getById($id) {
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE {$this->id} = :id");
+        $stmt = $this->conn->prepare("SELECT * FROM {$this->taskServiceTable} WHERE {$this->taskServiceId} = :id");
         $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        return $this->getDetailedById($id);
+    }
+
+
+    public function create($data) {
+        $query = "INSERT INTO {$this->taskServiceTable} (task_id, service_master_id, quantity, unit_price, total_amount)
+                  VALUES (:task_id, :service_master_id, :quantity, :unit_price, :total_amount)";
+        
+        $stmt = $this->conn->prepare($query);
+
+        $totalAmount = $data['quantity'] * $data['unit_price'];
+
+        $stmt->bindParam(':task_id', $data['task_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':service_master_id', $data['service_master_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':quantity', $data['quantity']);
+        $stmt->bindParam(':unit_price', $data['unit_price']);
+        $stmt->bindParam(':total_amount', $totalAmount);
+
+if ($stmt->execute()) {
+    $id = $this->conn->lastInsertId();
+    $this->bill->recalculateForTask($data['task_id']); 
+    return $this->getDetailedById($id);
+}
+
+
+        return false;
+    }
+
+    public function update($id, $data) {
+        $query = "UPDATE {$this->taskServiceTable}
+                  SET task_id = :task_id, service_master_id = :service_master_id, quantity = :quantity, 
+                      unit_price = :unit_price, total_amount = :total_amount
+                  WHERE {$this->taskServiceId} = :id";
+
+        $stmt = $this->conn->prepare($query);
+
+        $totalAmount = $data['quantity'] * $data['unit_price'];
+
+        $stmt->bindParam(':task_id', $data['task_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':service_master_id', $data['service_master_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':quantity', $data['quantity']);
+        $stmt->bindParam(':unit_price', $data['unit_price']);
+        $stmt->bindParam(':total_amount', $totalAmount);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+                $this->bill->recalculateForTask($data['task_id']); // 👈 Recalculate
+            return $this->getDetailedById($id);
+        }
+
+        return false;
+    }
+
+
+    public function delete($id) {
+        
+$stmt = $this->conn->prepare("SELECT task_id FROM {$this->taskServiceTable} WHERE {$this->taskServiceId} = :id");
+$stmt->bindParam(':id', $id, PDO::PARAM_INT);
+$stmt->execute();
+$taskId = $stmt->fetchColumn();
+
+if (!$taskId) return false;
+
+$deleteStmt = $this->conn->prepare("DELETE FROM {$this->taskServiceTable} WHERE {$this->taskServiceId} = :id");
+$deleteStmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+if ($deleteStmt->execute()) {
+    $this->bill->recalculateForTask($taskId); 
+    return true;
+}
+
+return false;
+
+    }
+
+    // Create a new service in the master table
+    public function createMasterService($data) {
+        $query = "INSERT INTO {$this->serviceMasterTable} (name, default_rate)
+                  VALUES (:name, :default_rate)";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':name', $data['name']);
+        $stmt->bindParam(':default_rate', $data['default_rate']);
+
+        if ($stmt->execute()) {
+            $id = $this->conn->lastInsertId();
+            return $this->getMasterServiceById($id);
+        }
+
+        return false;
+    }
+
+    public function getMasterServiceById($id) {
+        $stmt = $this->conn->prepare("SELECT * FROM {$this->serviceMasterTable} WHERE {$this->serviceMasterId} = :id");
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
-public function create($data) {
-    $query = "INSERT INTO {$this->table} (service_type, quantity, rate, amount) 
-              VALUES (:service_type, :quantity, :rate, :amount)";
-    
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindParam(':service_type', $data['service_type']);
-    $stmt->bindParam(':quantity', $data['quantity']);
-    $stmt->bindParam(':rate', $data['rate']);
-    $stmt->bindParam(':amount', $data['amount']);
-
-    if ($stmt->execute()) {
-        $id = $this->conn->lastInsertId();
-
-        if (!empty($data['task_id'])) {
-            $link = $this->conn->prepare("INSERT INTO task_services (service_id, task_id) VALUES (:mid, :tid)");
-            $link->bindParam(':mid', $id, PDO::PARAM_INT);
-            $link->bindParam(':tid', $data['task_id'], PDO::PARAM_INT);
-            $link->execute();
-        }
-
-        return $this->getById($id);
-    }
-
-    return false;
-}
-
-
-    public function update($id, $data) {
-    $query = "UPDATE {$this->table} 
-              SET service_type = :service_type, quantity = :quantity, rate = :rate, amount = :amount
-              WHERE {$this->id} = :id";
-
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindParam(':service_type', $data['service_type']);
-    $stmt->bindParam(':quantity', $data['quantity']);
-    $stmt->bindParam(':rate', $data['rate']);
-    $stmt->bindParam(':amount', $data['amount']);
-    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-
-    if ($stmt->execute()) {
-    
-        if (!empty($data['task_id'])) {
-            $delete = $this->conn->prepare("DELETE FROM task_services WHERE service_id = :mid");
-            $delete->bindParam(':mid', $id, PDO::PARAM_INT);
-            $delete->execute();
-
-            $insert = $this->conn->prepare("INSERT INTO task_services (service_id, task_id) VALUES (:mid, :tid)");
-            $insert->bindParam(':mid', $id, PDO::PARAM_INT);
-            $insert->bindParam(':tid', $data['task_id'], PDO::PARAM_INT);
-            $insert->execute();
-        }
-
-        return $this->getById($id);
-    }
-
-    return false;
-}
-
-
-public function delete($id) {
-    
-    $unlink = $this->conn->prepare("DELETE FROM task_services WHERE service_id = :mid");
-    $unlink->bindParam(':mid', $id, PDO::PARAM_INT);
-    $unlink->execute();
-
-    $stmt = $this->conn->prepare("DELETE FROM {$this->table} WHERE {$this->id} = :id");
-    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-    return $stmt->execute();
-}
-
 }
 ?>
