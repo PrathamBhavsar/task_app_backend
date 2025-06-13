@@ -22,7 +22,7 @@ class UserController extends BaseController
         }
 
         if ($result) {
-            unset($result['password']); // Optional for security
+            unset($result['password']);
             sendJson($result, 200);
         }
 

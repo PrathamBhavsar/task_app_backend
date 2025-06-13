@@ -23,4 +23,3 @@ function authenticate()
         sendError("Unauthorized: Invalid token", 401);
     }
 }
-?>

@@ -12,9 +12,16 @@ class TaskController extends BaseController
     public function createTask($data)
     {
         $requiredFields = [
-            'deal_no', 'name', 'start_date', 'due_date',
-            'priority_id', 'remarks', 'status_id',
-            'created_by', 'client_id', 'designer_id'
+            'deal_no',
+            'name',
+            'start_date',
+            'due_date',
+            'priority_id',
+            'remarks',
+            'status_id',
+            'created_by',
+            'client_id',
+            'designer_id'
         ];
         parent::store($data, $requiredFields);
     }
@@ -29,9 +36,16 @@ class TaskController extends BaseController
     public function updateTask($id, $data)
     {
         $requiredFields = [
-            'deal_no', 'name', 'start_date', 'due_date',
-            'priority_id', 'remarks', 'status_id',
-            'created_by', 'client_id', 'designer_id'
+            'deal_no',
+            'name',
+            'start_date',
+            'due_date',
+            'priority_id',
+            'remarks',
+            'status_id',
+            'created_by',
+            'client_id',
+            'designer_id'
         ];
         parent::update($id, $data, $requiredFields);
     }

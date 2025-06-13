@@ -8,19 +8,19 @@ class BaseController
     public function __construct($model, $resourceName)
     {
         $this->model = $model;
-        $this->resourceName = $resourceName; 
+        $this->resourceName = $resourceName;
     }
 
-public function index()
-{
-    $resources = $this->model->getAll();
+    public function index()
+    {
+        $resources = $this->model->getAll();
 
-    $resourceKey = $this->resourceName . 's'; 
+        $resourceKey = $this->resourceName . 's';
 
-    sendJson([
-        $resourceKey => $resources
-    ]);
-}
+        sendJson([
+            $resourceKey => $resources
+        ]);
+    }
 
 
     public function show($id)
