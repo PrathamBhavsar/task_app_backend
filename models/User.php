@@ -44,8 +44,8 @@ class User
         }
 
         $query = "INSERT INTO {$this->table} 
-        (name, email, password, contact_no, user_type, profile_bg_color)
-        VALUES (:name, :email, :password, :contact_no, :user_type, :profile_bg_color)";
+        (name, email, password, contact_no, user_type, profile_bg_color, address)
+        VALUES (:name, :email, :password, :contact_no, :user_type, :profile_bg_color, :address)";
 
         $stmt = $this->conn->prepare($query);
 
@@ -56,6 +56,7 @@ class User
         $stmt->bindValue(':password', $hashedPassword);
         $stmt->bindParam(':contact_no', $data['contact_no']);
         $stmt->bindParam(':user_type', $data['user_type']);
+        $stmt->bindParam(':address', $data['address']);
         $stmt->bindParam(':profile_bg_color', $data['profile_bg_color']);
 
         if ($stmt->execute()) {
@@ -92,7 +93,7 @@ class User
     public function update($id, $data)
     {
         $query = "UPDATE {$this->table} 
-              SET name = :name, email = :email, contact_no = :contact_no, user_type = :user_type, profile_bg_color = :profile_bg_color 
+              SET name = :name, email = :email, contact_no = :contact_no, user_type = :user_type, profile_bg_color = :profile_bg_color, address = :address
               WHERE {$this->id} = :id";
 
         $stmt = $this->conn->prepare($query);
@@ -101,6 +102,7 @@ class User
         $stmt->bindParam(':contact_no', $data['contact_no']);
         $stmt->bindParam(':user_type', $data['user_type']);
         $stmt->bindParam(':profile_bg_color', $data['profile_bg_color']);
+        $stmt->bindParam(':address', $data['address']);
         $stmt->bindParam(':id', $id);
 
         if ($stmt->execute()) {
@@ -109,7 +111,6 @@ class User
 
         return false;
     }
-
 
     public function delete($id)
     {

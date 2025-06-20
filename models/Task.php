@@ -185,7 +185,7 @@ class Task
                 "address" => $row['client_address']
             ],
 
-            "agency" => [
+            "agency" => $row['agency_id'] ? [
                 "user_id" => $row['agency_id'],
                 "name" => $row['agency_name'],
                 "email" => $row['agency_email'],
@@ -193,7 +193,7 @@ class Task
                 "address" => $row['agency_address'],
                 "user_type" => $row['agency_user_type'],
                 "profile_bg_color" => $row['agency_color']
-            ],
+            ] : null,
 
             "designer" => [
                 "designer_id" => $row['designer_id'],
