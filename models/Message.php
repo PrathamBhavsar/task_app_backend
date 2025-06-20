@@ -80,7 +80,7 @@ class Message
             ];
         }
 
-        return $formatted;
+        return ['data' => $formatted];
     }
 
 
