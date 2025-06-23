@@ -17,8 +17,7 @@ class TimelineController extends BaseController
 
     public function getAllByTaskId($taskId)
     {
-        $taskTimeslines = $this->model->getAllByTaskId($taskId);
-        sendJson($taskTimeslines);
+        parent::getAllByTaskId($taskId);
     }
 
     public function updateTimeline($id, $data)

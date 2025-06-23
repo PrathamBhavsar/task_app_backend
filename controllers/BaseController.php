@@ -22,6 +22,25 @@ class BaseController
         ]);
     }
 
+    public function getAllByTaskId($taskId)
+    {
+
+        $resources = $this->model->getAllByTaskId((int) $taskId);
+
+        if ($resources === false) {
+            sendJson(['error' => 'Task not found'], 404);
+            return;
+        }
+
+        $resourceKey = $this->resourceName . 's';
+
+        sendJson([
+            $resourceKey => $resources
+        ]);
+    }
+
+
+
 
     public function show($id)
     {

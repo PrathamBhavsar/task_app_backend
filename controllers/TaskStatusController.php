@@ -6,7 +6,7 @@ class TaskStatusController extends BaseController
 {
     public function __construct($db)
     {
-        parent::__construct(new TaskStatus($db), 'priority');
+        parent::__construct(new TaskStatus($db), 'status');
     }
 
     public function createTaskStatus($data)

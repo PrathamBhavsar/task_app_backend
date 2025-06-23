@@ -35,54 +35,53 @@ class Message
     public function getAllByTaskId($taskId)
     {
         $query = "
-        SELECT 
-            m.message_id,
-            m.task_id,
-            m.message,
-            m.created_at AS message_created_at,
-            u.user_id,
-            u.created_at AS user_created_at,
-            u.name,
-            u.email,
-            u.contact_no,
-            u.address,
-            u.user_type,
-            u.profile_bg_color
-        FROM {$this->table} m
-        JOIN users u ON m.user_id = u.user_id
-        WHERE m.task_id = :task_id
-        ORDER BY m.created_at ASC
+    SELECT 
+        m.message_id,
+        m.task_id,
+        m.message,
+        m.created_at AS m_created_at,
+        
+        u.user_id AS u_user_id,
+        u.name AS u_name,
+        u.email AS u_email,
+        u.user_type AS u_role,
+        u.address AS u_address,
+        u.contact_no AS u_contact,
+        u.profile_bg_color AS u_profile_bg_color
+
+    FROM {$this->table} m
+    JOIN users u ON m.user_id = u.user_id
+    WHERE m.task_id = :task_id
+    ORDER BY m.created_at ASC
     ";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
         $stmt->execute();
 
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $formatted = [];
-
-        foreach ($results as $row) {
-            $formatted[] = [
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = [
                 'message_id' => $row['message_id'],
                 'task_id' => $row['task_id'],
                 'message' => $row['message'],
+                'created_at' => $row['m_created_at'],
                 'user' => [
-                    'user_id' => $row['user_id'],
-                    'created_at' => $row['user_created_at'],
-                    'name' => $row['name'],
-                    'email' => $row['email'],
-                    'contact_no' => $row['contact_no'],
-                    'address' => $row['address'],
-                    'user_type' => $row['user_type'],
-                    'profile_bg_color' => $row['profile_bg_color'],
+                    'user_id' => $row['u_user_id'],
+                    'name' => $row['u_name'],
+                    'email' => $row['u_email'],
+                    'user_type' => $row['u_role'],
+                    'address' => $row['u_address'],
+                    'contact_no' => $row['u_contact'],
+                    'profile_bg_color' => $row['u_profile_bg_color'],
                 ]
             ];
         }
 
-        return ['data' => $formatted];
+        return $result;
     }
-
 
 
     public function getDetailedMessageById($id)
@@ -120,6 +119,7 @@ class Message
             "message_id" => $row["message_id"],
             "task_id" => $row["task_id"],
             "message" => $row["message"],
+            "created_at" => $row["message_created_at"],
             "user" => [
                 "user_id" => $row["user_id"],
                 "created_at" => $row["user_created_at"],
@@ -132,7 +132,7 @@ class Message
             ]
         ];
 
-        return ["data" => [$message]];
+        return $message;
     }
 
 
