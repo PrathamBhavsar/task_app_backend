@@ -4,7 +4,7 @@ require_once __DIR__ . '/../helpers/response.php';
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'ds');
 define('DB_USER', 'root');
-define('DB_PASS', 'root');
+define('DB_PASS', 'Nautilus@610#');
 
 class Database
 {

@@ -29,26 +29,19 @@ class Timeline
     {
         $query = "
         SELECT 
-            tt.timeline_id,
-            tt.task_id,
-            tt.created_at,
-            
+            tt.*,
+           
             u.user_id AS u_user_id,
             u.name AS u_name,
             u.email AS u_email,
             u.user_type AS u_role,
             u.address AS u_address,
             u.contact_no AS u_contact,
-            u.profile_bg_color AS u_profile_bg_color,
+            u.profile_bg_color AS u_profile_bg_color
             
-            ts.status_id AS s_status_id,
-            ts.name AS s_name,
-            ts.slug AS s_slug,
-            ts.color AS s_color
 
         FROM task_timelines tt
         JOIN users u ON tt.user_id = u.user_id
-        JOIN task_statuses ts ON tt.status_id = ts.status_id
         WHERE tt.task_id = :task_id
         ORDER BY tt.created_at ASC
     ";
@@ -65,6 +58,7 @@ class Timeline
                 'timeline_id' => $row['timeline_id'],
                 'task_id' => $row['task_id'],
                 'created_at' => $row['created_at'],
+                'status' => $row['status'],
                 'user' => [
                     'user_id' => $row['u_user_id'],
                     'name' => $row['u_name'],
@@ -73,12 +67,6 @@ class Timeline
                     'address' => $row['u_address'],
                     'contact_no' => $row['u_contact'],
                     'profile_bg_color' => $row['u_profile_bg_color'],
-                ],
-                'status' => [
-                    'status_id' => $row['s_status_id'],
-                    'name' => $row['s_name'],
-                    'slug' => $row['s_slug'],
-                    'color' => $row['s_color'],
                 ],
             ];
         }
@@ -90,10 +78,10 @@ class Timeline
 
     public function create($data)
     {
-        $query = "INSERT INTO {$this->table} (task_id, status_id, user_id) VALUES (:task_id, :status_id, :user_id)";
+        $query = "INSERT INTO {$this->table} (task_id, status, user_id) VALUES (:task_id, :status, :user_id)";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':task_id', $data['task_id']);
-        $stmt->bindParam(':status_id', $data['status_id']);
+        $stmt->bindParam(':status', $data['status']);
         $stmt->bindParam(':user_id', $data['user_id']);
 
         if ($stmt->execute()) {
@@ -107,12 +95,12 @@ class Timeline
     public function update($id, $data)
     {
         $query = "UPDATE {$this->table} 
-              SET task_id = :task_id, status_id = :status_id, user_id = :user_id
+              SET task_id = :task_id, status = :status, user_id = :user_id
               WHERE {$this->id} = :id";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':task_id', $data['task_id']);
-        $stmt->bindParam(':status_id', $data['status_id']);
+        $stmt->bindParam(':status', $data['status']);
         $stmt->bindParam(':user_id', $data['user_id']);
         $stmt->bindParam(':id', $id);
 

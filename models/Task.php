@@ -35,20 +35,20 @@ class Task
             $this->conn->beginTransaction();
 
 
-            $updateQuery = "UPDATE {$this->table} SET status_id = :status_id WHERE {$this->id} = :task_id";
+            $updateQuery = "UPDATE {$this->table} SET status = :status WHERE {$this->id} = :task_id";
             $stmt = $this->conn->prepare($updateQuery);
             $stmt->execute([
-                ':status_id' => $statusId,
+                ':status' => $statusId,
                 ':task_id' => $taskId
             ]);
 
 
-            $timelineQuery = "INSERT INTO task_timelines (user_id, task_id, status_id) VALUES (:user_id, :task_id, :status_id)";
+            $timelineQuery = "INSERT INTO task_timelines (user_id, task_id, status) VALUES (:user_id, :task_id, :status)";
             $stmt = $this->conn->prepare($timelineQuery);
             $stmt->execute([
                 ':user_id' => $userId,
                 ':task_id' => $taskId,
-                ':status_id' => $statusId
+                ':status' => $statusId
             ]);
 
 
@@ -85,15 +85,6 @@ class Task
             u.address AS created_by_address,
             u.profile_bg_color AS created_by_profile_bg_color,
 
-            tp.priority_id AS priority_id,
-            tp.name AS priority_name,
-            tp.color AS priority_color,
-
-            ts.status_id AS status_id,
-            ts.name AS status_name,
-            ts.slug AS status_slug,
-            ts.color AS status_color,
-
             c.client_id AS client_id,
             c.name AS client_name,
             c.email AS client_email,
@@ -117,8 +108,6 @@ class Task
 
         FROM tasks t
         LEFT JOIN users u ON t.created_by = u.user_id
-        LEFT JOIN task_priorities tp ON t.priority_id = tp.priority_id
-        LEFT JOIN task_statuses ts ON t.status_id = ts.status_id
         LEFT JOIN clients c ON t.client_id = c.client_id
         LEFT JOIN designers d ON t.designer_id = d.designer_id
         LEFT JOIN users agency ON t.agency_id = agency.user_id
@@ -154,6 +143,8 @@ class Task
             "start_date" => $row['start_date'],
             "due_date" => $row['due_date'],
             "remarks" => $row['remarks'],
+            "status" => $row['status'],
+            "priority" => $row['priority'],
 
             "created_by" => [
                 "user_id" => $row['created_by_user_id'],
@@ -162,19 +153,6 @@ class Task
                 "role" => $row['created_by_role'],
                 "address" => $row['created_by_address'],
                 "profile_bg_color" => $row['created_by_profile_bg_color'],
-            ],
-
-            "priority" => [
-                "priority_id" => $row['priority_id'],
-                "name" => $row['priority_name'],
-                "color" => $row['priority_color']
-            ],
-
-            "status" => [
-                "status_id" => $row['status_id'],
-                "name" => $row['status_name'],
-                "slug" => $row['status_slug'],
-                "color" => $row['status_color']
             ],
 
             "client" => [
@@ -209,22 +187,21 @@ class Task
     }
 
 
-
     public function create($data)
     {
         $query = "INSERT INTO {$this->table} 
-        (deal_no, name, start_date, due_date, priority_id, remarks, status_id, created_by, client_id, designer_id, agency_id)
+        (deal_no, name, start_date, due_date, priority, remarks, status, created_by, client_id, designer_id, agency_id)
         VALUES 
-        (:deal_no, :name, :start_date, :due_date, :priority_id, :remarks, :status_id, :created_by, :client_id, :designer_id, :agency_id)";
+        (:deal_no, :name, :start_date, :due_date, :priority, :remarks, :status, :created_by, :client_id, :designer_id, :agency_id)";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':deal_no', $data['deal_no']);
         $stmt->bindParam(':name', $data['name']);
         $stmt->bindParam(':start_date', $data['start_date']);
         $stmt->bindParam(':due_date', $data['due_date']);
-        $stmt->bindParam(':priority_id', $data['priority_id']);
+        $stmt->bindParam(':priority', $data['priority']);
         $stmt->bindParam(':remarks', $data['remarks']);
-        $stmt->bindParam(':status_id', $data['status_id']);
+        $stmt->bindParam(':status', $data['status']);
         $stmt->bindParam(':created_by', $data['created_by']);
         $stmt->bindParam(':client_id', $data['client_id']);
         $stmt->bindParam(':agency_id', $data['agency_id']);
@@ -245,11 +222,11 @@ class Task
 
             // Insert into timeline
             $timelineInsert = $this->conn->prepare("
-            INSERT INTO timeline (task_id, status_id, user_id)
-            VALUES (:task_id, :status_id, :user_id)
+            INSERT INTO timeline (task_id, status, user_id)
+            VALUES (:task_id, :status, :user_id)
         ");
             $timelineInsert->bindParam(':task_id', $taskId, PDO::PARAM_INT);
-            $timelineInsert->bindValue(':status_id', 1, PDO::PARAM_INT); // fixed value
+            $timelineInsert->bindValue(':status', 1, PDO::PARAM_INT); // fixed value
             $timelineInsert->bindParam(':user_id', $data['created_by'], PDO::PARAM_INT);
             $timelineInsert->execute();
 
@@ -269,9 +246,9 @@ class Task
         name = :name,
         start_date = :start_date,
         due_date = :due_date,
-        priority_id = :priority_id,
+        priority = :priority,
         remarks = :remarks,
-        status_id = :status_id,
+        status = :status,
         created_by = :created_by,
         client_id = :client_id,
         designer_id = :designer_id,
@@ -284,9 +261,9 @@ class Task
         $stmt->bindParam(':name', $data['name']);
         $stmt->bindParam(':start_date', $data['start_date']);
         $stmt->bindParam(':due_date', $data['due_date']);
-        $stmt->bindParam(':priority_id', $data['priority_id']);
+        $stmt->bindParam(':priority', $data['priority']);
         $stmt->bindParam(':remarks', $data['remarks']);
-        $stmt->bindParam(':status_id', $data['status_id']);
+        $stmt->bindParam(':status', $data['status']);
         $stmt->bindParam(':created_by', $data['created_by']);
         $stmt->bindParam(':client_id', $data['client_id']);
         $stmt->bindParam(':agency_id', $data['agency_id']);
