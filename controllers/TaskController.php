@@ -16,19 +16,20 @@ class TaskController extends BaseController
             'name',
             'start_date',
             'due_date',
-            'priority_id',
+            'priority',
             'remarks',
-            'status_id',
+            'status',
             'created_by',
             'client_id',
             'designer_id'
+
         ];
         parent::store($data, $requiredFields);
     }
 
-    public function updateStatus($taskId, $statusId, $userId)
+    public function updateStatus($taskId, $statusId, $userId, $agencyId)
     {
-        $task = $this->model->updateStatus($taskId, $statusId, $userId);
+        $task = $this->model->updateStatus($taskId, $statusId, $userId, $agencyId);
         sendJson($task);
     }
 
@@ -40,9 +41,9 @@ class TaskController extends BaseController
             'name',
             'start_date',
             'due_date',
-            'priority_id',
+            'priority',
             'remarks',
-            'status_id',
+            'status',
             'created_by',
             'client_id',
             'designer_id'

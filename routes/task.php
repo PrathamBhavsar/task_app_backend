@@ -29,10 +29,10 @@ function handleTaskRoutes($method)
             if (!$id) sendError("Task ID required for update", 400);
 
             if (isset($_GET['status'])) {
-                if (!isset($data['status_id']) || !isset($data['user_id'])) {
-                    sendError("status_id and user_id are required", 400);
+                if (!isset($data['status']) || !isset($data['user_id'])) {
+                    sendError("status and user_id are required", 400);
                 }
-                $controller->updateStatus($id, $data['status_id'], $data['user_id']);
+                $controller->updateStatus($id, $data['status'], $data['user_id'], $data['agency_id']);
             } else {
                 $controller->updateTask($id, $data);
             }

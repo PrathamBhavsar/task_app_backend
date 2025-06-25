@@ -28,20 +28,19 @@ class Task
     }
 
 
-    public function updateStatus($taskId, $statusId, $userId)
+    public function updateStatus($taskId, $statusId, $userId, $agencyId)
     {
         try {
 
             $this->conn->beginTransaction();
 
-
-            $updateQuery = "UPDATE {$this->table} SET status = :status WHERE {$this->id} = :task_id";
+            $updateQuery = "UPDATE {$this->table} SET status = :status, agency_id = :agency_id WHERE {$this->id} = :task_id";
             $stmt = $this->conn->prepare($updateQuery);
             $stmt->execute([
                 ':status' => $statusId,
-                ':task_id' => $taskId
+                ':task_id' => $taskId,
+                ':agency_id' => $agencyId
             ]);
-
 
             $timelineQuery = "INSERT INTO task_timelines (user_id, task_id, status) VALUES (:user_id, :task_id, :status)";
             $stmt = $this->conn->prepare($timelineQuery);
@@ -51,9 +50,7 @@ class Task
                 ':status' => $statusId
             ]);
 
-
             $this->conn->commit();
-
 
             return $this->getDetailedById($taskId);
         } catch (PDOException $e) {
@@ -100,6 +97,7 @@ class Task
 
             agency.user_id AS agency_id,
             agency.name AS agency_name,
+            agency.created_at AS agency_created_at,
             agency.email AS agency_email,
             agency.contact_no AS agency_contact,
             agency.address AS agency_address,
@@ -165,6 +163,7 @@ class Task
 
             "agency" => $row['agency_id'] ? [
                 "user_id" => $row['agency_id'],
+                "created_at" => $row['agency_created_at'],
                 "name" => $row['agency_name'],
                 "email" => $row['agency_email'],
                 "contact_no" => $row['agency_contact'],
@@ -222,11 +221,11 @@ class Task
 
             // Insert into timeline
             $timelineInsert = $this->conn->prepare("
-            INSERT INTO timeline (task_id, status, user_id)
+            INSERT INTO task_timelines (task_id, status, user_id)
             VALUES (:task_id, :status, :user_id)
         ");
             $timelineInsert->bindParam(':task_id', $taskId, PDO::PARAM_INT);
-            $timelineInsert->bindValue(':status', 1, PDO::PARAM_INT); // fixed value
+            $timelineInsert->bindValue(':status', 'Created', PDO::PARAM_INT);
             $timelineInsert->bindParam(':user_id', $data['created_by'], PDO::PARAM_INT);
             $timelineInsert->execute();
 
