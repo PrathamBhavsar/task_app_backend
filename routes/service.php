@@ -22,7 +22,7 @@ function handleServiceRoutes($method)
 
         case 'POST':
             $data = json_decode(file_get_contents("php://input"), true);
-            $controller->createService($data);
+            $controller->createBulk($data);
             break;
 
         case 'PUT':

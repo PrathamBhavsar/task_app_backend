@@ -20,6 +20,12 @@ class ServiceController extends BaseController
         sendJson($services);
     }
 
+    public function createBulk($services)
+    {
+        $servicesById = $this->model->createBulk($services);
+        sendJson($servicesById);
+    }
+
     public function createService($data)
     {
         $requiredFields = ['task_id', 'service_master_id', 'quantity', 'unit_price', 'total_amount'];

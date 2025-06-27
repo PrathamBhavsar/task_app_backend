@@ -99,6 +99,42 @@ class Service
     }
 
 
+    public function createBulk($services)
+    {
+        if (empty($services)) {
+            sendError("No services provided", 400);
+        }
+
+        $this->conn->beginTransaction();
+
+        try {
+            $firstService = $services[0];
+            $taskId = $firstService['task_id'] ?? null;
+
+            if (!$taskId) {
+                sendError("task_id is required in all services", 400);
+            }
+
+            foreach ($services as $data) {
+                if (!isset($data['task_id']) || $data['task_id'] != $taskId) {
+                    sendError("All services must have the same valid task_id", 400);
+                }
+                $this->create($data);
+            }
+
+            $this->conn->commit();
+
+            $allServices = $this->getAllByTaskId($taskId);
+            sendJson([
+                "services" => $allServices,
+                201
+            ]);
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            sendError("Failed to insert services: " . $e->getMessage(), 500);
+        }
+    }
+
     public function create($data)
     {
         $query = "INSERT INTO {$this->taskServiceTable} (task_id, service_master_id, quantity, unit_price, total_amount)
@@ -116,7 +152,7 @@ class Service
 
         if ($stmt->execute()) {
             $id = $this->conn->lastInsertId();
-            $this->bill->¸($data['task_id']);
+            $this->bill->recalculateForTask($data['task_id']);
             $this->quote->recalculateForTask($data['task_id']);
             return $this->getDetailedById($id);
         }
