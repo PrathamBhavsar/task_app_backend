@@ -11,7 +11,7 @@ class UserController extends BaseController
 
     public function register($data)
     {
-        if (empty($data['email']) || empty($data['password']) || empty($data['name'])) {
+        if (empty($data['email']) || empty($data['password']) || empty($data['name']) || empty($data['address'])) {
             sendError("Required fields are missing", 400);
         }
 

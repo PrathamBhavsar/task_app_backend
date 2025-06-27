@@ -48,6 +48,45 @@ class Measurement
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function createBulk($measurements)
+    {
+        if (empty($measurements)) {
+            sendError("No measurements provided", 400);
+        }
+
+        $this->conn->beginTransaction();
+
+        try {
+            $firstMeasurement = $measurements[0];
+            $taskId = $firstMeasurement['task_id'] ?? null;
+
+            if (!$taskId) {
+                sendError("task_id is required in all measurements", 400);
+            }
+
+            foreach ($measurements as $data) {
+                if (!isset($data['task_id']) || $data['task_id'] != $taskId) {
+                    sendError("All measurements must have the same valid task_id", 400);
+                }
+                $this->create($data);
+            }
+
+            $this->conn->commit();
+
+            $allMeasurements = $this->getAllByTaskId($taskId);
+            sendJson([
+                "measurements" => $allMeasurements,
+                201
+            ]);
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            sendError("Failed to insert measurements: " . $e->getMessage(), 500);
+        }
+    }
+
+
+
+
     public function create($data)
     {
         $query = "INSERT INTO {$this->table} (location, width, height, notes, task_id) 

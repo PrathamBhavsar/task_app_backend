@@ -21,7 +21,7 @@ function handleMeasurementRoutes($method)
             break;
         case 'POST':
             $data = json_decode(file_get_contents("php://input"), true);
-            $controller->createMeasurement($data);
+            $controller->createBulk($data);
             break;
         case 'PUT':
             if (!$id) sendError("Measurement ID required for update", 400);

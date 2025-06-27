@@ -11,7 +11,7 @@ class TimelineController extends BaseController
 
     public function createTimeline($data)
     {
-        $requiredFields = ['task_id', 'status_id', 'user_id'];
+        $requiredFields = ['task_id', 'status', 'user_id'];
         parent::store($data, $requiredFields);
     }
 
@@ -22,7 +22,7 @@ class TimelineController extends BaseController
 
     public function updateTimeline($id, $data)
     {
-        $requiredFields = ['task_id', 'status_id', 'user_id'];
+        $requiredFields = ['task_id', 'status', 'user_id'];
         parent::update($id, $data, $requiredFields);
     }
 }

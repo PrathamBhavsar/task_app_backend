@@ -13,8 +13,13 @@ class MeasurementController extends BaseController
 
     public function getAllByTaskId($taskId)
     {
-        $measurements = $this->model->getAllByTaskId($taskId);
-        sendJson($measurements);
+        parent::getAllByTaskId($taskId);
+    }
+
+    public function createBulk($measurements)
+    {
+        $measurementsById = $this->model->createBulk($measurements);
+        sendJson($measurementsById);
     }
 
     public function createMeasurement($data)
