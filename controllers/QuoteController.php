@@ -9,6 +9,11 @@ class QuoteController extends BaseController
         parent::__construct(new Quote($db), 'quote');
     }
 
+    public function getAllByTaskId($taskId)
+    {
+        parent::getAllByTaskId($taskId);
+    }
+
     public function createQuote($data)
     {
         $requiredFields = ['subtotal', 'tax', 'total', 'notes', 'task_id'];

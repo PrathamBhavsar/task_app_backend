@@ -20,15 +20,14 @@ class Quote
     public function getAllByTaskId($taskId)
     {
         $query = "
-            SELECT b.*
-            FROM quotes b
-            JOIN tasks t ON b.quote_id = t.quote_id
-            WHERE t.task_id = :task_id
+            SELECT *
+            FROM quotes
+            WHERE task_id = :task_id
         ";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function getQuoteIdByTaskId($taskId)

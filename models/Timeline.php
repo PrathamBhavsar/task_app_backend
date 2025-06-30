@@ -43,7 +43,7 @@ class Timeline
         FROM task_timelines tt
         JOIN users u ON tt.user_id = u.user_id
         WHERE tt.task_id = :task_id
-        ORDER BY tt.created_at ASC
+        ORDER BY tt.created_at DESC
     ";
 
         $stmt = $this->conn->prepare($query);

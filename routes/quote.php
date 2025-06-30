@@ -11,7 +11,13 @@ function handleQuoteRoutes($method)
 
     switch ($method) {
         case 'GET':
-            $id ? $controller->show($id) : $controller->index();
+            if (isset($_GET['task_id'])) {
+                $controller->getAllByTaskId($_GET['task_id']);
+            } elseif ($id) {
+                $controller->show($id);
+            } else {
+                $controller->index();
+            }
             break;
         case 'POST':
             $data = json_decode(file_get_contents("php://input"), true);

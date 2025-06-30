@@ -16,8 +16,7 @@ class ServiceController extends BaseController
 
     public function getAllByTaskId($taskId)
     {
-        $services = $this->model->getAllByTaskId($taskId);
-        sendJson($services);
+        parent::getAllByTaskId($taskId);
     }
 
     public function createBulk($services)
