@@ -48,6 +48,63 @@ class Measurement
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getQuoteMeasurementsByTaskId($taskId)
+    {
+        $query = "
+        SELECT 
+            qm.quote_measurement_id,
+            qm.quote_id,
+            qm.measurement_id,
+            qm.quantity,
+            qm.unit_price,
+            qm.total_price,
+            qm.discount,
+
+            q.task_id,
+
+            m.measurement_id AS m_id,
+            m.task_id AS m_task_id,
+            m.location AS m_location,
+            m.width AS m_width,
+            m.height AS m_height,
+            m.notes AS m_notes
+        FROM quote_measurements qm
+        JOIN quotes q ON qm.quote_id = q.quote_id
+        JOIN measurements m ON qm.measurement_id = m.measurement_id
+        WHERE q.task_id = :task_id
+    ";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = [
+                'quote_measurement_id' => $row['quote_measurement_id'],
+                'quote_id' => $row['quote_id'],
+                'quantity' => (int)$row['quantity'],
+                'rate' => (float)$row['unit_price'],
+                'total_price' => (float)$row['total_price'],
+                'discount' => (float)$row['discount'],
+                'task_id' => (int)$row['task_id'],
+                'measurement' => [
+                    'measurement_id' => (int)$row['m_id'],
+                    'task_id' => (int)$row['m_task_id'],
+                    'location' => $row['m_location'],
+                    'width' => $row['m_width'],
+                    'height' => $row['m_height'],
+                    'notes' => $row['m_notes'],
+                ]
+            ];
+        }
+
+        return sendJson(['quote_measurements' => $result]);
+    }
+
+
     public function createBulk($measurements)
     {
         if (empty($measurements)) {

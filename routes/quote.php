@@ -24,9 +24,14 @@ function handleQuoteRoutes($method)
             $controller->createQuote($data);
             break;
         case 'PUT':
-            if (!$id) sendError("Quote ID required for update", 400);
-            $data = json_decode(file_get_contents("php://input"), true);
-            $controller->updateQuote($id, $data);
+            if (isset($_GET['id'])) {
+                if (!$id) sendError("Quote ID required for update", 400);
+                $data = json_decode(file_get_contents("php://input"), true);
+                $controller->updateQuote($id, $data);
+            } else {
+                $data = json_decode(file_get_contents("php://input"), true);
+                $controller->updateQuoteMeasurements($data);
+            }
             break;
         case 'DELETE':
             if (!$id) sendError("Quote ID required for deletion", 400);

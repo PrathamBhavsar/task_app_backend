@@ -63,11 +63,10 @@ class Quote
             $subtotal += $service['quantity'] * $service['unit_price'];
         }
 
-        // 2. Get quote_id (quote must exist or be created)
+
         $quoteId = $this->getQuoteIdByTaskId($taskId);
 
         if (!$quoteId) {
-            // create placeholder quote to get quote_id for quote_measurements
             $this->create([
                 'subtotal' => 0,
                 'tax' => 0,
@@ -75,10 +74,9 @@ class Quote
                 'notes' => null,
                 'task_id' => $taskId
             ]);
-            $quoteId = $this->getQuoteIdByTaskId($taskId); // now get the ID again
+            $quoteId = $this->getQuoteIdByTaskId($taskId);
         }
 
-        // 3. Calculate subtotal from quote_measurements
         $queryMeasurements = "
         SELECT quantity, unit_price 
         FROM quote_measurements 
@@ -93,13 +91,10 @@ class Quote
             $subtotal += $m['quantity'] * $m['unit_price'];
         }
 
-        // 4. Calculate tax (7%)
         $tax = round($subtotal * 0.07, 2);
 
-        // 5. Calculate total
         $total = round($subtotal + $tax, 2);
 
-        // 6. Update the quote
         $updateData = [
             'subtotal' => $subtotal,
             'tax' => $tax,
@@ -111,6 +106,59 @@ class Quote
         return $this->update($quoteId, $updateData);
     }
 
+
+    public function updateQuoteMeasurements(array $measurements)
+    {
+        $query = "
+        UPDATE quote_measurements 
+        SET 
+            quantity = :quantity,
+            unit_price = :unit_price,
+            discount = :discount,
+            total_price = :total_price
+        WHERE measurement_id = :measurement_id
+    ";
+
+        $stmt = $this->conn->prepare($query);
+
+        $quoteId = null;
+
+        foreach ($measurements as $measurement) {
+            $measurementId = $measurement['measurement_id'];
+            $quantity = $measurement['quantity'];
+            $unitPrice = $measurement['unit_price'];
+            $discount = $measurement['discount'];
+
+            // Apply discount as percentage
+            $totalPrice = ($unitPrice * $quantity) * (1 - ($discount / 100));
+            if ($totalPrice < 0) {
+                $totalPrice = 0;
+            }
+
+            $stmt->bindParam(':measurement_id', $measurementId, PDO::PARAM_INT);
+            $stmt->bindParam(':quantity', $quantity, PDO::PARAM_INT);
+            $stmt->bindParam(':unit_price', $unitPrice);
+            $stmt->bindParam(':discount', $discount);
+            $stmt->bindParam(':total_price', $totalPrice);
+            $stmt->execute();
+
+            if (!$quoteId) {
+                $quoteId = $this->getQuoteIdByMeasurementId($measurementId);
+            }
+        }
+
+        return $quoteId ? $this->getById($quoteId) : null;
+    }
+
+    private function getQuoteIdByMeasurementId($measurementId)
+    {
+        $query = "SELECT quote_id FROM quote_measurements WHERE measurement_id = :id LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $measurementId, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? $row['quote_id'] : null;
+    }
 
 
     public function create($data)

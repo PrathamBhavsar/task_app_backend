@@ -16,6 +16,17 @@ class MeasurementController extends BaseController
         parent::getAllByTaskId($taskId);
     }
 
+    public function getQuoteMeasurementsByTaskId($taskId)
+    {
+        $result = $this->model->getQuoteMeasurementsByTaskId($taskId);
+
+        if ($result) {
+            sendJson($result, 200);
+        } else {
+            sendError("Failed to fetch quote measurements", 500);
+        }
+    }
+
     public function createBulk($measurements)
     {
         $measurementsById = $this->model->createBulk($measurements);

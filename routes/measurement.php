@@ -13,6 +13,8 @@ function handleMeasurementRoutes($method)
         case 'GET':
             if (isset($_GET['task_id'])) {
                 $controller->getAllByTaskId($_GET['task_id']);
+            } elseif (isset($_GET['quote_id'])) {
+                $controller->getQuoteMeasurementsByTaskId($_GET['quote_id']);
             } elseif ($id) {
                 $controller->show($id);
             } else {
