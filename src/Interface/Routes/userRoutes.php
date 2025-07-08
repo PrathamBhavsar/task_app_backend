@@ -16,6 +16,7 @@ function handleUserRoutes(string $method)
 {
     $em = EntityManagerFactory::create();
     $repo = new UserRepository($em);
+
     $controller = new UserController(
         new GetAllUsersUseCase($repo),
         new GetUserByIdUseCase($repo),

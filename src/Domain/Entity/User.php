@@ -18,6 +18,9 @@ class User
     private string $email;
 
     #[ORM\Column(type: "string")]
+    private string $password;
+
+    #[ORM\Column(type: "string")]
     private string $contact_no;
 
     #[ORM\Column(type: "datetime")]
@@ -105,6 +108,11 @@ class User
         return $this->email;
     }
 
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
     // Setters
     public function setName(string $name): void
     {
@@ -134,5 +142,10 @@ class User
     public function setEmail(string $email): void
     {
         $this->email = $email;
+    }
+
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
     }
 }

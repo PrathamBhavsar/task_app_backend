@@ -49,11 +49,19 @@ use Application\UseCase\User\{
     DeleteUserUseCase
 };
 
+use Infrastructure\Persistence\Doctrine\AuthRepository;
+use Interface\Controller\AuthController;
+use Application\UseCase\Auth\{
+    LoginUseCase,
+    RegisterUseCase
+};
+
 // Setup database + repository + controller
 $em = EntityManagerFactory::create();
 $designerRepo = new DesignerRepository($em);
 $clientRepo = new ClientRepository($em);
 $userRepo = new UserRepository($em);
+$authRepo = new AuthRepository($em);
 
 $designerController = new DesignerController(
     new GetAllDesignersUseCase($designerRepo),
@@ -77,6 +85,12 @@ $userController = new UserController(
     new CreateUserUseCase($userRepo),
     new UpdateUserUseCase($userRepo),
     new DeleteUserUseCase($userRepo),
+);
+
+
+$authController = new AuthController(
+    new LoginUseCase($authRepo),
+    new RegisterUseCase($authRepo)
 );
 
 // Parse URI
@@ -109,7 +123,22 @@ $routes = [
         'PUT'    => $id ? $userController->update((int)$id, $body) : sendError("ID required", 400),
         'DELETE' => $id ? $userController->delete((int)$id) : sendError("ID required", 400),
         default  => sendError("Method not allowed", 405)
-    }
+    },
+    'auth' => function ($method, $id, $body) use ($segments, $authController) {
+        if ($method !== 'POST') {
+            sendError("Method not allowed", 405);
+        }
+
+        $action = $segments[2] ?? null;
+
+        return match ($action) {
+            'login'    => $authController->login($body),
+            'register' => $authController->register($body),
+            default    => sendError("Missing or invalid action", 400),
+        };
+    },
+
+
 ];
 
 // Ensure the route is valid and within /api/*
