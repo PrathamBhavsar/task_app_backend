@@ -67,6 +67,8 @@ class Measurement
             m.location AS m_location,
             m.width AS m_width,
             m.height AS m_height,
+            m.area AS m_area,
+            m.unit AS m_unit,
             m.notes AS m_notes
         FROM quote_measurements qm
         JOIN quotes q ON qm.quote_id = q.quote_id
@@ -96,6 +98,8 @@ class Measurement
                     'location' => $row['m_location'],
                     'width' => $row['m_width'],
                     'height' => $row['m_height'],
+                    'area' => $row['m_area'],
+                    'unit' => $row['m_unit'],
                     'notes' => $row['m_notes'],
                 ]
             ];
@@ -146,13 +150,15 @@ class Measurement
 
     public function create($data)
     {
-        $query = "INSERT INTO {$this->table} (location, width, height, notes, task_id) 
-              VALUES (:location, :width, :height, :notes, :task_id)";
+        $query = "INSERT INTO {$this->table} (location, width, height, notes, area, unit, task_id) 
+              VALUES (:location, :width, :height, :notes, :area, :unit, :task_id)";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':location', $data['location']);
         $stmt->bindParam(':width', $data['width']);
         $stmt->bindParam(':height', $data['height']);
+        $stmt->bindParam(':area', $data['area']);
+        $stmt->bindParam(':unit', $data['unit']);
         $stmt->bindParam(':notes', $data['notes']);
         $stmt->bindParam(':task_id', $data['task_id']);
 
@@ -180,13 +186,15 @@ class Measurement
     public function update($id, $data)
     {
         $query = "UPDATE {$this->table} 
-              SET location = :location, width = :width, height = :height, notes = :notes, task_id = :task_id
+              SET location = :location, width = :width, height = :height, notes = :notes, area = :area, unit = :unit, task_id = :task_id
               WHERE {$this->id} = :id";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':location', $data['location']);
         $stmt->bindParam(':width', $data['width']);
         $stmt->bindParam(':height', $data['height']);
+        $stmt->bindParam(':area', $data['area']);
+        $stmt->bindParam(':unit', $data['unit']);
         $stmt->bindParam(':notes', $data['notes']);
         $stmt->bindParam(':task_id', $data['task_id']);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);

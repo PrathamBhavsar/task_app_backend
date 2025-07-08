@@ -17,7 +17,6 @@ class TaskController extends BaseController
             'start_date',
             'due_date',
             'priority',
-            'remarks',
             'status',
             'created_by',
             'client_id',

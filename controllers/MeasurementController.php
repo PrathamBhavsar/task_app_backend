@@ -35,13 +35,13 @@ class MeasurementController extends BaseController
 
     public function createMeasurement($data)
     {
-        $requiredFields = ['location', 'width', 'height', 'notes', 'task_id'];
+        $requiredFields = ['location', 'width', 'height', 'notes', 'task_id', 'area'];
         parent::store($data, $requiredFields);
     }
 
     public function updateMeasurement($id, $data)
     {
-        $requiredFields = ['location', 'width', 'height', 'notes', 'task_id'];
+        $requiredFields = ['location', 'width', 'height', 'notes', 'task_id', 'area'];
         parent::update($id, $data, $requiredFields);
     }
 }
