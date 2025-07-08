@@ -39,10 +39,21 @@ use Application\UseCase\Client\{
     DeleteClientUseCase
 };
 
+use Infrastructure\Persistence\Doctrine\UserRepository;
+use Interface\Controller\UserController;
+use Application\UseCase\User\{
+    GetAllUsersUseCase,
+    GetUserByIdUseCase,
+    CreateUserUseCase,
+    UpdateUserUseCase,
+    DeleteUserUseCase
+};
+
 // Setup database + repository + controller
 $em = EntityManagerFactory::create();
 $designerRepo = new DesignerRepository($em);
 $clientRepo = new ClientRepository($em);
+$userRepo = new UserRepository($em);
 
 $designerController = new DesignerController(
     new GetAllDesignersUseCase($designerRepo),
@@ -58,6 +69,14 @@ $clientController = new ClientController(
     new CreateClientUseCase($clientRepo),
     new UpdateClientUseCase($clientRepo),
     new DeleteClientUseCase($clientRepo),
+);
+
+$userController = new UserController(
+    new GetAllUsersUseCase($userRepo),
+    new GetUserByIdUseCase($userRepo),
+    new CreateUserUseCase($userRepo),
+    new UpdateUserUseCase($userRepo),
+    new DeleteUserUseCase($userRepo),
 );
 
 // Parse URI
@@ -82,6 +101,13 @@ $routes = [
         'POST'   => $clientController->store($body),
         'PUT'    => $id ? $clientController->update((int)$id, $body) : sendError("ID required", 400),
         'DELETE' => $id ? $clientController->delete((int)$id) : sendError("ID required", 400),
+        default  => sendError("Method not allowed", 405)
+    },
+    'user' => fn($method, $id, $body) => match ($method) {
+        'GET'    => $id ? $userController->show((int)$id) : $userController->index(),
+        'POST'   => $userController->store($body),
+        'PUT'    => $id ? $userController->update((int)$id, $body) : sendError("ID required", 400),
+        'DELETE' => $id ? $userController->delete((int)$id) : sendError("ID required", 400),
         default  => sendError("Method not allowed", 405)
     }
 ];
