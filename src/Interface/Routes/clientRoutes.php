@@ -1,27 +1,27 @@
 <?php
 
 use Infrastructure\Database\EntityManagerFactory;
-use Infrastructure\Persistence\Doctrine\DesignerRepository;
-use Interface\Controller\DesignerController;
+use Infrastructure\Persistence\Doctrine\ClientRepository;
+use Interface\Controller\ClientController;
 use Interface\Http\JsonResponse;
-use Application\UseCase\Designer\{
-    GetAllDesignersUseCase,
-    GetDesignerByIdUseCase,
-    CreateDesignerUseCase,
-    UpdateDesignerUseCase,
-    DeleteDesignerUseCase
+use Application\UseCase\Client\{
+    GetAllClientsUseCase,
+    GetClientByIdUseCase,
+    CreateClientUseCase,
+    UpdateClientUseCase,
+    DeleteClientUseCase
 };
 
-function handleDesignerRoutes(string $method)
+function handleClientRoutes(string $method)
 {
     $em = EntityManagerFactory::create();
-    $repo = new DesignerRepository($em);
-    $controller = new DesignerController(
-        new GetAllDesignersUseCase($repo),
-        new GetDesignerByIdUseCase($repo),
-        new CreateDesignerUseCase($repo),
-        new UpdateDesignerUseCase($repo),
-        new DeleteDesignerUseCase($repo),
+    $repo = new ClientRepository($em);
+    $controller = new ClientController(
+        new GetAllClientsUseCase($repo),
+        new GetClientByIdUseCase($repo),
+        new CreateClientUseCase($repo),
+        new UpdateClientUseCase($repo),
+        new DeleteClientUseCase($repo),
     );
 
     $id = $_GET['id'] ?? null;

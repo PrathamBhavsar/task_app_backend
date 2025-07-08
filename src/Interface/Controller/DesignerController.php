@@ -2,7 +2,7 @@
 
 namespace Interface\Controller;
 
-use Application\UseCase\{
+use Application\UseCase\Designer\{
     CreateDesignerUseCase,
     GetAllDesignersUseCase,
     GetDesignerByIdUseCase,

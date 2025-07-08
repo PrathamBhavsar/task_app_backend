@@ -21,7 +21,7 @@ require_once __DIR__ . '/../errorHandler.php';
 use Infrastructure\Database\EntityManagerFactory;
 use Infrastructure\Persistence\Doctrine\DesignerRepository;
 use Interface\Controller\DesignerController;
-use Application\UseCase\{
+use Application\UseCase\Designer\{
     GetAllDesignersUseCase,
     GetDesignerByIdUseCase,
     CreateDesignerUseCase,
@@ -29,9 +29,20 @@ use Application\UseCase\{
     DeleteDesignerUseCase
 };
 
+use Infrastructure\Persistence\Doctrine\ClientRepository;
+use Interface\Controller\ClientController;
+use Application\UseCase\Client\{
+    GetAllClientsUseCase,
+    GetClientByIdUseCase,
+    CreateClientUseCase,
+    UpdateClientUseCase,
+    DeleteClientUseCase
+};
+
 // Setup database + repository + controller
 $em = EntityManagerFactory::create();
 $designerRepo = new DesignerRepository($em);
+$clientRepo = new ClientRepository($em);
 
 $designerController = new DesignerController(
     new GetAllDesignersUseCase($designerRepo),
@@ -39,6 +50,14 @@ $designerController = new DesignerController(
     new CreateDesignerUseCase($designerRepo),
     new UpdateDesignerUseCase($designerRepo),
     new DeleteDesignerUseCase($designerRepo),
+);
+
+$clientController = new ClientController(
+    new GetAllClientsUseCase($clientRepo),
+    new GetClientByIdUseCase($clientRepo),
+    new CreateClientUseCase($clientRepo),
+    new UpdateClientUseCase($clientRepo),
+    new DeleteClientUseCase($clientRepo),
 );
 
 // Parse URI
@@ -50,13 +69,19 @@ $resource = $segments[1] ?? null;
 $id = $_GET['id'] ?? null;
 $body = json_decode(file_get_contents("php://input"), true);
 
-// Route map — only Designer for now
 $routes = [
     'designer' => fn($method, $id, $body) => match ($method) {
         'GET'    => $id ? $designerController->show((int)$id) : $designerController->index(),
         'POST'   => $designerController->store($body),
         'PUT'    => $id ? $designerController->update((int)$id, $body) : sendError("ID required", 400),
         'DELETE' => $id ? $designerController->delete((int)$id) : sendError("ID required", 400),
+        default  => sendError("Method not allowed", 405)
+    },
+    'client' => fn($method, $id, $body) => match ($method) {
+        'GET'    => $id ? $clientController->show((int)$id) : $clientController->index(),
+        'POST'   => $clientController->store($body),
+        'PUT'    => $id ? $clientController->update((int)$id, $body) : sendError("ID required", 400),
+        'DELETE' => $id ? $clientController->delete((int)$id) : sendError("ID required", 400),
         default  => sendError("Method not allowed", 405)
     }
 ];

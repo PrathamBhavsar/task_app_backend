@@ -1,6 +1,6 @@
 <?php
 
-namespace Application\UseCase;
+namespace Application\UseCase\Designer;
 
 use Domain\Repository\DesignerRepositoryInterface;
 use Domain\Entity\Designer;
