@@ -8,6 +8,7 @@ use Infrastructure\Persistence\Doctrine\{
     TimelineRepository,
     AuthRepository,
     ServiceMasterRepository,
+    TaskMessageRepository,
 };
 use Interface\Controller\{
     DesignerController,
@@ -15,7 +16,8 @@ use Interface\Controller\{
     UserController,
     TimelineController,
     AuthController,
-    ServiceMasterController
+    ServiceMasterController,
+    TaskMessageController,
 };
 use Application\UseCase\Designer\{
     GetAllDesignersUseCase,
@@ -54,6 +56,14 @@ use Application\UseCase\ServiceMaster\{
     UpdateServiceMasterUseCase,
     DeleteServiceMasterUseCase
 };
+use Application\UseCase\TaskMessage\{
+    GetAllTaskMessagesUseCase,
+    GetAllTaskMessagesByTaskIdUseCase,
+    GetTaskMessageByIdUseCase,
+    CreateTaskMessageUseCase,
+    UpdateTaskMessageUseCase,
+    DeleteTaskMessageUseCase
+};
 
 $em = EntityManagerFactory::create();
 
@@ -76,6 +86,7 @@ $clientController = new ClientController(
 $userRepo = new UserRepository($em);
 $timelineRepo = new TimelineRepository($em);
 $serviceMasterRepo = new ServiceMasterRepository($em);
+$taskMessageRepo = new TaskMessageRepository($em);
 
 $timelineController = new TimelineController(
     new GetAllTimelinesUseCase($timelineRepo),
@@ -105,4 +116,13 @@ $serviceMasterController = new ServiceMasterController(
     new CreateServiceMasterUseCase($serviceMasterRepo),
     new UpdateServiceMasterUseCase($serviceMasterRepo),
     new DeleteServiceMasterUseCase($serviceMasterRepo),
+);
+
+$taskMessageController = new TaskMessageController(
+    new GetAllTaskMessagesUseCase($taskMessageRepo),
+    new GetAllTaskMessagesByTaskIdUseCase($taskMessageRepo),
+    new GetTaskMessageByIdUseCase($taskMessageRepo),
+    new CreateTaskMessageUseCase($taskMessageRepo),
+    new UpdateTaskMessageUseCase($taskMessageRepo),
+    new DeleteTaskMessageUseCase($taskMessageRepo),
 );
