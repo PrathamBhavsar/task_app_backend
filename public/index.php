@@ -49,6 +49,17 @@ use Application\UseCase\User\{
     DeleteUserUseCase
 };
 
+use Infrastructure\Persistence\Doctrine\TimelineRepository;
+use Interface\Controller\TimelineController;
+use Application\UseCase\Timeline\{
+    GetAllTimelinesUseCase,
+    GetAllTimelinesByTaskIdUseCase,
+    GetTimelineByIdUseCase,
+    CreateTimelineUseCase,
+    UpdateTimelineUseCase,
+    DeleteTimelineUseCase
+};
+
 use Infrastructure\Persistence\Doctrine\AuthRepository;
 use Interface\Controller\AuthController;
 use Application\UseCase\Auth\{
@@ -61,6 +72,7 @@ $em = EntityManagerFactory::create();
 $designerRepo = new DesignerRepository($em);
 $clientRepo = new ClientRepository($em);
 $userRepo = new UserRepository($em);
+$timelineRepo = new TimeLineRepository($em);
 $authRepo = new AuthRepository($em);
 
 $designerController = new DesignerController(
@@ -78,6 +90,16 @@ $clientController = new ClientController(
     new UpdateClientUseCase($clientRepo),
     new DeleteClientUseCase($clientRepo),
 );
+
+$timelineController = new TimelineController(
+    new GetAllTimelinesUseCase($timelineRepo),
+    new GetAllTimelinesByTaskIdUseCase($timelineRepo),
+    new GetTimelineByIdUseCase($timelineRepo),
+    new CreateTimelineUseCase($timelineRepo, $userRepo),
+    new UpdateTimelineUseCase($timelineRepo, $userRepo),
+    new DeleteTimelineUseCase($timelineRepo),
+);
+
 
 $userController = new UserController(
     new GetAllUsersUseCase($userRepo),
@@ -123,6 +145,17 @@ $routes = [
         'PUT'    => $id ? $userController->update((int)$id, $body) : sendError("ID required", 400),
         'DELETE' => $id ? $userController->delete((int)$id) : sendError("ID required", 400),
         default  => sendError("Method not allowed", 405)
+    },
+    'timeline' => fn($method, $id, $body) => match ($method) {
+        'GET' => match (true) {
+            isset($_GET['id']) => $timelineController->show((int) $_GET['id']),
+            isset($_GET['task_id']) => $timelineController->getByTaskId((int) $_GET['task_id']),
+            default => $timelineController->index()
+        },
+        'POST' => $timelineController->store($body),
+        'PUT' => isset($_GET['id']) ? $timelineController->update((int) $_GET['id'], $body) : sendError("ID required", 400),
+        'DELETE' => isset($_GET['id']) ? $timelineController->delete((int) $_GET['id']) : sendError("ID required", 400),
+        default => sendError("Method not allowed", 405)
     },
     'auth' => function ($method, $id, $body) use ($segments, $authController) {
         if ($method !== 'POST') {

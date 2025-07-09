@@ -7,7 +7,7 @@ use Domain\Entity\User;
 
 #[ORM\Entity]
 #[ORM\Table(name: "task_timelines")]
-class Timeline
+class Timeline implements \JsonSerializable
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
     private int $timeline_id;
@@ -24,6 +24,17 @@ class Timeline
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "user_id", nullable: false)]
     private User $user;
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'timeline_id' => $this->getId(),
+            'task_id' => $this->getTaskId(),
+            'status' => $this->getStatus(),
+            'created_at' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
+            'user' => $this->getUser()->jsonSerialize(),
+        ];
+    }
 
     public function __construct(int $taskId, string $status, User $user)
     {
@@ -57,5 +68,21 @@ class Timeline
     public function getUser(): User
     {
         return $this->user;
+    }
+
+    // Setters
+    public function setTaskId(int $task_id): void
+    {
+        $this->task_id = $task_id;
+    }
+
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
+    }
+
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
     }
 }

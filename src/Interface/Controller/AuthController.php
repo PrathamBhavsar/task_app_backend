@@ -19,7 +19,7 @@ class AuthController
     {
         $user = $this->login->execute($data['email'], $data['password']);
         return $user
-            ? JsonResponse::ok($user->toArray())
+            ? JsonResponse::ok($user->jsonSerialize())
             : JsonResponse::error("Invalid credentials", 401);
     }
 
@@ -27,7 +27,7 @@ class AuthController
     {
         $user = $this->register->execute($data);
         return $user
-            ? JsonResponse::ok($user->toArray())
+            ? JsonResponse::ok($user->jsonSerialize())
             : JsonResponse::error("Email already registered", 400);
     }
 }

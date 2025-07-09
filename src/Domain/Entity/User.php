@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: "users")]
-class User
+class User implements \JsonSerializable
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
     private int $user_id;
@@ -52,17 +52,17 @@ class User
         $this->profile_bg_color = $profile_bg_color;
     }
 
-    public function toArray(): array
+    public function jsonSerialize(): array
     {
         return [
-            'user_id' => $this->user_id,
-            'name' => $this->name,
-            'email' => $this->email,
-            'contact_no' => $this->contact_no,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'user_type' => $this->user_type,
-            'address' => $this->address,
-            'profile_bg_color' => $this->profile_bg_color,
+            'user_id' => $this->getId(),
+            'name' => $this->getName(),
+            'email' => $this->getEmail(),
+            'contact_no' => $this->getContactNo(),
+            'address' => $this->getAddress(),
+            'user_type' => $this->getUserType(),
+            'profile_bg_color' => $this->getProfileBgColor(),
+            'created_at' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
         ];
     }
 
