@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: "{{classname}}s")]
-class {{ClassName}}
+class {{ClassName}} implements \JsonSerializable
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
     private int ${{classname}}_id;
@@ -15,13 +15,22 @@ class {{ClassName}}
     private string $name;
 
     #[ORM\Column(type: "string")]
+    private string $email;
+
+    #[ORM\Column(type: "string")]
+    private string $password;
+
+    #[ORM\Column(type: "string")]
     private string $contact_no;
+
+    #[ORM\Column(type: "datetime")]
+    private \DateTime $created_at;
+
+    #[ORM\Column(type: "string")]
+    private string ${{classname}}_type;
 
     #[ORM\Column(type: "string")]
     private string $address;
-
-    #[ORM\Column(type: "string")]
-    private string $firm_name;
 
     #[ORM\Column(type: "string")]
     private string $profile_bg_color;
@@ -30,14 +39,31 @@ class {{ClassName}}
         string $name,
         string $contactNo,
         string $address,
-        string $firmName,
-        string $profileBgColor
+        string $email,
+        string ${{classname}}_type,
+        string $profile_bg_color
     ) {
         $this->name = $name;
         $this->contact_no = $contactNo;
         $this->address = $address;
-        $this->firm_name = $firmName;
-        $this->profile_bg_color = $profileBgColor;
+        $this->email = $email;
+        $this->{{classname}}_type = ${{classname}}_type;
+        $this->created_at = new \DateTime();
+        $this->profile_bg_color = $profile_bg_color;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            '{{classname}}_id' => $this->getId(),
+            'name' => $this->getName(),
+            'email' => $this->getEmail(),
+            'contact_no' => $this->getContactNo(),
+            'address' => $this->getAddress(),
+            '{{classname}}_type' => $this->get{{ClassName}}Type(),
+            'profile_bg_color' => $this->getProfileBgColor(),
+            'created_at' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
+        ];
     }
 
     // Getters
@@ -56,19 +82,35 @@ class {{ClassName}}
         return $this->contact_no;
     }
 
-    public function getAddress(): string
+
+    public function getCreatedAt(): \DateTime
     {
-        return $this->address;
+        return $this->created_at;
     }
 
-    public function getFirmName(): string
+    public function get{{ClassName}}Type(): string
     {
-        return $this->firm_name;
+        return $this->{{classname}}_type;
     }
 
     public function getProfileBgColor(): string
     {
         return $this->profile_bg_color;
+    }
+
+    public function getAddress(): string
+    {
+        return $this->address;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
     }
 
     // Setters
@@ -82,18 +124,28 @@ class {{ClassName}}
         $this->contact_no = $contactNo;
     }
 
+    public function set{{ClassName}}Type(string ${{classname}}_type): void
+    {
+        $this->{{classname}}_type = ${{classname}}_type;
+    }
+
+    public function setProfileBgColor(string $profile_bg_color): void
+    {
+        $this->profile_bg_color = $profile_bg_color;
+    }
+
     public function setAddress(string $address): void
     {
         $this->address = $address;
     }
 
-    public function setFirmName(string $firmName): void
+    public function setEmail(string $email): void
     {
-        $this->firm_name = $firmName;
+        $this->email = $email;
     }
 
-    public function setProfileBgColor(string $color): void
+    public function setPassword(string $password): void
     {
-        $this->profile_bg_color = $color;
+        $this->password = $password;
     }
 }

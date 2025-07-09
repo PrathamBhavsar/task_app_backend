@@ -61,6 +61,14 @@ $routes = [
         default => sendError("Method not allowed", 405)
     },
 
+    'service-master' => fn($method, $id, $body) => match ($method) {
+        'GET'    => $id ? $serviceMasterController->show((int)$id) : $serviceMasterController->index(),
+        'POST'   => $serviceMasterController->store($body),
+        'PUT'    => $id ? $serviceMasterController->update((int)$id, $body) : sendError("ID required", 400),
+        'DELETE' => $id ? $serviceMasterController->delete((int)$id) : sendError("ID required", 400),
+        default  => sendError("Method not allowed", 405)
+    },
+
     'auth' => fn($method, $id, $body) => match ($method) {
         'POST' => match ($segments[2] ?? null) {
             'login' => $authController->login($body),

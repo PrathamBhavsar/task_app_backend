@@ -4,7 +4,7 @@ namespace Domain\Repository;
 
 use Domain\Entity\{{ClassName}};
 
-interface DesignerRepositoryInterface
+interface {{ClassName}}RepositoryInterface
 {
     public function findAll(): array;
     public function findById(int $id): ?{{ClassName}};

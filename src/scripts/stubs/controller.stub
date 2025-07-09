@@ -21,44 +21,31 @@ class {{ClassName}}Controller
         private Delete{{ClassName}}UseCase $delete
     ) {}
 
-    private function serialize{{ClassName}}(${{classname}}): array
-    {
-        return [
-            '{{classname}}_id' => ${{classname}}->getId(),
-            'name' => ${{classname}}->getName(),
-            'contact_no' => ${{classname}}->getContactNo(),
-            'address' => ${{classname}}->getAddress(),
-            'firm_name' => ${{classname}}->getFirmName(),
-            'profile_bg_color' => ${{classname}}->getProfileBgColor(),
-        ];
-    }
-
     public function index()
     {
         ${{classname}}s = $this->getAll->execute();
-        $data = array_map([$this, 'serialize{{ClassName}}'], ${{classname}}s);
-        return JsonResponse::ok($data);
+        return JsonResponse::ok(${{classname}}s);
     }
 
     public function show(int $id)
     {
         ${{classname}} = $this->getById->execute($id);
         return ${{classname}}
-            ? JsonResponse::ok($this->serialize{{ClassName}}(${{classname}}))
+            ? JsonResponse::ok(${{classname}})
             : JsonResponse::error("{{ClassName}} not found", 404);
     }
 
     public function store(array $data)
     {
         ${{classname}} = $this->create->execute($data);
-        return JsonResponse::ok($this->serialize{{ClassName}}(${{classname}}));
+        return JsonResponse::ok(${{classname}});
     }
 
     public function update(int $id, array $data)
     {
         ${{classname}} = $this->update->execute($id, $data);
         return ${{classname}}
-            ? JsonResponse::ok($this->serialize{{ClassName}}(${{classname}}))
+            ? JsonResponse::ok(${{classname}})
             : JsonResponse::error("{{ClassName}} not found", 404);
     }
 

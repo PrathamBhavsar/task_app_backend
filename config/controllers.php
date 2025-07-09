@@ -6,14 +6,16 @@ use Infrastructure\Persistence\Doctrine\{
     ClientRepository,
     UserRepository,
     TimelineRepository,
-    AuthRepository
+    AuthRepository,
+    ServiceMasterRepository,
 };
 use Interface\Controller\{
     DesignerController,
     ClientController,
     UserController,
     TimelineController,
-    AuthController
+    AuthController,
+    ServiceMasterController
 };
 use Application\UseCase\Designer\{
     GetAllDesignersUseCase,
@@ -45,6 +47,13 @@ use Application\UseCase\Timeline\{
     DeleteTimelineUseCase
 };
 use Application\UseCase\Auth\{LoginUseCase, RegisterUseCase};
+use Application\UseCase\ServiceMaster\{
+    GetAllServiceMastersUseCase,
+    GetServiceMasterByIdUseCase,
+    CreateServiceMasterUseCase,
+    UpdateServiceMasterUseCase,
+    DeleteServiceMasterUseCase
+};
 
 $em = EntityManagerFactory::create();
 
@@ -66,6 +75,8 @@ $clientController = new ClientController(
 
 $userRepo = new UserRepository($em);
 $timelineRepo = new TimelineRepository($em);
+$serviceMasterRepo = new ServiceMasterRepository($em);
+
 $timelineController = new TimelineController(
     new GetAllTimelinesUseCase($timelineRepo),
     new GetAllTimelinesByTaskIdUseCase($timelineRepo),
@@ -86,4 +97,12 @@ $userController = new UserController(
 $authController = new AuthController(
     new LoginUseCase(new AuthRepository($em)),
     new RegisterUseCase(new AuthRepository($em))
+);
+
+$serviceMasterController = new ServiceMasterController(
+    new GetAllServiceMastersUseCase($serviceMasterRepo),
+    new GetServiceMasterByIdUseCase($serviceMasterRepo),
+    new CreateServiceMasterUseCase($serviceMasterRepo),
+    new UpdateServiceMasterUseCase($serviceMasterRepo),
+    new DeleteServiceMasterUseCase($serviceMasterRepo),
 );
