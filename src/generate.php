@@ -42,4 +42,27 @@ foreach ($map as $target => $stubPath) {
 
     file_put_contents($target, $content);
     echo "✅ Created: $target\n";
+
+    // Step 1: Print use-case imports
+    echo "\n📌 Add the following to your controller setup:\n\n";
+
+    echo "use Application\\UseCase\\{$feature}\\{\n";
+    echo "    GetAll{$feature}sUseCase,\n";
+    echo "    Get{$feature}ByIdUseCase,\n";
+    echo "    Create{$feature}UseCase,\n";
+    echo "    Update{$feature}UseCase,\n";
+    echo "    Delete{$feature}UseCase\n";
+    echo "};\n\n";
+
+    // Step 2: Print repository initialization
+    echo "\$${camelCase}Repo = new {$feature}Repository(\$em);\n\n";
+
+    // Step 3: Print controller constructor
+    echo "\$${camelCase}Controller = new {$feature}Controller(\n";
+    echo "    new GetAll{$feature}sUseCase(\$${camelCase}Repo),\n";
+    echo "    new Get{$feature}ByIdUseCase(\$${camelCase}Repo),\n";
+    echo "    new Create{$feature}UseCase(\$${camelCase}Repo),\n";
+    echo "    new Update{$feature}UseCase(\$${camelCase}Repo),\n";
+    echo "    new Delete{$feature}UseCase(\$${camelCase}Repo),\n";
+    echo ");\n";
 }
