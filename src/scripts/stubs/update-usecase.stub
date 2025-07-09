@@ -1,0 +1,25 @@
+<?php
+
+namespace Application\UseCase\{{ClassName}};
+
+use Domain\Repository\{{ClassName}}RepositoryInterface;
+use Domain\Entity\{{ClassName}};
+
+class Update{{ClassName}}UseCase
+{
+    public function __construct(private {{ClassName}}RepositoryInterface $repo) {}
+
+    public function execute(int $id, array $data): ?{{ClassName}}
+    {
+        ${{classname}} = $this->repo->findById($id);
+        if (!${{classname}}) return null;
+
+        ${{classname}}->setName($data['name']);
+        ${{classname}}->setContactNo($data['contact_no']);
+        ${{classname}}->setAddress($data['address']);
+        ${{classname}}->setFirmName($data['firm_name']);
+        ${{classname}}->setProfileBgColor($data['profile_bg_color']);
+
+        return $this->repo->save(${{classname}});
+    }
+}

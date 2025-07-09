@@ -1,0 +1,35 @@
+<?php
+
+namespace Infrastructure\Persistence\Doctrine;
+
+use Domain\Entity\{{ClassName}};
+use Domain\Repository\{{ClassName}}RepositoryInterface;
+use Doctrine\ORM\EntityManagerInterface;
+
+class {{ClassName}}Repository implements {{ClassName}}RepositoryInterface
+{
+    public function __construct(private EntityManagerInterface $em) {}
+
+    public function findAll(): array
+    {
+        return $this->em->getRepository({{ClassName}}::class)->findAll();
+    }
+
+    public function findById(int $id): ?{{ClassName}}
+    {
+        return $this->em->getRepository({{ClassName}}::class)->find($id);
+    }
+
+    public function save({{ClassName}} ${{classname}}): {{ClassName}}
+    {
+        $this->em->persist(${{classname}});
+        $this->em->flush();
+        return ${{classname}};
+    }
+
+    public function delete({{ClassName}} ${{classname}}): void
+    {
+        $this->em->remove(${{classname}});
+        $this->em->flush();
+    }
+}

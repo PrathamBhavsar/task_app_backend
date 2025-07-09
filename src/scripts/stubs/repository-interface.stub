@@ -1,0 +1,13 @@
+<?php
+
+namespace Domain\Repository;
+
+use Domain\Entity\{{ClassName}};
+
+interface DesignerRepositoryInterface
+{
+    public function findAll(): array;
+    public function findById(int $id): ?{{ClassName}};
+    public function save({{ClassName}} ${{classname}}): {{ClassName}};
+    public function delete({{ClassName}} ${{classname}}): void;
+}

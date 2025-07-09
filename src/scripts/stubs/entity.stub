@@ -1,0 +1,99 @@
+<?php
+
+namespace Domain\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+#[ORM\Table(name: "{{classname}}s")]
+class {{ClassName}}
+{
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
+    private int ${{classname}}_id;
+
+    #[ORM\Column(type: "string")]
+    private string $name;
+
+    #[ORM\Column(type: "string")]
+    private string $contact_no;
+
+    #[ORM\Column(type: "string")]
+    private string $address;
+
+    #[ORM\Column(type: "string")]
+    private string $firm_name;
+
+    #[ORM\Column(type: "string")]
+    private string $profile_bg_color;
+
+    public function __construct(
+        string $name,
+        string $contactNo,
+        string $address,
+        string $firmName,
+        string $profileBgColor
+    ) {
+        $this->name = $name;
+        $this->contact_no = $contactNo;
+        $this->address = $address;
+        $this->firm_name = $firmName;
+        $this->profile_bg_color = $profileBgColor;
+    }
+
+    // Getters
+    public function getId(): int
+    {
+        return $this->{{classname}}_id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getContactNo(): string
+    {
+        return $this->contact_no;
+    }
+
+    public function getAddress(): string
+    {
+        return $this->address;
+    }
+
+    public function getFirmName(): string
+    {
+        return $this->firm_name;
+    }
+
+    public function getProfileBgColor(): string
+    {
+        return $this->profile_bg_color;
+    }
+
+    // Setters
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function setContactNo(string $contactNo): void
+    {
+        $this->contact_no = $contactNo;
+    }
+
+    public function setAddress(string $address): void
+    {
+        $this->address = $address;
+    }
+
+    public function setFirmName(string $firmName): void
+    {
+        $this->firm_name = $firmName;
+    }
+
+    public function setProfileBgColor(string $color): void
+    {
+        $this->profile_bg_color = $color;
+    }
+}

@@ -3,12 +3,15 @@
         "doctrine/orm": "^3.5",
         "symfony/cache": "^7.3"
     },
-      "autoload": {
-    "psr-4": {
-      "Domain\\": "src/Domain/",
-      "Application\\": "src/Application/",
-      "Infrastructure\\": "src/Infrastructure/",
-      "Interface\\": "src/Interface/"
-    }
+    "autoload": {
+      "psr-4": {
+        "Domain\\": "src/Domain/",
+        "Application\\": "src/Application/",
+        "Infrastructure\\": "src/Infrastructure/",
+        "Interface\\": "src/Interface/"
+      }
+  },
+    "scripts": {
+      "generate-feature": "php src/generate.php"
   }
 }

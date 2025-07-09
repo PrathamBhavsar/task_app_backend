@@ -1,0 +1,16 @@
+<?php
+
+namespace Application\UseCase\{{ClassName}};
+
+use Domain\Repository\{{ClassName}}RepositoryInterface;
+use Domain\Entity\{{ClassName}};
+
+class Get{{ClassName}}ByIdUseCase
+{
+    public function __construct(private {{ClassName}}RepositoryInterface $repo) {}
+
+    public function execute(int $id): ?{{ClassName}}
+    {
+        return $this->repo->findById($id);
+    }
+}

@@ -1,0 +1,18 @@
+<?php
+
+namespace Application\UseCase\{{ClassName}};
+
+use Domain\Repository\{{ClassName}}RepositoryInterface;
+
+class Delete{{ClassName}}UseCase
+{
+    public function __construct(private {{ClassName}}RepositoryInterface $repo) {}
+
+    public function execute(int $id): void
+    {
+        ${{classname}} = $this->repo->findById($id);
+        if (${{classname}}) {
+            $this->repo->delete(${{classname}});
+        }
+    }
+}
