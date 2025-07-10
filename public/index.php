@@ -81,6 +81,18 @@ $routes = [
         default => sendError("Method not allowed", 405)
     },
 
+    'measurement' => fn($method, $id, $body) => match ($method) {
+        'GET' => match (true) {
+            isset($_GET['id']) => $measurementController->show((int) $_GET['id']),
+            isset($_GET['task_id']) => $measurementController->getByTaskId((int) $_GET['task_id']),
+            default => $measurementController->index()
+        },
+        'POST' => $measurementController->store($body),
+        'PUT' => isset($_GET['id']) ? $measurementController->update((int) $_GET['id'], $body) : sendError("ID required", 400),
+        'DELETE' => isset($_GET['id']) ? $measurementController->delete((int) $_GET['id']) : sendError("ID required", 400),
+        default => sendError("Method not allowed", 405)
+    },
+
     'service-master' => fn($method, $id, $body) => match ($method) {
         'GET'    => $id ? $serviceMasterController->show((int)$id) : $serviceMasterController->index(),
         'POST'   => $serviceMasterController->store($body),

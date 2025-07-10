@@ -10,6 +10,7 @@ use Infrastructure\Persistence\Doctrine\{
     ServiceMasterRepository,
     TaskMessageRepository,
     TaskRepository,
+    MeasurementRepository
 };
 use Interface\Controller\{
     DesignerController,
@@ -20,6 +21,7 @@ use Interface\Controller\{
     ServiceMasterController,
     TaskMessageController,
     TaskController,
+    MeasurementController
 };
 use Application\UseCase\Designer\{
     GetAllDesignersUseCase,
@@ -73,6 +75,14 @@ use Application\UseCase\Task\{
     UpdateTaskUseCase,
     DeleteTaskUseCase
 };
+use Application\UseCase\Measurement\{
+    GetAllMeasurementsUseCase,
+    GetAllMeasurementsByTaskIdUseCase,
+    GetMeasurementByIdUseCase,
+    CreateMeasurementUseCase,
+    UpdateMeasurementUseCase,
+    DeleteMeasurementUseCase
+};
 
 $em = EntityManagerFactory::create();
 
@@ -97,6 +107,7 @@ $timelineRepo = new TimelineRepository($em);
 $serviceMasterRepo = new ServiceMasterRepository($em);
 $taskMessageRepo = new TaskMessageRepository($em);
 $taskRepo = new TaskRepository($em);
+$measurementRepo = new MeasurementRepository($em);
 
 $timelineController = new TimelineController(
     new GetAllTimelinesUseCase($timelineRepo),
@@ -143,4 +154,13 @@ $taskController = new TaskController(
     new CreateTaskUseCase($taskRepo),
     new UpdateTaskUseCase($taskRepo),
     new DeleteTaskUseCase($taskRepo),
+);
+
+$measurementController = new MeasurementController(
+    new GetAllMeasurementsUseCase($measurementRepo),
+    new GetAllMeasurementsByTaskIdUseCase($measurementRepo),
+    new GetMeasurementByIdUseCase($measurementRepo),
+    new CreateMeasurementUseCase($measurementRepo),
+    new UpdateMeasurementUseCase($measurementRepo),
+    new DeleteMeasurementUseCase($measurementRepo),
 );
