@@ -15,6 +15,13 @@ class QuoteRepository implements QuoteRepositoryInterface
         return $this->em->getRepository(Quote::class)->findAll();
     }
 
+    public function findByTaskId(int $taskId): Quote
+    {
+        return $this->em->getRepository(Quote::class)
+            ->findOneBy(['task_id' => $taskId]);
+    }
+
+
     public function findById(int $id): ?Quote
     {
         return $this->em->getRepository(Quote::class)->find($id);

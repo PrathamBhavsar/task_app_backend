@@ -5,6 +5,7 @@ namespace Interface\Controller;
 use Application\UseCase\Quote\{
     CreateQuoteUseCase,
     GetAllQuotesUseCase,
+    GetQuoteByTaskIdUseCase,
     GetQuoteByIdUseCase,
     UpdateQuoteUseCase,
     DeleteQuoteUseCase
@@ -15,6 +16,7 @@ class QuoteController
 {
     public function __construct(
         private GetAllQuotesUseCase $getAll,
+        private GetQuoteByTaskIdUseCase $getByTaskId,
         private GetQuoteByIdUseCase $getById,
         private CreateQuoteUseCase $create,
         private UpdateQuoteUseCase $update,
@@ -33,6 +35,12 @@ class QuoteController
         return $quote
             ? JsonResponse::ok($quote)
             : JsonResponse::error("Quote not found", 404);
+    }
+
+    public function getByTaskId(int $taskId)
+    {
+        $quote = $this->getByTaskId->execute($taskId);
+        return JsonResponse::ok($quote);
     }
 
     public function store(array $data)

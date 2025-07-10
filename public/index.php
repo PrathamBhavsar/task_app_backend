@@ -99,14 +99,18 @@ $routes = [
             isset($_GET['task_id']) => $serviceController->getByTaskId((int) $_GET['task_id']),
             default => $serviceController->index()
         },
-        'POST' => $measurementController->store($body),
-        'PUT' => isset($_GET['id']) ? $measurementController->update((int) $_GET['id'], $body) : sendError("ID required", 400),
-        'DELETE' => isset($_GET['id']) ? $measurementController->delete((int) $_GET['id']) : sendError("ID required", 400),
+        'POST' => $serviceController->store($body),
+        'PUT' => isset($_GET['id']) ? $serviceController->update((int) $_GET['id'], $body) : sendError("ID required", 400),
+        'DELETE' => isset($_GET['id']) ? $serviceController->delete((int) $_GET['id']) : sendError("ID required", 400),
         default => sendError("Method not allowed", 405)
     },
 
     'quote' => fn($method, $id, $body) => match ($method) {
-        'GET'    => $id ? $quoteController->show((int)$id) : $quoteController->index(),
+        'GET' => match (true) {
+            isset($_GET['id']) => $quoteController->show((int) $_GET['id']),
+            isset($_GET['task_id']) => $quoteController->getByTaskId((int) $_GET['task_id']),
+            default => $quoteController->index()
+        },
         'POST'   => $quoteController->store($body),
         'PUT'    => $id ? $quoteController->update((int)$id, $body) : sendError("ID required", 400),
         'DELETE' => $id ? $quoteController->delete((int)$id) : sendError("ID required", 400),

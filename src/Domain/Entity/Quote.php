@@ -11,6 +11,10 @@ class Quote implements \JsonSerializable
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
     private int $quote_id;
 
+    #[ORM\Column(type: "integer")]
+    private int $task_id;
+
+
     #[ORM\Column(type: "float")]
     private float $subtotal;
 
@@ -25,9 +29,6 @@ class Quote implements \JsonSerializable
 
     #[ORM\Column(type: "datetime")]
     private \DateTime $created_at;
-
-    #[ORM\Column(type: "integer")]
-    private string $task_id;
 
     public function __construct(
         float $subtotal,

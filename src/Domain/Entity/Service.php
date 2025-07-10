@@ -84,7 +84,7 @@ class Service implements \JsonSerializable
     }
 
     // Setters
-    public function setTaskId(string $taskId): void
+    public function setTaskId(int $taskId): void
     {
         $this->task_id = $taskId;
     }

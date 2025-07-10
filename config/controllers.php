@@ -97,6 +97,7 @@ use Application\UseCase\Service\{
 };
 use Application\UseCase\Quote\{
     GetAllQuotesUseCase,
+    GetQuoteByTaskIdUseCase,
     GetQuoteByIdUseCase,
     CreateQuoteUseCase,
     UpdateQuoteUseCase,
@@ -104,8 +105,6 @@ use Application\UseCase\Quote\{
 };
 
 $em = EntityManagerFactory::create();
-
-
 
 $designerRepo = new DesignerRepository($em);
 $clientRepo = new ClientRepository($em);
@@ -194,13 +193,14 @@ $serviceController = new ServiceController(
     new GetAllServicesUseCase($serviceRepo),
     new GetAllServicesByTaskIdUseCase($serviceRepo),
     new GetServiceByIdUseCase($serviceRepo),
-    new CreateServiceUseCase($serviceRepo),
-    new UpdateServiceUseCase($serviceRepo),
+    new CreateServiceUseCase($serviceRepo, $quoteRepo, $serviceMasterRepo),
+    new UpdateServiceUseCase($serviceRepo, $quoteRepo, $serviceMasterRepo),
     new DeleteServiceUseCase($serviceRepo),
 );
 
 $quoteController = new QuoteController(
     new GetAllQuotesUseCase($quoteRepo),
+    new GetQuoteByTaskIdUseCase($quoteRepo),
     new GetQuoteByIdUseCase($quoteRepo),
     new CreateQuoteUseCase($quoteRepo),
     new UpdateQuoteUseCase($quoteRepo),
