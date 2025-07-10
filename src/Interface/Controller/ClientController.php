@@ -21,43 +21,31 @@ class ClientController
         private DeleteClientUseCase $delete
     ) {}
 
-    private function serializeClient($client): array
-    {
-        return [
-            'client_id' => $client->getId(),
-            'name' => $client->getName(),
-            'contact_no' => $client->getContactNo(),
-            'address' => $client->getAddress(),
-            'email' => $client->getEmail(),
-        ];
-    }
-
     public function index()
     {
         $clients = $this->getAll->execute();
-        $data = array_map([$this, 'serializeClient'], $clients);
-        return JsonResponse::ok($data);
+        return JsonResponse::ok($clients);
     }
 
     public function show(int $id)
     {
         $client = $this->getById->execute($id);
         return $client
-            ? JsonResponse::ok($this->serializeClient($client))
+            ? JsonResponse::ok($client)
             : JsonResponse::error("Client not found", 404);
     }
 
     public function store(array $data)
     {
         $client = $this->create->execute($data);
-        return JsonResponse::ok($this->serializeClient($client));
+        return JsonResponse::ok($client);
     }
 
     public function update(int $id, array $data)
     {
         $client = $this->update->execute($id, $data);
         return $client
-            ? JsonResponse::ok($this->serializeClient($client))
+            ? JsonResponse::ok($client)
             : JsonResponse::error("Client not found", 404);
     }
 

@@ -49,6 +49,14 @@ $routes = [
         default  => sendError("Method not allowed", 405)
     },
 
+    'task' => fn($method, $id, $body) => match ($method) {
+        'GET'    => $id ? $taskController->show((int)$id) : $taskController->index(),
+        'POST'   => $taskController->store($body),
+        'PUT'    => $id ? $taskController->update((int)$id, $body) : sendError("ID required", 400),
+        'DELETE' => $id ? $taskController->delete((int)$id) : sendError("ID required", 400),
+        default  => sendError("Method not allowed", 405)
+    },
+
     'timeline' => fn($method, $id, $body) => match ($method) {
         'GET' => match (true) {
             isset($_GET['id']) => $timelineController->show((int) $_GET['id']),

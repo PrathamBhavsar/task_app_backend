@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: "clients")]
-class Client
+class Client implements \JsonSerializable
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
     private int $client_id;
@@ -33,6 +33,17 @@ class Client
         $this->contact_no = $contactNo;
         $this->address = $address;
         $this->email = $email;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'client_id' => $this->getId(),
+            'name' => $this->getName(),
+            'contact_no' => $this->getContactNo(),
+            'address' => $this->getAddress(),
+            'email' => $this->getEmail(),
+        ];
     }
 
     // Getters
