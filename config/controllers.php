@@ -10,7 +10,8 @@ use Infrastructure\Persistence\Doctrine\{
     ServiceMasterRepository,
     TaskMessageRepository,
     TaskRepository,
-    MeasurementRepository
+    MeasurementRepository,
+    ServiceRepository
 };
 use Interface\Controller\{
     DesignerController,
@@ -21,7 +22,8 @@ use Interface\Controller\{
     ServiceMasterController,
     TaskMessageController,
     TaskController,
-    MeasurementController
+    MeasurementController,
+    ServiceController
 };
 use Application\UseCase\Designer\{
     GetAllDesignersUseCase,
@@ -83,31 +85,44 @@ use Application\UseCase\Measurement\{
     UpdateMeasurementUseCase,
     DeleteMeasurementUseCase
 };
+use Application\UseCase\Service\{
+    GetAllServicesUseCase,
+    GetAllServicesByTaskIdUseCase,
+    GetServiceByIdUseCase,
+    CreateServiceUseCase,
+    UpdateServiceUseCase,
+    DeleteServiceUseCase
+};
 
 $em = EntityManagerFactory::create();
 
-$designerController = new DesignerController(
-    new GetAllDesignersUseCase(new DesignerRepository($em)),
-    new GetDesignerByIdUseCase(new DesignerRepository($em)),
-    new CreateDesignerUseCase(new DesignerRepository($em)),
-    new UpdateDesignerUseCase(new DesignerRepository($em)),
-    new DeleteDesignerUseCase(new DesignerRepository($em))
-);
 
-$clientController = new ClientController(
-    new GetAllClientsUseCase(new ClientRepository($em)),
-    new GetClientByIdUseCase(new ClientRepository($em)),
-    new CreateClientUseCase(new ClientRepository($em)),
-    new UpdateClientUseCase(new ClientRepository($em)),
-    new DeleteClientUseCase(new ClientRepository($em))
-);
 
+$designerRepo = new DesignerRepository($em);
+$clientRepo = new ClientRepository($em);
 $userRepo = new UserRepository($em);
 $timelineRepo = new TimelineRepository($em);
 $serviceMasterRepo = new ServiceMasterRepository($em);
 $taskMessageRepo = new TaskMessageRepository($em);
 $taskRepo = new TaskRepository($em);
 $measurementRepo = new MeasurementRepository($em);
+$serviceRepo = new ServiceRepository($em);
+
+$designerController = new DesignerController(
+    new GetAllDesignersUseCase($designerRepo),
+    new GetDesignerByIdUseCase($designerRepo),
+    new CreateDesignerUseCase($designerRepo),
+    new UpdateDesignerUseCase($designerRepo),
+    new DeleteDesignerUseCase($designerRepo),
+);
+
+$clientController = new ClientController(
+    new GetAllClientsUseCase($clientRepo),
+    new GetClientByIdUseCase($clientRepo),
+    new CreateClientUseCase($clientRepo),
+    new UpdateClientUseCase($clientRepo),
+    new DeleteClientUseCase($clientRepo),
+);
 
 $timelineController = new TimelineController(
     new GetAllTimelinesUseCase($timelineRepo),
@@ -163,4 +178,13 @@ $measurementController = new MeasurementController(
     new CreateMeasurementUseCase($measurementRepo),
     new UpdateMeasurementUseCase($measurementRepo),
     new DeleteMeasurementUseCase($measurementRepo),
+);
+
+$serviceController = new ServiceController(
+    new GetAllServicesUseCase($serviceRepo),
+    new GetAllServicesByTaskIdUseCase($serviceRepo),
+    new GetServiceByIdUseCase($serviceRepo),
+    new CreateServiceUseCase($serviceRepo),
+    new UpdateServiceUseCase($serviceRepo),
+    new DeleteServiceUseCase($serviceRepo),
 );
