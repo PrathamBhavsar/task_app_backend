@@ -105,6 +105,14 @@ $routes = [
         default => sendError("Method not allowed", 405)
     },
 
+    'quote' => fn($method, $id, $body) => match ($method) {
+        'GET'    => $id ? $quoteController->show((int)$id) : $quoteController->index(),
+        'POST'   => $quoteController->store($body),
+        'PUT'    => $id ? $quoteController->update((int)$id, $body) : sendError("ID required", 400),
+        'DELETE' => $id ? $quoteController->delete((int)$id) : sendError("ID required", 400),
+        default  => sendError("Method not allowed", 405)
+    },
+
     'service-master' => fn($method, $id, $body) => match ($method) {
         'GET'    => $id ? $serviceMasterController->show((int)$id) : $serviceMasterController->index(),
         'POST'   => $serviceMasterController->store($body),

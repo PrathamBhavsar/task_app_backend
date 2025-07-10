@@ -11,7 +11,8 @@ use Infrastructure\Persistence\Doctrine\{
     TaskMessageRepository,
     TaskRepository,
     MeasurementRepository,
-    ServiceRepository
+    ServiceRepository,
+    QuoteRepository
 };
 use Interface\Controller\{
     DesignerController,
@@ -23,7 +24,8 @@ use Interface\Controller\{
     TaskMessageController,
     TaskController,
     MeasurementController,
-    ServiceController
+    ServiceController,
+    QuoteController
 };
 use Application\UseCase\Designer\{
     GetAllDesignersUseCase,
@@ -93,6 +95,13 @@ use Application\UseCase\Service\{
     UpdateServiceUseCase,
     DeleteServiceUseCase
 };
+use Application\UseCase\Quote\{
+    GetAllQuotesUseCase,
+    GetQuoteByIdUseCase,
+    CreateQuoteUseCase,
+    UpdateQuoteUseCase,
+    DeleteQuoteUseCase
+};
 
 $em = EntityManagerFactory::create();
 
@@ -107,6 +116,7 @@ $taskMessageRepo = new TaskMessageRepository($em);
 $taskRepo = new TaskRepository($em);
 $measurementRepo = new MeasurementRepository($em);
 $serviceRepo = new ServiceRepository($em);
+$quoteRepo = new QuoteRepository($em);
 
 $designerController = new DesignerController(
     new GetAllDesignersUseCase($designerRepo),
@@ -187,4 +197,12 @@ $serviceController = new ServiceController(
     new CreateServiceUseCase($serviceRepo),
     new UpdateServiceUseCase($serviceRepo),
     new DeleteServiceUseCase($serviceRepo),
+);
+
+$quoteController = new QuoteController(
+    new GetAllQuotesUseCase($quoteRepo),
+    new GetQuoteByIdUseCase($quoteRepo),
+    new CreateQuoteUseCase($quoteRepo),
+    new UpdateQuoteUseCase($quoteRepo),
+    new DeleteQuoteUseCase($quoteRepo),
 );
