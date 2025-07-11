@@ -125,6 +125,14 @@ $routes = [
         default  => sendError("Method not allowed", 405)
     },
 
+    'quote-measurement' => fn($method, $id, $body) => match ($method) {
+        'GET'    => $id ? $quoteMeasurementController->show((int)$id) : $quoteMeasurementController->index(),
+        'POST'   => $quoteMeasurementController->store($body),
+        'PUT'    => $id ? $quoteMeasurementController->update((int)$id, $body) : sendError("ID required", 400),
+        'DELETE' => $id ? $quoteMeasurementController->delete((int)$id) : sendError("ID required", 400),
+        default  => sendError("Method not allowed", 405)
+    },
+
     'auth' => fn($method, $id, $body) => match ($method) {
         'POST' => match ($segments[2] ?? null) {
             'login' => $authController->login($body),

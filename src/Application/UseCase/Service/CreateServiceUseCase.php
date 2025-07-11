@@ -43,7 +43,7 @@ class CreateServiceUseCase
         $services = $this->serviceRepo->findAllByTaskId($taskId);
 
         $subtotal = array_reduce($services, fn($carry, $s) => $carry + $s->getTotalAmount(), 0.0);
-        $tax = round($subtotal * 0.07, 2); // 7% tax
+        $tax = round($subtotal * 0.07, 2);
         $total = $subtotal + $tax;
 
         $quote = $this->quoteRepo->findByTaskId($taskId);

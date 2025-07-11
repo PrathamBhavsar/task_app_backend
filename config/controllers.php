@@ -12,7 +12,8 @@ use Infrastructure\Persistence\Doctrine\{
     TaskRepository,
     MeasurementRepository,
     ServiceRepository,
-    QuoteRepository
+    QuoteRepository,
+    QuoteMeasurementRepository
 };
 use Interface\Controller\{
     DesignerController,
@@ -25,7 +26,8 @@ use Interface\Controller\{
     TaskController,
     MeasurementController,
     ServiceController,
-    QuoteController
+    QuoteController,
+    QuoteMeasurementController
 };
 use Application\UseCase\Designer\{
     GetAllDesignersUseCase,
@@ -103,6 +105,13 @@ use Application\UseCase\Quote\{
     UpdateQuoteUseCase,
     DeleteQuoteUseCase
 };
+use Application\UseCase\QuoteMeasurement\{
+    GetAllQuoteMeasurementsUseCase,
+    GetQuoteMeasurementByIdUseCase,
+    CreateQuoteMeasurementUseCase,
+    UpdateQuoteMeasurementUseCase,
+    DeleteQuoteMeasurementUseCase
+};
 
 $em = EntityManagerFactory::create();
 
@@ -116,6 +125,7 @@ $taskRepo = new TaskRepository($em);
 $measurementRepo = new MeasurementRepository($em);
 $serviceRepo = new ServiceRepository($em);
 $quoteRepo = new QuoteRepository($em);
+$quoteMeasurementRepo = new QuoteMeasurementRepository($em);
 
 $designerController = new DesignerController(
     new GetAllDesignersUseCase($designerRepo),
@@ -184,7 +194,7 @@ $measurementController = new MeasurementController(
     new GetAllMeasurementsUseCase($measurementRepo),
     new GetAllMeasurementsByTaskIdUseCase($measurementRepo),
     new GetMeasurementByIdUseCase($measurementRepo),
-    new CreateMeasurementUseCase($measurementRepo),
+    new CreateMeasurementUseCase($measurementRepo, $quoteRepo),
     new UpdateMeasurementUseCase($measurementRepo),
     new DeleteMeasurementUseCase($measurementRepo),
 );
@@ -205,4 +215,12 @@ $quoteController = new QuoteController(
     new CreateQuoteUseCase($quoteRepo),
     new UpdateQuoteUseCase($quoteRepo),
     new DeleteQuoteUseCase($quoteRepo),
+);
+
+$quoteMeasurementController = new QuoteMeasurementController(
+    new GetAllQuoteMeasurementsUseCase($quoteMeasurementRepo),
+    new GetQuoteMeasurementByIdUseCase($quoteMeasurementRepo),
+    new CreateQuoteMeasurementUseCase($quoteMeasurementRepo),
+    new UpdateQuoteMeasurementUseCase($quoteMeasurementRepo),
+    new DeleteQuoteMeasurementUseCase($quoteMeasurementRepo),
 );
