@@ -78,6 +78,7 @@ use Application\UseCase\Task\{
     GetAllTasksUseCase,
     GetTaskByIdUseCase,
     CreateTaskUseCase,
+    UpdateTaskStatusUseCase,
     UpdateTaskUseCase,
     DeleteTaskUseCase
 };
@@ -188,6 +189,7 @@ $taskController = new TaskController(
     new GetTaskByIdUseCase($taskRepo),
     new CreateTaskUseCase($taskRepo),
     new UpdateTaskUseCase($taskRepo),
+    new UpdateTaskStatusUseCase($taskRepo),
     new DeleteTaskUseCase($taskRepo),
 );
 

@@ -15,10 +15,15 @@ class UpdateTaskUseCase
         if (!$task) return null;
 
         $task->setName($data['name']);
-        $task->setContactNo($data['contact_no']);
-        $task->setAddress($data['address']);
-        $task->setFirmName($data['firm_name']);
-        $task->setProfileBgColor($data['profile_bg_color']);
+        $task->setDealNo($data['deal_no']);
+        $task->setStartDate($data['start_date']);
+        $task->setDueDate($data['due_date']);
+        $task->setPriority($data['priority']);
+        $task->setRemarks($data['remarks']);
+        $task->setStatus($data['status']);
+        $task->setClient($data['client']);
+        $task->setDesigner($data['designer']);
+        $task->setAgency($data['agency']);
 
         return $this->repo->save($task);
     }

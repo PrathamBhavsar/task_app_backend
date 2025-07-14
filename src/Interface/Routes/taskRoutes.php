@@ -9,6 +9,7 @@ use Application\UseCase\Task\{
     GetTaskByIdUseCase,
     CreateTaskUseCase,
     UpdateTaskUseCase,
+    UpdateTaskStatusUseCase,
     DeleteTaskUseCase
 };
 
@@ -21,6 +22,7 @@ function handleTaskRoutes(string $method)
         new GetTaskByIdUseCase($repo),
         new CreateTaskUseCase($repo),
         new UpdateTaskUseCase($repo),
+        new UpdateTaskStatusUseCase($repo),
         new DeleteTaskUseCase($repo),
     );
 

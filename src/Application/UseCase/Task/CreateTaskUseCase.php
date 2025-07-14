@@ -13,11 +13,16 @@ class CreateTaskUseCase
     {
 
         $task = new Task(
+            dealNo: $data['deal_no'],
             name: $data['name'],
-            contactNo: $data['contact_no'],
-            address: $data['address'],
-            firmName: $data['firm_name'],
-            profileBgColor: $data['profile_bg_color']
+            dueDate: $data['due_date'],
+            priority: $data['priority'],
+            remarks: $data['remarks'],
+            createdBy: $data['created_by'],
+            status: $data['status'],
+            client: $data['client'],
+            designer: $data['designer'],
+            agency: $data['agency'],
         );
 
         return $this->repo->save($task);

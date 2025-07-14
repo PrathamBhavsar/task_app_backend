@@ -7,6 +7,7 @@ use Application\UseCase\Task\{
     GetAllTasksUseCase,
     GetTaskByIdUseCase,
     UpdateTaskUseCase,
+    UpdateTaskStatusUseCase,
     DeleteTaskUseCase
 };
 use Interface\Http\JsonResponse;
@@ -18,6 +19,7 @@ class TaskController
         private GetTaskByIdUseCase $getById,
         private CreateTaskUseCase $create,
         private UpdateTaskUseCase $update,
+        private UpdateTaskStatusUseCase $updateStatus,
         private DeleteTaskUseCase $delete
     ) {}
 
@@ -44,6 +46,14 @@ class TaskController
     public function update(int $id, array $data)
     {
         $task = $this->update->execute($id, $data);
+        return $task
+            ? JsonResponse::ok($task)
+            : JsonResponse::error("Task not found", 404);
+    }
+
+    public function updateStatus(int $id, string $status)
+    {
+        $task = $this->updateStatus->execute($id, $status);
         return $task
             ? JsonResponse::ok($task)
             : JsonResponse::error("Task not found", 404);

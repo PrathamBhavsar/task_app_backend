@@ -50,12 +50,21 @@ $routes = [
     },
 
     'task' => fn($method, $id, $body) => match ($method) {
-        'GET'    => $id ? $taskController->show((int)$id) : $taskController->index(),
-        'POST'   => $taskController->store($body),
-        'PUT'    => $id ? $taskController->update((int)$id, $body) : sendError("ID required", 400),
+        'GET' => $id ? $taskController->show((int)$id) : $taskController->index(),
+
+        'POST' => $taskController->store($body),
+
+        'PUT' => match (true) {
+            isset($_GET['id'], $_GET['status']) => $taskController->updateStatus((int)$_GET['id'], $_GET['status']),
+            $id => $taskController->update((int)$id, $body),
+            default => sendError("ID required", 400)
+        },
+
         'DELETE' => $id ? $taskController->delete((int)$id) : sendError("ID required", 400),
-        default  => sendError("Method not allowed", 405)
+
+        default => sendError("Method not allowed", 405)
     },
+
 
     'timeline' => fn($method, $id, $body) => match ($method) {
         'GET' => match (true) {

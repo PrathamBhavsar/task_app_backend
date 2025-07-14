@@ -208,6 +208,11 @@ class Task implements \JsonSerializable
         $this->client = $client;
     }
 
+    public function setDesigner(Designer $designer): void
+    {
+        $this->designer = $designer;
+    }
+
     public function setAgency(User $agency): void
     {
         $this->agency = $agency;
