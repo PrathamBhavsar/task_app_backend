@@ -35,12 +35,14 @@ class QuoteMeasurement implements \JsonSerializable
         int $quantity,
         float $unitPrice,
         float $totalPrice,
+        float $discount,
     ) {
         $this->quote_id = $quoteId;
         $this->measurement_id = $measurementId;
         $this->quantity = $quantity;
         $this->unit_price = $unitPrice;
         $this->total_price = $totalPrice;
+        $this->discount = $discount;
     }
 
     public function jsonSerialize(): array
@@ -52,6 +54,7 @@ class QuoteMeasurement implements \JsonSerializable
             'quantity' => $this->getQuantity(),
             'unit_price' => $this->getUnitPrice(),
             'total_price' => $this->getTotalPrice(),
+            'discount' => $this->getDiscount(),
         ];
     }
 
@@ -86,6 +89,11 @@ class QuoteMeasurement implements \JsonSerializable
         return $this->total_price;
     }
 
+    public function getDiscount(): float
+    {
+        return $this->discount;
+    }
+
     // Setters
     public function setQuoteId(int $quoteId): void
     {
@@ -110,5 +118,10 @@ class QuoteMeasurement implements \JsonSerializable
     public function setTotalPrice(float $totalPrice): void
     {
         $this->total_price = $totalPrice;
+    }
+
+    public function setDiscount(float $discount): void
+    {
+        $this->discount = $discount;
     }
 }

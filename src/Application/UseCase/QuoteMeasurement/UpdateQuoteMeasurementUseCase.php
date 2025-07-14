@@ -19,6 +19,8 @@ class UpdateQuoteMeasurementUseCase
         $quoteMeasurement->setQuantity($data['quantity']);
         $quoteMeasurement->setUnitPrice($data['unit_price']);
         $quoteMeasurement->setTotalPrice($data['total_price']);
+        $quoteMeasurement->setDiscount($data['discount']);
+
 
         return $this->repo->save($quoteMeasurement);
     }

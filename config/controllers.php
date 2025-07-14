@@ -107,6 +107,7 @@ use Application\UseCase\Quote\{
 };
 use Application\UseCase\QuoteMeasurement\{
     GetAllQuoteMeasurementsUseCase,
+    GetAllQuoteMeasurementsByQuoteIdUseCase,
     GetQuoteMeasurementByIdUseCase,
     CreateQuoteMeasurementUseCase,
     UpdateQuoteMeasurementUseCase,
@@ -194,9 +195,9 @@ $measurementController = new MeasurementController(
     new GetAllMeasurementsUseCase($measurementRepo),
     new GetAllMeasurementsByTaskIdUseCase($measurementRepo),
     new GetMeasurementByIdUseCase($measurementRepo),
-    new CreateMeasurementUseCase($measurementRepo, $quoteRepo),
+    new CreateMeasurementUseCase($measurementRepo, $quoteMeasurementRepo, $quoteRepo),
     new UpdateMeasurementUseCase($measurementRepo),
-    new DeleteMeasurementUseCase($measurementRepo),
+    new DeleteMeasurementUseCase($measurementRepo, $quoteMeasurementRepo),
 );
 
 $serviceController = new ServiceController(
@@ -219,6 +220,7 @@ $quoteController = new QuoteController(
 
 $quoteMeasurementController = new QuoteMeasurementController(
     new GetAllQuoteMeasurementsUseCase($quoteMeasurementRepo),
+    new GetAllQuoteMeasurementsByQuoteIdUseCase($quoteMeasurementRepo),
     new GetQuoteMeasurementByIdUseCase($quoteMeasurementRepo),
     new CreateQuoteMeasurementUseCase($quoteMeasurementRepo),
     new UpdateQuoteMeasurementUseCase($quoteMeasurementRepo),

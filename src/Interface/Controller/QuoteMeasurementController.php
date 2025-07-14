@@ -4,6 +4,7 @@ namespace Interface\Controller;
 
 use Application\UseCase\QuoteMeasurement\{
     CreateQuoteMeasurementUseCase,
+    GetAllQuoteMeasurementsByQuoteIdUseCase,
     GetAllQuoteMeasurementsUseCase,
     GetQuoteMeasurementByIdUseCase,
     UpdateQuoteMeasurementUseCase,
@@ -15,6 +16,7 @@ class QuoteMeasurementController
 {
     public function __construct(
         private GetAllQuoteMeasurementsUseCase $getAll,
+        private GetAllQuoteMeasurementsByQuoteIdUseCase $getAllByQuoteId,
         private GetQuoteMeasurementByIdUseCase $getById,
         private CreateQuoteMeasurementUseCase $create,
         private UpdateQuoteMeasurementUseCase $update,
@@ -25,6 +27,12 @@ class QuoteMeasurementController
     {
         $quoteMeasurements = $this->getAll->execute();
         return JsonResponse::ok($quoteMeasurements);
+    }
+
+    public function getAllByQuoteId(int $quoteId)
+    {
+        $measurements = $this->getAllByQuoteId->execute($quoteId);
+        return JsonResponse::ok($measurements);
     }
 
     public function show(int $id)

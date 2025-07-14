@@ -20,6 +20,21 @@ class QuoteMeasurementRepository implements QuoteMeasurementRepositoryInterface
         return $this->em->getRepository(QuoteMeasurement::class)->find($id);
     }
 
+    public function findAllByQuoteId(int $quoteId): array
+    {
+        return $this->em->getRepository(QuoteMeasurement::class)->findBy([
+            'quote_id' => $quoteId
+        ]);
+    }
+
+    public function findByMeasurementId(int $measurementId): ?QuoteMeasurement
+    {
+        return $this->em->getRepository(QuoteMeasurement::class)->findOneBy([
+            'measurement_id' => $measurementId
+        ]);
+    }
+
+
     public function save(QuoteMeasurement $quoteMeasurement): QuoteMeasurement
     {
         $this->em->persist($quoteMeasurement);
