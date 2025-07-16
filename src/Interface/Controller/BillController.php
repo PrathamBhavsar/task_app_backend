@@ -5,6 +5,7 @@ namespace Interface\Controller;
 use Application\UseCase\Bill\{
     CreateBillUseCase,
     GetAllBillsUseCase,
+    GetBillByTaskIdUseCase,
     GetBillByIdUseCase,
     UpdateBillUseCase,
     DeleteBillUseCase
@@ -15,6 +16,7 @@ class BillController
 {
     public function __construct(
         private GetAllBillsUseCase $getAll,
+        private GetBillByTaskIdUseCase $getByTaskId,
         private GetBillByIdUseCase $getById,
         private CreateBillUseCase $create,
         private UpdateBillUseCase $update,
@@ -33,6 +35,12 @@ class BillController
         return $bill
             ? JsonResponse::ok($bill)
             : JsonResponse::error("Bill not found", 404);
+    }
+
+    public function getByTaskId(int $taskId)
+    {
+        $bill = $this->getByTaskId->execute($taskId);
+        return JsonResponse::ok($bill);
     }
 
     public function store(array $data)

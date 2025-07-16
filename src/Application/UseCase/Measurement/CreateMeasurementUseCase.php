@@ -30,7 +30,6 @@ class CreateMeasurementUseCase
 
         $saved = $this->repo->save($measurement);
 
-        // Auto-create quote_measurement by looking up quote using task_id
         $quote = $this->quoteRepo->findByTaskId($data['task_id']);
 
         if ($quote) {

@@ -4,15 +4,14 @@ namespace Application\UseCase\Service;
 
 use Domain\Repository\ServiceRepositoryInterface;
 use Domain\Entity\Service;
-use Domain\Entity\Quote;
+
 use Domain\Repository\ServiceMasterRepositoryInterface;
-use Domain\Repository\QuoteRepositoryInterface;
 
 class UpdateServiceUseCase
 {
     public function __construct(
         private ServiceRepositoryInterface $serviceRepo,
-        private QuoteRepositoryInterface $quoteRepo,
+
         private ServiceMasterRepositoryInterface $serviceMasterRepo
     ) {}
 
@@ -31,35 +30,7 @@ class UpdateServiceUseCase
         $service->setTotalAmount($data['total_amount']);
 
         $saved = $this->serviceRepo->save($service);
-        $this->recalculateQuote($data['task_id']);
 
         return $saved;
-    }
-
-    private function recalculateQuote(int $taskId): void
-    {
-        $services = $this->serviceRepo->findAllByTaskId($taskId);
-
-        $subtotal = array_reduce($services, fn($carry, $s) => $carry + $s->getTotalAmount(), 0.0);
-        $tax = round($subtotal * 0.07, 2); // 7% tax
-        $total = $subtotal + $tax;
-
-        $quote = $this->quoteRepo->findByTaskId($taskId);
-
-        if ($quote) {
-            $quote->setSubtotal($subtotal);
-            $quote->setTax($tax);
-            $quote->setTotal($total);
-        } else {
-            $quote = new Quote(
-                subtotal: $subtotal,
-                tax: $tax,
-                total: $total,
-                notes: null,
-                taskId: $taskId
-            );
-        }
-
-        $this->quoteRepo->save($quote);
     }
 }

@@ -119,6 +119,7 @@ use Application\UseCase\QuoteMeasurement\{
 
 use Application\UseCase\Bill\{
     GetAllBillsUseCase,
+    GetBillByTaskIdUseCase,
     GetBillByIdUseCase,
     CreateBillUseCase,
     UpdateBillUseCase,
@@ -210,7 +211,7 @@ $measurementController = new MeasurementController(
     new GetAllMeasurementsByTaskIdUseCase($measurementRepo),
     new GetMeasurementByIdUseCase($measurementRepo),
     new CreateMeasurementUseCase($measurementRepo, $quoteMeasurementRepo, $quoteRepo),
-    new UpdateMeasurementUseCase($measurementRepo),
+    new UpdateMeasurementUseCase($measurementRepo, $quoteMeasurementRepo),
     new DeleteMeasurementUseCase($measurementRepo, $quoteMeasurementRepo),
 );
 
@@ -218,9 +219,9 @@ $serviceController = new ServiceController(
     new GetAllServicesUseCase($serviceRepo),
     new GetAllServicesByTaskIdUseCase($serviceRepo),
     new GetServiceByIdUseCase($serviceRepo),
-    new CreateServiceUseCase($serviceRepo, $quoteRepo, $serviceMasterRepo),
-    new UpdateServiceUseCase($serviceRepo, $quoteRepo, $serviceMasterRepo),
-    new DeleteServiceUseCase($serviceRepo),
+    new CreateServiceUseCase($serviceRepo, $quoteRepo, $billRepo, $serviceMasterRepo),
+    new UpdateServiceUseCase($serviceRepo, $quoteRepo, $billRepo, $serviceMasterRepo),
+    new DeleteServiceUseCase($serviceRepo, $quoteRepo, $billRepo),
 );
 
 $quoteController = new QuoteController(
@@ -236,13 +237,14 @@ $quoteMeasurementController = new QuoteMeasurementController(
     new GetAllQuoteMeasurementsUseCase($quoteMeasurementRepo),
     new GetAllQuoteMeasurementsByQuoteIdUseCase($quoteMeasurementRepo),
     new GetQuoteMeasurementByIdUseCase($quoteMeasurementRepo),
-    new CreateQuoteMeasurementUseCase($quoteMeasurementRepo),
-    new UpdateQuoteMeasurementUseCase($quoteMeasurementRepo),
-    new DeleteQuoteMeasurementUseCase($quoteMeasurementRepo),
+    new CreateQuoteMeasurementUseCase($quoteMeasurementRepo, $quoteRepo),
+    new UpdateQuoteMeasurementUseCase($quoteMeasurementRepo, $quoteRepo),
+    new DeleteQuoteMeasurementUseCase($quoteMeasurementRepo, $quoteRepo),
 );
 
 $billController = new BillController(
     new GetAllBillsUseCase($billRepo),
+    new GetBillByTaskIdUseCase($billRepo),
     new GetBillByIdUseCase($billRepo),
     new CreateBillUseCase($billRepo),
     new UpdateBillUseCase($billRepo),

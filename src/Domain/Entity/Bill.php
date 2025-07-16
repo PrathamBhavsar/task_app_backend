@@ -133,6 +133,11 @@ class Bill implements \JsonSerializable
         $this->subtotal = $subtotal;
     }
 
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
+    }
+
     public function setTotal(float $total): void
     {
         $this->total = $total;

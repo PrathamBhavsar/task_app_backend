@@ -20,6 +20,12 @@ class BillRepository implements BillRepositoryInterface
         return $this->em->getRepository(Bill::class)->find($id);
     }
 
+    public function findByTaskId(int $taskId): ?Bill
+    {
+        return $this->em->getRepository(Bill::class)
+            ->findOneBy(['task_id' => $taskId]);
+    }
+
     public function save(Bill $bill): Bill
     {
         $this->em->persist($bill);

@@ -18,9 +18,9 @@ class DeleteMeasurementUseCase
         if (!$measurement) return;
 
         $quoteMeasurement = $this->quoteMeasurementRepo->findByMeasurementId($id);
-
-        $this->quoteMeasurementRepo->delete($quoteMeasurement);
-
+        if ($quoteMeasurement) {
+            $this->quoteMeasurementRepo->delete($quoteMeasurement);
+        }
 
         $this->measurementRepo->delete($measurement);
     }

@@ -13,11 +13,13 @@ class CreateBillUseCase
     {
 
         $bill = new Bill(
-            name: $data['name'],
-            contactNo: $data['contact_no'],
-            address: $data['address'],
-            firmName: $data['firm_name'],
-            profileBgColor: $data['profile_bg_color']
+            subtotal: $data['subtotal'],
+            status: $data['status'],
+            dueDate: $data['due_date'],
+            tax: $data['tax'],
+            total: $data['total'],
+            additionalNotes: $data['additional_notes'],
+            taskId: $data['task_id'],
         );
 
         return $this->repo->save($bill);

@@ -3,11 +3,15 @@
 namespace Application\UseCase\Measurement;
 
 use Domain\Repository\MeasurementRepositoryInterface;
+use Domain\Repository\QuoteMeasurementRepositoryInterface;
 use Domain\Entity\Measurement;
 
 class UpdateMeasurementUseCase
 {
-    public function __construct(private MeasurementRepositoryInterface $repo) {}
+    public function __construct(
+        private MeasurementRepositoryInterface $repo,
+        private QuoteMeasurementRepositoryInterface $quoteMeasurementRepo
+    ) {}
 
     public function execute(int $id, array $data): ?Measurement
     {
@@ -22,6 +26,18 @@ class UpdateMeasurementUseCase
         $measurement->setUnit($data['unit']);
         $measurement->setNotes($data['notes']);
 
-        return $this->repo->save($measurement);
+        $updated = $this->repo->save($measurement);
+
+        $quoteMeasurement = $this->quoteMeasurementRepo->findByMeasurementId($id);
+        if ($quoteMeasurement) {
+            // You can update quote measurement logic here (example: recalculate total)
+            $quoteMeasurement->setTotalPrice(
+                $quoteMeasurement->getUnitPrice() * $quoteMeasurement->getQuantity()
+            );
+
+            $this->quoteMeasurementRepo->save($quoteMeasurement);
+        }
+
+        return $updated;
     }
 }

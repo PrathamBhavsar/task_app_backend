@@ -14,11 +14,13 @@ class UpdateBillUseCase
         $bill = $this->repo->findById($id);
         if (!$bill) return null;
 
-        $bill->setName($data['name']);
-        $bill->setContactNo($data['contact_no']);
-        $bill->setAddress($data['address']);
-        $bill->setFirmName($data['firm_name']);
-        $bill->setProfileBgColor($data['profile_bg_color']);
+        $bill->setTaskId($data['task_id']);
+        $bill->setSubtotal($data['subtotal']);
+        $bill->setStatus($data['status']);
+        $bill->setDueDate($data['due_date']);
+        $bill->setTax($data['tax']);
+        $bill->setTotal($data['total']);
+        $bill->setNotes($data['additional_notes']);
 
         return $this->repo->save($bill);
     }
