@@ -13,7 +13,6 @@ use Infrastructure\Persistence\Doctrine\{
     MeasurementRepository,
     ServiceRepository,
     QuoteRepository,
-    QuoteMeasurementRepository,
     BillRepository
 };
 use Interface\Controller\{
@@ -28,7 +27,6 @@ use Interface\Controller\{
     MeasurementController,
     ServiceController,
     QuoteController,
-    QuoteMeasurementController,
     BillController
 };
 use Application\UseCase\Designer\{
@@ -108,14 +106,6 @@ use Application\UseCase\Quote\{
     UpdateQuoteUseCase,
     DeleteQuoteUseCase
 };
-use Application\UseCase\QuoteMeasurement\{
-    GetAllQuoteMeasurementsUseCase,
-    GetAllQuoteMeasurementsByQuoteIdUseCase,
-    GetQuoteMeasurementByIdUseCase,
-    CreateQuoteMeasurementUseCase,
-    UpdateQuoteMeasurementUseCase,
-    DeleteQuoteMeasurementUseCase
-};
 
 use Application\UseCase\Bill\{
     GetAllBillsUseCase,
@@ -139,7 +129,6 @@ $taskRepo = new TaskRepository($em);
 $measurementRepo = new MeasurementRepository($em);
 $serviceRepo = new ServiceRepository($em);
 $quoteRepo = new QuoteRepository($em);
-$quoteMeasurementRepo = new QuoteMeasurementRepository($em);
 $billRepo = new BillRepository($em);
 
 $designerController = new DesignerController(
@@ -210,9 +199,9 @@ $measurementController = new MeasurementController(
     new GetAllMeasurementsUseCase($measurementRepo),
     new GetAllMeasurementsByTaskIdUseCase($measurementRepo),
     new GetMeasurementByIdUseCase($measurementRepo),
-    new CreateMeasurementUseCase($measurementRepo, $quoteMeasurementRepo, $quoteRepo),
-    new UpdateMeasurementUseCase($measurementRepo, $quoteMeasurementRepo),
-    new DeleteMeasurementUseCase($measurementRepo, $quoteMeasurementRepo),
+    new CreateMeasurementUseCase($measurementRepo, $quoteRepo),
+    new UpdateMeasurementUseCase($measurementRepo),
+    new DeleteMeasurementUseCase($measurementRepo),
 );
 
 $serviceController = new ServiceController(
@@ -231,15 +220,6 @@ $quoteController = new QuoteController(
     new CreateQuoteUseCase($quoteRepo),
     new UpdateQuoteUseCase($quoteRepo),
     new DeleteQuoteUseCase($quoteRepo),
-);
-
-$quoteMeasurementController = new QuoteMeasurementController(
-    new GetAllQuoteMeasurementsUseCase($quoteMeasurementRepo),
-    new GetAllQuoteMeasurementsByQuoteIdUseCase($quoteMeasurementRepo),
-    new GetQuoteMeasurementByIdUseCase($quoteMeasurementRepo),
-    new CreateQuoteMeasurementUseCase($quoteMeasurementRepo, $quoteRepo),
-    new UpdateQuoteMeasurementUseCase($quoteMeasurementRepo, $quoteRepo),
-    new DeleteQuoteMeasurementUseCase($quoteMeasurementRepo, $quoteRepo),
 );
 
 $billController = new BillController(

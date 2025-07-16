@@ -3,17 +3,12 @@
 namespace Application\UseCase\Measurement;
 
 use Domain\Entity\Measurement;
-use Domain\Entity\QuoteMeasurement;
 use Domain\Repository\MeasurementRepositoryInterface;
-use Domain\Repository\QuoteMeasurementRepositoryInterface;
-use Domain\Repository\QuoteRepositoryInterface;
 
 class CreateMeasurementUseCase
 {
     public function __construct(
         private MeasurementRepositoryInterface $repo,
-        private QuoteMeasurementRepositoryInterface $quoteMeasurementRepo,
-        private QuoteRepositoryInterface $quoteRepo
     ) {}
 
     public function execute(array $data): Measurement
@@ -25,26 +20,14 @@ class CreateMeasurementUseCase
             height: $data['height'],
             area: $data['area'],
             unit: $data['unit'],
+            quantity: $data['quantity'],
+            discount: $data['discount'],
+            unitPrice: $data['unit_price'],
+            totalPrice: $data['total_price'],
             notes: $data['notes'] ?? null,
         );
 
         $saved = $this->repo->save($measurement);
-
-        $quote = $this->quoteRepo->findByTaskId($data['task_id']);
-
-        if ($quote) {
-            $quoteMeasurement = new QuoteMeasurement(
-                quoteId: $quote->getId(),
-                measurementId: $saved->getId(),
-                quantity: 1,
-                unitPrice: 0.0,
-                totalPrice: 0.0,
-                discount: 0.0
-            );
-
-            $this->quoteMeasurementRepo->save($quoteMeasurement);
-        }
-
         return $saved;
     }
 }

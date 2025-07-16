@@ -134,18 +134,6 @@ $routes = [
         default  => sendError("Method not allowed", 405)
     },
 
-    'quote-measurement' => fn($method, $id, $body) => match ($method) {
-        'GET' => match (true) {
-            isset($_GET['id']) => $quoteMeasurementController->show((int) $_GET['id']),
-            isset($_GET['quote_id']) => $quoteMeasurementController->getAllByQuoteId((int) $_GET['quote_id']),
-            default => $quoteMeasurementController->index()
-        },
-        'POST'   => $quoteMeasurementController->store($body),
-        'PUT'    => $id ? $quoteMeasurementController->update((int)$id, $body) : sendError("ID required", 400),
-        'DELETE' => $id ? $quoteMeasurementController->delete((int)$id) : sendError("ID required", 400),
-        default  => sendError("Method not allowed", 405)
-    },
-
     'bill' => fn($method, $id, $body) => match ($method) {
         'GET'    => $id ? $billController->show((int)$id) : $billController->index(),
         'POST'   => $billController->store($body),

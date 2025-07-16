@@ -29,6 +29,18 @@ class Measurement implements \JsonSerializable
     #[ORM\Column(type: "string")]
     private string $unit;
 
+    #[ORM\Column(type: "integer")]
+    private int $quantity;
+
+    #[ORM\Column(type: "float")]
+    private float $discount;
+
+    #[ORM\Column(type: "float")]
+    private float $unit_price;
+
+    #[ORM\Column(type: "float")]
+    private float $total_price;
+
     #[ORM\Column(type: "string")]
     private string $notes;
 
@@ -40,7 +52,10 @@ class Measurement implements \JsonSerializable
         float $area,
         string $unit,
         string $notes,
-
+        int $quantity,
+        float $unitPrice,
+        float $discount,
+        float $totalPrice,
     ) {
         $this->task_id = $taskId;
         $this->location = $location;
@@ -48,6 +63,10 @@ class Measurement implements \JsonSerializable
         $this->height = $height;
         $this->area = $area;
         $this->unit = $unit;
+        $this->quantity = $quantity;
+        $this->unit_price = $unitPrice;
+        $this->discount = $discount;
+        $this->total_price = $totalPrice;
         $this->notes = $notes;
     }
 
@@ -55,11 +74,16 @@ class Measurement implements \JsonSerializable
     {
         return [
             'measurement_id' => $this->getId(),
+            'task_id' => $this->getTaskId(),
             'location' => $this->getLocation(),
             'width' => $this->getWidth(),
             'height' => $this->getHeight(),
             'area' => $this->getArea(),
             'unit' => $this->getUnit(),
+            'quantity' => $this->getQuantity(),
+            'unit_price' => $this->getUnitPrice(),
+            'discount' => $this->getDiscount(),
+            'total_price' => $this->getTotalPrice(),
             'notes' => $this->getNotes(),
         ];
     }
@@ -100,6 +124,26 @@ class Measurement implements \JsonSerializable
         return $this->unit;
     }
 
+    public function getQuantity(): int
+    {
+        return $this->quantity;
+    }
+
+    public function getUnitPrice(): float
+    {
+        return $this->quantity;
+    }
+
+    public function getDiscount(): float
+    {
+        return $this->quantity;
+    }
+
+    public function getTotalPrice(): float
+    {
+        return $this->quantity;
+    }
+
     public function getNotes(): string
     {
         return $this->notes;
@@ -135,6 +179,26 @@ class Measurement implements \JsonSerializable
     public function setUnit(string $unit): void
     {
         $this->unit = $unit;
+    }
+
+    public function setUnitPrice(float $unitPrice): void
+    {
+        $this->unit_price = $unitPrice;
+    }
+
+    public function setTotalPrice(float $totalPrice): void
+    {
+        $this->total_price = $totalPrice;
+    }
+
+    public function setDiscount(float $discount): void
+    {
+        $this->discount = $discount;
+    }
+
+    public function setQuantity(float $quantity): void
+    {
+        $this->quantity = $quantity;
     }
 
     public function setNotes(string $notes): void
