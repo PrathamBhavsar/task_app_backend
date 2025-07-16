@@ -217,7 +217,7 @@ $quoteController = new QuoteController(
     new GetAllQuotesUseCase($quoteRepo),
     new GetQuoteByTaskIdUseCase($quoteRepo),
     new GetQuoteByIdUseCase($quoteRepo),
-    new CreateQuoteUseCase($quoteRepo),
+    new CreateQuoteUseCase($quoteRepo, $serviceRepo, $measurementRepo),
     new UpdateQuoteUseCase($quoteRepo),
     new DeleteQuoteUseCase($quoteRepo),
 );
@@ -226,7 +226,7 @@ $billController = new BillController(
     new GetAllBillsUseCase($billRepo),
     new GetBillByTaskIdUseCase($billRepo),
     new GetBillByIdUseCase($billRepo),
-    new CreateBillUseCase($billRepo),
+    new CreateBillUseCase($billRepo, $serviceRepo),
     new UpdateBillUseCase($billRepo),
     new DeleteBillUseCase($billRepo),
 );
