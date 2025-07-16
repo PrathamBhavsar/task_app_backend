@@ -2,22 +2,16 @@
 
 namespace Application\UseCase\Service;
 
-use DateTime;
 use Domain\Entity\Service;
-use Domain\Entity\Quote;
-use Domain\Entity\Bill;
 
 use Domain\Repository\ServiceRepositoryInterface;
-use Domain\Repository\QuoteRepositoryInterface;
-use Domain\Repository\BillRepositoryInterface;
 use Domain\Repository\ServiceMasterRepositoryInterface;
 
 class CreateServiceUseCase
 {
     public function __construct(
         private ServiceRepositoryInterface $serviceRepo,
-        private QuoteRepositoryInterface $quoteRepo,
-        private BillRepositoryInterface $billRepo,
+
         private ServiceMasterRepositoryInterface $serviceMasterRepo
     ) {}
 

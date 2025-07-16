@@ -219,9 +219,9 @@ $serviceController = new ServiceController(
     new GetAllServicesUseCase($serviceRepo),
     new GetAllServicesByTaskIdUseCase($serviceRepo),
     new GetServiceByIdUseCase($serviceRepo),
-    new CreateServiceUseCase($serviceRepo, $quoteRepo, $billRepo, $serviceMasterRepo),
-    new UpdateServiceUseCase($serviceRepo, $quoteRepo, $billRepo, $serviceMasterRepo),
-    new DeleteServiceUseCase($serviceRepo, $quoteRepo, $billRepo),
+    new CreateServiceUseCase($serviceRepo,  $serviceMasterRepo),
+    new UpdateServiceUseCase($serviceRepo, $serviceMasterRepo),
+    new DeleteServiceUseCase($serviceRepo,),
 );
 
 $quoteController = new QuoteController(
