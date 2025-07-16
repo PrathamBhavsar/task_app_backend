@@ -146,6 +146,14 @@ $routes = [
         default  => sendError("Method not allowed", 405)
     },
 
+    'bill' => fn($method, $id, $body) => match ($method) {
+        'GET'    => $id ? $billController->show((int)$id) : $billController->index(),
+        'POST'   => $billController->store($body),
+        'PUT'    => $id ? $billController->update((int)$id, $body) : sendError("ID required", 400),
+        'DELETE' => $id ? $billController->delete((int)$id) : sendError("ID required", 400),
+        default  => sendError("Method not allowed", 405)
+    },
+
     'auth' => fn($method, $id, $body) => match ($method) {
         'POST' => match ($segments[2] ?? null) {
             'login' => $authController->login($body),

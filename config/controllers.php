@@ -13,7 +13,8 @@ use Infrastructure\Persistence\Doctrine\{
     MeasurementRepository,
     ServiceRepository,
     QuoteRepository,
-    QuoteMeasurementRepository
+    QuoteMeasurementRepository,
+    BillRepository
 };
 use Interface\Controller\{
     DesignerController,
@@ -27,7 +28,8 @@ use Interface\Controller\{
     MeasurementController,
     ServiceController,
     QuoteController,
-    QuoteMeasurementController
+    QuoteMeasurementController,
+    BillController
 };
 use Application\UseCase\Designer\{
     GetAllDesignersUseCase,
@@ -115,6 +117,15 @@ use Application\UseCase\QuoteMeasurement\{
     DeleteQuoteMeasurementUseCase
 };
 
+use Application\UseCase\Bill\{
+    GetAllBillsUseCase,
+    GetBillByIdUseCase,
+    CreateBillUseCase,
+    UpdateBillUseCase,
+    DeleteBillUseCase
+};
+
+
 $em = EntityManagerFactory::create();
 
 $designerRepo = new DesignerRepository($em);
@@ -128,6 +139,7 @@ $measurementRepo = new MeasurementRepository($em);
 $serviceRepo = new ServiceRepository($em);
 $quoteRepo = new QuoteRepository($em);
 $quoteMeasurementRepo = new QuoteMeasurementRepository($em);
+$billRepo = new BillRepository($em);
 
 $designerController = new DesignerController(
     new GetAllDesignersUseCase($designerRepo),
@@ -227,4 +239,12 @@ $quoteMeasurementController = new QuoteMeasurementController(
     new CreateQuoteMeasurementUseCase($quoteMeasurementRepo),
     new UpdateQuoteMeasurementUseCase($quoteMeasurementRepo),
     new DeleteQuoteMeasurementUseCase($quoteMeasurementRepo),
+);
+
+$billController = new BillController(
+    new GetAllBillsUseCase($billRepo),
+    new GetBillByIdUseCase($billRepo),
+    new CreateBillUseCase($billRepo),
+    new UpdateBillUseCase($billRepo),
+    new DeleteBillUseCase($billRepo),
 );
