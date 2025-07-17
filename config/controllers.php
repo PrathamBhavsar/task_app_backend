@@ -120,6 +120,8 @@ use Infrastructure\Auth\JwtService;
 
 $em = EntityManagerFactory::create();
 
+$jwtService = new JwtService();
+
 $designerRepo = new DesignerRepository($em);
 $clientRepo = new ClientRepository($em);
 $userRepo = new UserRepository($em);
@@ -187,6 +189,7 @@ $taskMessageController = new TaskMessageController(
     new DeleteTaskMessageUseCase($taskMessageRepo),
 );
 
+
 $taskController = new TaskController(
     new GetAllTasksUseCase($taskRepo),
     new GetTaskByIdUseCase($taskRepo),
@@ -194,7 +197,9 @@ $taskController = new TaskController(
     new UpdateTaskUseCase($taskRepo),
     new UpdateTaskStatusUseCase($taskRepo),
     new DeleteTaskUseCase($taskRepo),
+    $jwtService
 );
+
 
 $measurementController = new MeasurementController(
     new GetAllMeasurementsUseCase($measurementRepo),

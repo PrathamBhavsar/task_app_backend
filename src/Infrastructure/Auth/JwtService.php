@@ -5,6 +5,7 @@ namespace Infrastructure\Auth;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Domain\Entity\User;
+use Exception;
 
 class JwtService
 {
@@ -29,6 +30,21 @@ class JwtService
             return (array) JWT::decode($token, new Key($this->secret, $this->algo));
         } catch (\Exception $e) {
             return null;
+        }
+    }
+
+    public function getUserIdFromToken(string $token): ?int
+    {
+        $decoded = $this->decodeToken($token);
+        return $decoded['sub'] ?? null;
+    }
+
+    public function verifyToken(string $token): array
+    {
+        try {
+            return (array) JWT::decode($token, new Key($this->secret, $this->algo));
+        } catch (\Exception $e) {
+            throw new Exception("Invalid token");
         }
     }
 }

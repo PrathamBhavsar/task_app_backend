@@ -1,5 +1,6 @@
 <?php
 
+use Infrastructure\Auth\JwtService;
 use Infrastructure\Database\EntityManagerFactory;
 use Infrastructure\Persistence\Doctrine\TaskRepository;
 use Interface\Controller\TaskController;
@@ -15,8 +16,34 @@ use Application\UseCase\Task\{
 
 function handleTaskRoutes(string $method)
 {
+    $headers = getallheaders();
+    $authHeader = $headers['Authorization'] ?? null;
+
+    if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+        echo JsonResponse::error("Unauthorized: Token missing", 401);
+        return;
+    }
+
+    $token = str_replace('Bearer ', '', $authHeader);
+    $jwtService = new JwtService();
+
+    try {
+        $payload = $jwtService->verifyToken($token);
+    } catch (\Exception $e) {
+        echo JsonResponse::error("Unauthorized: Invalid token", 401);
+        return;
+    }
+
+    $userId = $payload['user_id'] ?? null;
+    if (!$userId) {
+        echo JsonResponse::error("Unauthorized: Invalid user", 401);
+        return;
+    }
+
     $em = EntityManagerFactory::create();
     $repo = new TaskRepository($em);
+
+    // Optionally: pass $userId to use cases if task filtering is user-specific
     $controller = new TaskController(
         new GetAllTasksUseCase($repo),
         new GetTaskByIdUseCase($repo),
@@ -24,6 +51,7 @@ function handleTaskRoutes(string $method)
         new UpdateTaskUseCase($repo),
         new UpdateTaskStatusUseCase($repo),
         new DeleteTaskUseCase($repo),
+        $jwtService
     );
 
     $id = $_GET['id'] ?? null;

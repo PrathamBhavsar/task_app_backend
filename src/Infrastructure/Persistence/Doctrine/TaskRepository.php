@@ -20,6 +20,20 @@ class TaskRepository implements TaskRepositoryInterface
         return $this->em->getRepository(Task::class)->find($id);
     }
 
+    public function findByUserId(int $userId): array
+    {
+        $qb = $this->em->createQueryBuilder();
+
+        return $qb->select('t')
+            ->from(Task::class, 't')
+            ->where('t.created_by = :userId')
+            ->orWhere('t.agency = :userId')
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getResult();
+    }
+
+
     public function save(Task $task): Task
     {
         $this->em->persist($task);

@@ -17,4 +17,11 @@ class JsonResponse
         echo json_encode(["error" => ["message" => $message]]);
         exit;
     }
+
+    public static function unauthorized(string $message = "Unauthorized"): void
+    {
+        http_response_code(401);
+        echo json_encode(["error" => ["message" => $message]]);
+        exit;
+    }
 }

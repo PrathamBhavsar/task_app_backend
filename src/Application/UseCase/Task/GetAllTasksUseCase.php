@@ -8,8 +8,8 @@ class GetAllTasksUseCase
 {
     public function __construct(private TaskRepositoryInterface $repo) {}
 
-    public function execute(): array
+    public function execute(int $userId): array
     {
-        return $this->repo->findAll();
+        return $this->repo->findByUserId($userId);
     }
 }
