@@ -27,9 +27,11 @@ class AuthController
 
     public function register(array $data)
     {
+
         $user = $this->register->execute($data);
+
         return $user
-            ? JsonResponse::ok($user->jsonSerialize())
+            ? JsonResponse::ok($user)
             : JsonResponse::error("Email already registered", 400);
     }
 }

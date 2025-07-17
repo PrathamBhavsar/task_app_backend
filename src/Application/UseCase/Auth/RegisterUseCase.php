@@ -3,18 +3,24 @@
 namespace Application\UseCase\Auth;
 
 use Domain\Repository\AuthRepositoryInterface;
-use Domain\Entity\User;
+use Infrastructure\Auth\JwtService;
 
 class RegisterUseCase
 {
-    public function __construct(private AuthRepositoryInterface $repo) {}
+    public function __construct(
+        private AuthRepositoryInterface $repo,
+        private JwtService $jwtService
+    ) {}
 
-    public function execute(array $data): ?User
+    public function execute(array $data): ?array
     {
         if ($this->repo->emailExists($data['email'])) {
             return null;
         }
 
-        return $this->repo->register($data);
+        $user = $this->repo->register($data);
+        $token = $this->jwtService->generateToken($user);
+
+        return ['user' => $user->jsonSerialize(), 'token' => $token];
     }
 }

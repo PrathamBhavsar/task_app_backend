@@ -122,6 +122,7 @@ $em = EntityManagerFactory::create();
 
 $jwtService = new JwtService();
 
+$authRepo = new AuthRepository($em);
 $designerRepo = new DesignerRepository($em);
 $clientRepo = new ClientRepository($em);
 $userRepo = new UserRepository($em);
@@ -168,8 +169,8 @@ $userController = new UserController(
 );
 
 $authController = new AuthController(
-    new LoginUseCase($userRepo, new JwtService),
-    new RegisterUseCase(new AuthRepository($em))
+    new LoginUseCase($userRepo, $jwtService),
+    new RegisterUseCase($authRepo, $jwtService)
 );
 
 $serviceMasterController = new ServiceMasterController(
