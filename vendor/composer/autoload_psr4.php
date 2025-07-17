@@ -22,6 +22,7 @@ return array(
     'Psr\\Cache\\' => array($vendorDir . '/psr/cache/src'),
     'Interface\\' => array($baseDir . '/src/Interface'),
     'Infrastructure\\' => array($baseDir . '/src/Infrastructure'),
+    'Firebase\\JWT\\' => array($vendorDir . '/firebase/php-jwt/src'),
     'Domain\\' => array($baseDir . '/src/Domain'),
     'Doctrine\\Persistence\\' => array($vendorDir . '/doctrine/persistence/src/Persistence'),
     'Doctrine\\ORM\\' => array($vendorDir . '/doctrine/orm/src'),

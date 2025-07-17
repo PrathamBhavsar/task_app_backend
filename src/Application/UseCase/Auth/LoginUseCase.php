@@ -2,15 +2,19 @@
 
 namespace Application\UseCase\Auth;
 
-use Domain\Repository\AuthRepositoryInterface;
-use Domain\Entity\User;
+use Domain\Repository\UserRepositoryInterface;
+use Infrastructure\Auth\JwtService;
 
 class LoginUseCase
 {
-    public function __construct(private AuthRepositoryInterface $repo) {}
+    public function __construct(private UserRepositoryInterface $userRepo, private JwtService $jwtService) {}
 
-    public function execute(string $email, string $password): ?User
+    public function execute(string $email, string $password): ?array
     {
-        return $this->repo->login($email, $password);
+        $user = $this->userRepo->findByEmail($email);
+        if (!$user || !password_verify($password, $user->getPassword())) return null;
+
+        $token = $this->jwtService->generateToken($user);
+        return ['user' => $user->jsonSerialize(), 'token' => $token];
     }
 }

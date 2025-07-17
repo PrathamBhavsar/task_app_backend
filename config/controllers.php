@@ -1,6 +1,7 @@
 <?php
 
 use Infrastructure\Database\EntityManagerFactory;
+
 use Infrastructure\Persistence\Doctrine\{
     DesignerRepository,
     ClientRepository,
@@ -115,7 +116,7 @@ use Application\UseCase\Bill\{
     UpdateBillUseCase,
     DeleteBillUseCase
 };
-
+use Infrastructure\Auth\JwtService;
 
 $em = EntityManagerFactory::create();
 
@@ -165,7 +166,7 @@ $userController = new UserController(
 );
 
 $authController = new AuthController(
-    new LoginUseCase(new AuthRepository($em)),
+    new LoginUseCase($userRepo, new JwtService),
     new RegisterUseCase(new AuthRepository($em))
 );
 

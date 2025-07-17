@@ -42,6 +42,10 @@ class ComposerStaticInit3ba5865ee439cf319452b0df1a1dfb7c
             'Interface\\' => 10,
             'Infrastructure\\' => 15,
         ),
+        'F' => 
+        array (
+            'Firebase\\JWT\\' => 13,
+        ),
         'D' => 
         array (
             'Domain\\' => 7,
@@ -125,6 +129,10 @@ class ComposerStaticInit3ba5865ee439cf319452b0df1a1dfb7c
         'Infrastructure\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Infrastructure',
+        ),
+        'Firebase\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
         ),
         'Domain\\' => 
         array (

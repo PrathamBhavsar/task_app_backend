@@ -2,12 +2,16 @@
 
 use Infrastructure\Database\EntityManagerFactory;
 use Infrastructure\Persistence\Doctrine\AuthRepository;
+
+use Domain\Repository\UserRepositoryInterface;
 use Interface\Controller\AuthController;
 use Application\UseCase\Auth\{
     LoginUseCase,
     RegisterUseCase
 };
 use Interface\Http\JsonResponse;
+use Infrastructure\Auth\JwtService;
+
 
 function handleAuthRoutes(string $method): void
 {
@@ -15,11 +19,15 @@ function handleAuthRoutes(string $method): void
     $action = $_GET['action'] ?? null;
 
     $em = EntityManagerFactory::create();
-    $repo = new AuthRepository($em);
+    $repo = new UserRepositoryInterface($em);
+    $authRepo = new AuthRepository($em);
+
+    $jwtService = new JwtService($em);
 
     $authController = new AuthController(
-        new LoginUseCase($repo),
-        new RegisterUseCase($repo)
+        new LoginUseCase($repo, $jwtService),
+        new RegisterUseCase($authRepo)
+
     );
 
     if ($method !== 'POST') {

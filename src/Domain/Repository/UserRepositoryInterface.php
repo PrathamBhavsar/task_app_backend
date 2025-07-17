@@ -8,6 +8,7 @@ interface UserRepositoryInterface
 {
     public function findAll(): array;
     public function findById(int $id): ?User;
+    public function findByEmail(string $email): ?User;
     public function save(User $user): User;
     public function delete(User $user): void;
 }

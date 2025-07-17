@@ -16,7 +16,6 @@ class CreateUserUseCase
             name: $data['name'],
             email: $data['email'],
             contactNo: $data['contact_no'],
-            created_at: $data['created_at'],
             user_type: $data['user_type'],
             address: $data['address'],
             profile_bg_color: $data['profile_bg_color'],

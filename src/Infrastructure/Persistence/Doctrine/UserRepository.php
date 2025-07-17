@@ -20,6 +20,12 @@ class UserRepository implements UserRepositoryInterface
         return $this->em->getRepository(User::class)->find($id);
     }
 
+    public function findByEmail(string $email): ?User
+    {
+        return $this->em->getRepository(User::class)
+            ->findOneBy(['email' => $email]);
+    }
+
     public function save(User $user): User
     {
         $this->em->persist($user);

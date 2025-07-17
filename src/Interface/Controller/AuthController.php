@@ -7,19 +7,21 @@ use Application\UseCase\Auth\{
     RegisterUseCase
 };
 use Interface\Http\JsonResponse;
+use Domain\Entity\User;
 
 class AuthController
 {
     public function __construct(
         private LoginUseCase $login,
-        private RegisterUseCase $register
+        private RegisterUseCase $register,
     ) {}
 
     public function login(array $data)
     {
-        $user = $this->login->execute($data['email'], $data['password']);
-        return $user
-            ? JsonResponse::ok($user->jsonSerialize())
+        $result = $this->login->execute($data['email'], $data['password']);
+
+        return $result
+            ? JsonResponse::ok($result)
             : JsonResponse::error("Invalid credentials", 401);
     }
 
