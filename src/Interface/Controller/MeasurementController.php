@@ -26,7 +26,7 @@ class MeasurementController
     public function index()
     {
         $measurements = $this->getAll->execute();
-        return JsonResponse::ok($measurements);
+        return JsonResponse::list($measurements, 'measurements');
     }
 
     public function getByTaskId(int $taskId)

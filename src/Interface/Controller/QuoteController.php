@@ -26,7 +26,7 @@ class QuoteController
     public function index()
     {
         $quotes = $this->getAll->execute();
-        return JsonResponse::ok($quotes);
+        return JsonResponse::list($quotes, 'quotes');
     }
 
     public function show(int $id)

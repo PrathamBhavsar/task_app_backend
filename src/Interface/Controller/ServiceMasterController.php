@@ -24,7 +24,7 @@ class ServiceMasterController
     public function index()
     {
         $serviceMasters = $this->getAll->execute();
-        return JsonResponse::ok($serviceMasters);
+        return JsonResponse::list($serviceMasters, 'service_masters');
     }
 
     public function show(int $id)

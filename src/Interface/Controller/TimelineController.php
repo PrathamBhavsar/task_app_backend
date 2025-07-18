@@ -26,13 +26,13 @@ class TimelineController
     public function index()
     {
         $timelines = $this->getAll->execute();
-        return JsonResponse::ok($timelines);
+        return JsonResponse::list($timelines, 'timelines');
     }
 
     public function getByTaskId(int $taskId)
     {
         $timelines = $this->getAllByTaskId->execute($taskId);
-        return JsonResponse::ok($timelines);
+        return JsonResponse::list($timelines, 'timelines');
     }
 
 

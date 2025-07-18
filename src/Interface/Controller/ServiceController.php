@@ -26,7 +26,7 @@ class ServiceController
     public function index()
     {
         $services = $this->getAll->execute();
-        return JsonResponse::ok($services);
+        return JsonResponse::list($services, 'services');
     }
 
     public function getByTaskId(int $taskId)

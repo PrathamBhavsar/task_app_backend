@@ -24,7 +24,7 @@ class UserController
     public function index()
     {
         $users = $this->getAll->execute();
-        return JsonResponse::ok($users);
+        return JsonResponse::list($users, 'users');
     }
 
     public function show(int $id)

@@ -24,7 +24,7 @@ class ClientController
     public function index()
     {
         $clients = $this->getAll->execute();
-        return JsonResponse::ok($clients);
+        return JsonResponse::list($clients, 'clients');
     }
 
     public function show(int $id)

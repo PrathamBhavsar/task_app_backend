@@ -38,7 +38,7 @@ class TaskController
         if (!$userId) return JsonResponse::unauthorized("Invalid or missing token");
 
         $tasks = $this->getAll->execute($userId);
-        return JsonResponse::ok($tasks);
+        return JsonResponse::list($tasks, 'tasks');
     }
 
     public function show(int $id)

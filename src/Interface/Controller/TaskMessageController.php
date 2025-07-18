@@ -26,13 +26,13 @@ class TaskMessageController
     public function index()
     {
         $taskMessages = $this->getAll->execute();
-        return JsonResponse::ok($taskMessages);
+        return JsonResponse::list($taskMessages, 'messages');
     }
 
     public function getByTaskId(int $taskId)
     {
         $timelines = $this->getAllByTaskId->execute($taskId);
-        return JsonResponse::ok($timelines);
+        return JsonResponse::list($timelines, 'messages');
     }
 
     public function show(int $id)

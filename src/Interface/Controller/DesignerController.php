@@ -24,7 +24,7 @@ class DesignerController
     public function index()
     {
         $designers = $this->getAll->execute();
-        return JsonResponse::ok($designers);
+        return JsonResponse::list($designers, 'designers');
     }
 
     public function show(int $id)

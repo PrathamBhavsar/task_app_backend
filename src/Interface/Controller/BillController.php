@@ -26,7 +26,7 @@ class BillController
     public function index()
     {
         $bills = $this->getAll->execute();
-        return JsonResponse::ok($bills);
+        return JsonResponse::list($bills, 'bills');
     }
 
     public function show(int $id)
