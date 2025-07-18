@@ -82,6 +82,7 @@ class Task implements \JsonSerializable
     {
         return [
             'task_id' => $this->getId(),
+            'name' => $this->getName(),
             'deal_no' => $this->getDealNo(),
             'created_at' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
             'start_date' => $this->getStartDate()->format('Y-m-d'),
