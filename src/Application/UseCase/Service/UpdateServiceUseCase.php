@@ -3,34 +3,50 @@
 namespace Application\UseCase\Service;
 
 use Domain\Repository\ServiceRepositoryInterface;
-use Domain\Entity\Service;
-
 use Domain\Repository\ServiceMasterRepositoryInterface;
 
 class UpdateServiceUseCase
 {
     public function __construct(
         private ServiceRepositoryInterface $serviceRepo,
-
         private ServiceMasterRepositoryInterface $serviceMasterRepo
     ) {}
 
-    public function execute(int $id, array $data): ?Service
+
+    public function execute(array $servicesData): array
     {
-        $service = $this->serviceRepo->findById($id);
-        if (!$service) return null;
+        $updated = [];
 
-        $serviceMaster = $this->serviceMasterRepo->findById($data['service_master_id']);
-        if (!$serviceMaster) throw new \InvalidArgumentException("Invalid service_master_id");
+        foreach ($servicesData as $data) {
+            if (!isset($data['id'], $data['service_master_id'])) {
+                continue;
+            }
 
-        $service->setTaskId($data['task_id']);
-        $service->setServiceMaster($serviceMaster);
-        $service->setQuantity($data['quantity']);
-        $service->setUnitPrice($data['unit_price']);
-        $service->setTotalAmount($data['total_amount']);
+            $service = $this->serviceRepo->findById($data['id']);
+            if (!$service) {
+                continue;
+            }
 
-        $saved = $this->serviceRepo->save($service);
+            $serviceMaster = $this->serviceMasterRepo->findById($data['service_master_id']);
+            if (!$serviceMaster) {
+                continue;
+            }
 
-        return $saved;
+            if (isset($data['task_id'])) {
+                $service->setTaskId($data['task_id']);
+            }
+
+            $service->setServiceMaster($serviceMaster);
+            $service->setQuantity($data['quantity'] ?? $service->getQuantity());
+            $service->setUnitPrice($data['unit_price'] ?? $service->getUnitPrice());
+            $service->setTotalAmount($data['total_amount'] ?? $service->getTotalAmount());
+
+            $saved = $this->serviceRepo->save($service);
+            if ($saved) {
+                $updated[] = $saved;
+            }
+        }
+
+        return $updated;
     }
 }

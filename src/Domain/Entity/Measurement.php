@@ -26,6 +26,7 @@ class Measurement implements \JsonSerializable
     #[ORM\Column(type: "float")]
     private float $area;
 
+
     #[ORM\Column(type: "string")]
     private string $unit;
 
@@ -131,17 +132,17 @@ class Measurement implements \JsonSerializable
 
     public function getUnitPrice(): float
     {
-        return $this->quantity;
+        return $this->unit_price;
     }
 
     public function getDiscount(): float
     {
-        return $this->quantity;
+        return $this->discount;
     }
 
     public function getTotalPrice(): float
     {
-        return $this->quantity;
+        return $this->total_price;
     }
 
     public function getNotes(): string
@@ -175,6 +176,7 @@ class Measurement implements \JsonSerializable
     {
         $this->area = $area;
     }
+
 
     public function setUnit(string $unit): void
     {

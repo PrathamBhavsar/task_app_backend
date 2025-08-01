@@ -39,6 +39,7 @@ class TaskMessage implements \JsonSerializable
     {
         return [
             'message_id' => $this->getId(),
+            'task_id' => $this->getTaskId(),
             'message' => $this->getMessage(),
             'user' => $this->getUser()->jsonSerialize(),
             'created_at' => $this->getCreatedAt()->format('Y-m-d H:i:s'),

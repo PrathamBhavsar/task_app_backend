@@ -32,7 +32,7 @@ class MeasurementController
     public function getByTaskId(int $taskId)
     {
         $measurements = $this->getAllByTaskId->execute($taskId);
-        return JsonResponse::ok($measurements);
+        return JsonResponse::list($measurements, 'measurements');
     }
 
     public function show(int $id)

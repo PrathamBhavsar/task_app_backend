@@ -32,7 +32,7 @@ class ServiceController
     public function getByTaskId(int $taskId)
     {
         $services = $this->getAllByTaskId->execute($taskId);
-        return JsonResponse::ok($services);
+        return JsonResponse::list($services, 'services');
     }
 
     public function show(int $id)
