@@ -14,7 +14,8 @@ use Infrastructure\Persistence\Doctrine\{
     MeasurementRepository,
     ServiceRepository,
     QuoteRepository,
-    BillRepository
+    BillRepository,
+    ConfigRepository
 };
 use Interface\Controller\{
     DesignerController,
@@ -117,6 +118,8 @@ use Application\UseCase\Bill\{
     DeleteBillUseCase
 };
 use Infrastructure\Auth\JwtService;
+use Application\Service\DealNumberGeneratorService;
+
 
 $em = EntityManagerFactory::create();
 
@@ -130,10 +133,13 @@ $timelineRepo = new TimelineRepository($em);
 $serviceMasterRepo = new ServiceMasterRepository($em);
 $taskMessageRepo = new TaskMessageRepository($em);
 $taskRepo = new TaskRepository($em);
+$configRepo = new ConfigRepository($em);
 $measurementRepo = new MeasurementRepository($em);
 $serviceRepo = new ServiceRepository($em);
 $quoteRepo = new QuoteRepository($em);
 $billRepo = new BillRepository($em);
+
+$dealNoGenerator = new DealNumberGeneratorService($configRepo);
 
 $designerController = new DesignerController(
     new GetAllDesignersUseCase($designerRepo),
@@ -194,7 +200,7 @@ $taskMessageController = new TaskMessageController(
 $taskController = new TaskController(
     new GetAllTasksUseCase($taskRepo),
     new GetTaskByIdUseCase($taskRepo),
-    new CreateTaskUseCase($taskRepo),
+    new CreateTaskUseCase($taskRepo, $dealNoGenerator, $em),
     new UpdateTaskUseCase($taskRepo),
     new UpdateTaskStatusUseCase($taskRepo),
     new DeleteTaskUseCase($taskRepo),

@@ -50,7 +50,7 @@ class Task implements \JsonSerializable
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: "agency_id", referencedColumnName: "user_id", nullable: true)]
-    private User $agency;
+    private ?User $agency;
 
     public function __construct(
         string $dealNo,
@@ -62,7 +62,7 @@ class Task implements \JsonSerializable
         User $createdBy,
         Client $client,
         Designer $designer,
-        User $agency
+        ?User $agency
     ) {
         $this->deal_no = $dealNo;
         $this->name = $name;
@@ -158,7 +158,7 @@ class Task implements \JsonSerializable
         return $this->client;
     }
 
-    public function getAgency(): User
+    public function getAgency(): ?User
     {
         return $this->agency;
     }
