@@ -14,7 +14,7 @@ class LoginUseCase
         $user = $this->userRepo->findByEmail($email);
         if (!$user || !password_verify($password, $user->getPassword())) return null;
 
-        $token = $this->jwtService->generateToken($user);
+        $token = $this->jwtService->generateTokens($user);
         return ['user' => $user->jsonSerialize(), 'token' => $token];
     }
 }

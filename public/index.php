@@ -146,6 +146,7 @@ $routes = [
         'POST' => match ($segments[2] ?? null) {
             'login' => $authController->login($body),
             'register' => $authController->register($body),
+            'refresh' => $authController->refreshToken($body),
             default => sendError("Missing or invalid action", 400)
         },
         default => sendError("Method not allowed", 405)

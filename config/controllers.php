@@ -60,7 +60,7 @@ use Application\UseCase\Timeline\{
     UpdateTimelineUseCase,
     DeleteTimelineUseCase
 };
-use Application\UseCase\Auth\{LoginUseCase, RegisterUseCase};
+use Application\UseCase\Auth\{LoginUseCase, RefreshTokenUseCase, RegisterUseCase};
 use Application\UseCase\ServiceMaster\{
     GetAllServiceMastersUseCase,
     GetServiceMasterByIdUseCase,
@@ -176,7 +176,8 @@ $userController = new UserController(
 
 $authController = new AuthController(
     new LoginUseCase($userRepo, $jwtService),
-    new RegisterUseCase($authRepo, $jwtService)
+    new RegisterUseCase($authRepo, $jwtService),
+    new RefreshTokenUseCase($userRepo, $jwtService),
 );
 
 $serviceMasterController = new ServiceMasterController(

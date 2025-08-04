@@ -7,6 +7,7 @@ use Domain\Repository\UserRepositoryInterface;
 use Interface\Controller\AuthController;
 use Application\UseCase\Auth\{
     LoginUseCase,
+    RefreshTokenUseCase,
     RegisterUseCase
 };
 use Interface\Http\JsonResponse;
@@ -26,7 +27,8 @@ function handleAuthRoutes(string $method): void
 
     $authController = new AuthController(
         new LoginUseCase($repo, $jwtService),
-        new RegisterUseCase($authRepo)
+        new RegisterUseCase($authRepo, $jwtService),
+        new RefreshTokenUseCase($repo, $jwtService)
 
     );
 
@@ -42,6 +44,10 @@ function handleAuthRoutes(string $method): void
 
         case 'register':
             echo $authController->register($data);
+            break;
+
+        case 'refresh':
+            echo $authController->refreshToken($data);
             break;
 
         default:

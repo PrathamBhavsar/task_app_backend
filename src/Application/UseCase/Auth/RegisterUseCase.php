@@ -19,7 +19,7 @@ class RegisterUseCase
         }
 
         $user = $this->repo->register($data);
-        $token = $this->jwtService->generateToken($user);
+        $token = $this->jwtService->generateTokens($user);
 
         return ['user' => $user->jsonSerialize(), 'token' => $token];
     }
