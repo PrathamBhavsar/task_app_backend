@@ -201,7 +201,7 @@ $taskMessageController = new TaskMessageController(
 $taskController = new TaskController(
     new GetAllTasksUseCase($taskRepo),
     new GetTaskByIdUseCase($taskRepo),
-    new CreateTaskUseCase($taskRepo, $dealNoGenerator, $em),
+    new CreateTaskUseCase($taskRepo, $dealNoGenerator, $em, $timelineRepo),
     new UpdateTaskUseCase($taskRepo),
     new UpdateTaskStatusUseCase($taskRepo),
     new DeleteTaskUseCase($taskRepo),

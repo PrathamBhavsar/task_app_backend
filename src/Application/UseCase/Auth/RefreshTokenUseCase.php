@@ -21,9 +21,6 @@ class RefreshTokenUseCase
         $user = $this->userRepo->findById($decoded['sub']);
         if (!$user) return null;
 
-        return [
-            'access_token' => $this->jwtService->generateTokens($user),
-            'refresh_token' => $this->jwtService->generateRefreshToken($user),
-        ];
+        return $this->jwtService->generateTokens($user);
     }
 }
