@@ -7,7 +7,10 @@ use Application\UseCase\Auth\{
     RegisterUseCase,
     RefreshTokenUseCase
 };
+use Framework\Http\Request;
+use Framework\Http\Response;
 use Interface\Http\JsonResponse;
+use Interface\Http\DTO\ApiResponse;
 use Domain\Entity\User;
 
 class AuthController
@@ -18,39 +21,46 @@ class AuthController
         private RefreshTokenUseCase $refresh,
     ) {}
 
-    public function login(array $data)
+    public function login(Request $request): Response
     {
-        $result = $this->login->execute($data['email'], $data['password']);
+        $data = $request->body;
+        $result = $this->login->execute($data['email'] ?? '', $data['password'] ?? '');
 
         return $result
-            ? JsonResponse::ok($result)
-            : JsonResponse::error("Invalid credentials", 401);
+            ? ApiResponse::success($result)
+            : ApiResponse::error('Invalid credentials', 401);
     }
 
-    public function register(array $data)
+    public function register(Request $request): Response
     {
-
+        $data = $request->body;
         $user = $this->register->execute($data);
 
         return $user
-            ? JsonResponse::ok($user)
-            : JsonResponse::error("Email already registered", 400);
+            ? ApiResponse::success($user, 201)
+            : ApiResponse::error('Email already registered', 400);
     }
 
-    public function refreshToken(array $data)
+    public function refresh(Request $request): Response
     {
+        $data = $request->body;
         $refreshToken = $data['refresh_token'] ?? null;
 
         if (!$refreshToken) {
-            return JsonResponse::error("Refresh token is required", 400);
+            return ApiResponse::error('Refresh token is required', 400);
         }
 
         try {
             $newTokens = $this->refresh->execute($refreshToken);
-
-            return JsonResponse::ok($newTokens);
+            return ApiResponse::success($newTokens);
         } catch (\Exception $e) {
-            return JsonResponse::error($e->getMessage(), 401);
+            return ApiResponse::error($e->getMessage(), 401);
         }
+    }
+
+    public function logout(Request $request): Response
+    {
+        // Implement logout logic (e.g., blacklist token)
+        return ApiResponse::success(['message' => 'Logged out successfully']);
     }
 }

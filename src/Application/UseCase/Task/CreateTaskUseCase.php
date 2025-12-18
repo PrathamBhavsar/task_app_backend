@@ -27,9 +27,21 @@ class CreateTaskUseCase
         $dealNo = $this->dealNumberService->generate();
         $dueDate = new \DateTime($data['due_date']);
 
-        $createdBy = $this->em->getReference(User::class, $data['created_by']);
+        // Use user_id as created_by
+        $userId = $data['user_id'] ?? $data['created_by'] ?? null;
+        if (!$userId) {
+            throw new \InvalidArgumentException('User ID is required');
+        }
+
+        $createdBy = $this->em->getReference(User::class, $userId);
         $client = $this->em->getReference(Client::class, $data['client_id']);
         $designer = $this->em->getReference(Designer::class, $data['designer_id']);
+        
+        // Handle optional agency
+        $agency = null;
+        if (isset($data['agency_id']) && $data['agency_id']) {
+            $agency = $this->em->getReference(User::class, $data['agency_id']);
+        }
 
         $task = new Task(
             dealNo: $dealNo,
@@ -41,19 +53,16 @@ class CreateTaskUseCase
             status: $data['status'],
             client: $client,
             designer: $designer,
-            agency: null
+            agency: $agency
         );
 
         $task = $this->repo->save($task);
-
-        // Get user reference
-        $user = $this->em->getReference(User::class, $data['created_by']);
 
         // Create timeline entry
         $timeline = new \Domain\Entity\Timeline(
             $task->getId(),
             $data['status'],
-            $user
+            $createdBy
         );
 
         // Save timeline entry

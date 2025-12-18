@@ -11,13 +11,9 @@ class CreateServiceMasterUseCase
 
     public function execute(array $data): ServiceMaster
     {
-
         $serviceMaster = new ServiceMaster(
             name: $data['name'],
-            contactNo: $data['contact_no'],
-            address: $data['address'],
-            firmName: $data['firm_name'],
-            profileBgColor: $data['profile_bg_color']
+            defaultRate: $data['default_rate']
         );
 
         return $this->repo->save($serviceMaster);

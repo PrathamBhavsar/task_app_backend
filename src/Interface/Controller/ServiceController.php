@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Interface\Controller;
 
 use Application\UseCase\Service\{
@@ -10,7 +12,12 @@ use Application\UseCase\Service\{
     UpdateServiceUseCase,
     DeleteServiceUseCase
 };
-use Interface\Http\JsonResponse;
+use Framework\Http\Request;
+use Framework\Http\Response;
+use Interface\Http\DTO\ApiResponse;
+use Interface\Http\DTO\Request\CreateServiceRequest;
+use Interface\Http\DTO\Request\UpdateServiceRequest;
+use Interface\Http\DTO\Response\ServiceResponse;
 
 class ServiceController
 {
@@ -23,43 +30,142 @@ class ServiceController
         private DeleteServiceUseCase $delete
     ) {}
 
-    public function index()
+    /**
+     * Get all services
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function index(Request $request): Response
     {
         $services = $this->getAll->execute();
-        return JsonResponse::list($services, 'services');
+        
+        // Convert entities to response DTOs
+        $serviceResponses = array_map(
+            fn($service) => ServiceResponse::fromEntity($service),
+            $services
+        );
+        
+        return ApiResponse::collection($serviceResponses, 'services');
     }
 
-    public function getByTaskId(int $taskId)
+    /**
+     * Get services by task ID
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function getByTaskId(Request $request): Response
     {
+        $taskId = (int) $request->getAttribute('task_id');
         $services = $this->getAllByTaskId->execute($taskId);
-        return JsonResponse::list($services, 'services');
+        
+        // Convert entities to response DTOs
+        $serviceResponses = array_map(
+            fn($service) => ServiceResponse::fromEntity($service),
+            $services
+        );
+        
+        return ApiResponse::collection($serviceResponses, 'services');
     }
 
-    public function show(int $id)
+    /**
+     * Get a single service by ID
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function show(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
         $service = $this->getById->execute($id);
-        return $service
-            ? JsonResponse::ok($service)
-            : JsonResponse::error("Service not found", 404);
+        
+        if (!$service) {
+            return ApiResponse::notFound('Service not found');
+        }
+        
+        $serviceResponse = ServiceResponse::fromEntity($service);
+        return ApiResponse::success($serviceResponse);
     }
 
-    public function store(array $data)
+    /**
+     * Create a new service
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request): Response
     {
-        $service = $this->create->execute($data);
-        return JsonResponse::ok($service);
+        // Get validated DTO from request attributes (set by ValidationMiddleware)
+        $dto = $request->getAttribute('validated_dto');
+        
+        if (!$dto instanceof CreateServiceRequest) {
+            // Fallback: create DTO from request body
+            $dto = CreateServiceRequest::fromArray($request->body);
+        }
+        
+        $service = $this->create->execute($dto->toArray());
+        $serviceResponse = ServiceResponse::fromEntity($service);
+        
+        return ApiResponse::success($serviceResponse, 201);
     }
 
-    public function update(int $id, array $data)
+    /**
+     * Update an existing service
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function update(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
+        
+        // Get validated DTO from request attributes (set by ValidationMiddleware)
+        $dto = $request->getAttribute('validated_dto');
+        
+        if (!$dto instanceof UpdateServiceRequest) {
+            // Fallback: create DTO from request body
+            $dto = UpdateServiceRequest::fromArray($request->body);
+        }
+        
+        // Only pass provided fields to use case
+        $data = $dto->getProvidedFields();
+        
+        if (empty($data)) {
+            return ApiResponse::error('No fields provided for update', 400);
+        }
+        
         $service = $this->update->execute($id, $data);
-        return $service
-            ? JsonResponse::ok($service)
-            : JsonResponse::error("Service not found", 404);
+        
+        if (!$service) {
+            return ApiResponse::notFound('Service not found');
+        }
+        
+        $serviceResponse = ServiceResponse::fromEntity($service);
+        return ApiResponse::success($serviceResponse);
     }
 
-    public function delete(int $id)
+    /**
+     * Delete a service
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function destroy(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
+        
+        // Check if service exists before deleting
+        $service = $this->getById->execute($id);
+        
+        if (!$service) {
+            return ApiResponse::notFound('Service not found');
+        }
+        
         $this->delete->execute($id);
-        return JsonResponse::ok(['message' => 'Deleted successfully']);
+        
+        return ApiResponse::success([
+            'message' => 'Service deleted successfully'
+        ]);
     }
 }

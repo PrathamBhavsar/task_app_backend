@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Interface\Controller;
 
 use Application\UseCase\Bill\{
@@ -10,7 +12,12 @@ use Application\UseCase\Bill\{
     UpdateBillUseCase,
     DeleteBillUseCase
 };
-use Interface\Http\JsonResponse;
+use Framework\Http\Request;
+use Framework\Http\Response;
+use Interface\Http\DTO\ApiResponse;
+use Interface\Http\DTO\Request\CreateBillRequest;
+use Interface\Http\DTO\Request\UpdateBillRequest;
+use Interface\Http\DTO\Response\BillResponse;
 
 class BillController
 {
@@ -23,43 +30,141 @@ class BillController
         private DeleteBillUseCase $delete
     ) {}
 
-    public function index()
+    /**
+     * Get all bills
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function index(Request $request): Response
     {
         $bills = $this->getAll->execute();
-        return JsonResponse::list($bills, 'bills');
+        
+        // Convert entities to response DTOs
+        $billResponses = array_map(
+            fn($bill) => BillResponse::fromEntity($bill),
+            $bills
+        );
+        
+        return ApiResponse::collection($billResponses, 'bills');
     }
 
-    public function show(int $id)
+    /**
+     * Get a single bill by ID
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function show(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
         $bill = $this->getById->execute($id);
-        return $bill
-            ? JsonResponse::ok($bill)
-            : JsonResponse::error("Bill not found", 404);
+        
+        if (!$bill) {
+            return ApiResponse::notFound('Bill not found');
+        }
+        
+        $billResponse = BillResponse::fromEntity($bill);
+        return ApiResponse::success($billResponse);
     }
 
-    public function getByTaskId(int $taskId)
+    /**
+     * Get bill by task ID
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function getByTaskId(Request $request): Response
     {
+        $taskId = (int) $request->getAttribute('task_id');
         $bill = $this->getByTaskId->execute($taskId);
-        return JsonResponse::ok($bill);
+        
+        if (!$bill) {
+            return ApiResponse::notFound('Bill not found for this task');
+        }
+        
+        $billResponse = BillResponse::fromEntity($bill);
+        return ApiResponse::success($billResponse);
     }
 
-    public function store(array $data)
+    /**
+     * Create a new bill
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request): Response
     {
-        $bill = $this->create->execute($data);
-        return JsonResponse::ok($bill);
+        // Get validated DTO from request attributes (set by ValidationMiddleware)
+        $dto = $request->getAttribute('validated_dto');
+        
+        if (!$dto instanceof CreateBillRequest) {
+            // Fallback: create DTO from request body
+            $dto = CreateBillRequest::fromArray($request->body);
+        }
+        
+        $bill = $this->create->execute($dto->toArray());
+        $billResponse = BillResponse::fromEntity($bill);
+        
+        return ApiResponse::success($billResponse, 201);
     }
 
-    public function update(int $id, array $data)
+    /**
+     * Update an existing bill
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function update(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
+        
+        // Get validated DTO from request attributes (set by ValidationMiddleware)
+        $dto = $request->getAttribute('validated_dto');
+        
+        if (!$dto instanceof UpdateBillRequest) {
+            // Fallback: create DTO from request body
+            $dto = UpdateBillRequest::fromArray($request->body);
+        }
+        
+        // Only pass provided fields to use case
+        $data = $dto->getProvidedFields();
+        
+        if (empty($data)) {
+            return ApiResponse::error('No fields provided for update', 400);
+        }
+        
         $bill = $this->update->execute($id, $data);
-        return $bill
-            ? JsonResponse::ok($bill)
-            : JsonResponse::error("Bill not found", 404);
+        
+        if (!$bill) {
+            return ApiResponse::notFound('Bill not found');
+        }
+        
+        $billResponse = BillResponse::fromEntity($bill);
+        return ApiResponse::success($billResponse);
     }
 
-    public function delete(int $id)
+    /**
+     * Delete a bill
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function destroy(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
+        
+        // Check if bill exists before deleting
+        $bill = $this->getById->execute($id);
+        
+        if (!$bill) {
+            return ApiResponse::notFound('Bill not found');
+        }
+        
         $this->delete->execute($id);
-        return JsonResponse::ok(['message' => 'Deleted successfully']);
+        
+        return ApiResponse::success([
+            'message' => 'Bill deleted successfully'
+        ]);
     }
 }

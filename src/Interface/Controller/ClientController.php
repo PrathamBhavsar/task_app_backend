@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Interface\Controller;
 
 use Application\UseCase\Client\{
@@ -9,7 +11,12 @@ use Application\UseCase\Client\{
     UpdateClientUseCase,
     DeleteClientUseCase
 };
-use Interface\Http\JsonResponse;
+use Framework\Http\Request;
+use Framework\Http\Response;
+use Interface\Http\DTO\ApiResponse;
+use Interface\Http\DTO\Request\CreateClientRequest;
+use Interface\Http\DTO\Request\UpdateClientRequest;
+use Interface\Http\DTO\Response\ClientResponse;
 
 class ClientController
 {
@@ -21,37 +28,122 @@ class ClientController
         private DeleteClientUseCase $delete
     ) {}
 
-    public function index()
+    /**
+     * Get all clients
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function index(Request $request): Response
     {
         $clients = $this->getAll->execute();
-        return JsonResponse::list($clients, 'clients');
+        
+        // Convert entities to response DTOs
+        $clientResponses = array_map(
+            fn($client) => ClientResponse::fromEntity($client),
+            $clients
+        );
+        
+        return ApiResponse::collection($clientResponses, 'clients');
     }
 
-    public function show(int $id)
+    /**
+     * Get a single client by ID
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function show(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
         $client = $this->getById->execute($id);
-        return $client
-            ? JsonResponse::ok($client)
-            : JsonResponse::error("Client not found", 404);
+        
+        if (!$client) {
+            return ApiResponse::notFound('Client not found');
+        }
+        
+        $clientResponse = ClientResponse::fromEntity($client);
+        return ApiResponse::success($clientResponse);
     }
 
-    public function store(array $data)
+    /**
+     * Create a new client
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request): Response
     {
-        $client = $this->create->execute($data);
-        return JsonResponse::ok($client);
+        // Get validated DTO from request attributes (set by ValidationMiddleware)
+        $dto = $request->getAttribute('validated_dto');
+        
+        if (!$dto instanceof CreateClientRequest) {
+            // Fallback: create DTO from request body
+            $dto = CreateClientRequest::fromArray($request->body);
+        }
+        
+        $client = $this->create->execute($dto->toArray());
+        $clientResponse = ClientResponse::fromEntity($client);
+        
+        return ApiResponse::success($clientResponse, 201);
     }
 
-    public function update(int $id, array $data)
+    /**
+     * Update an existing client
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function update(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
+        
+        // Get validated DTO from request attributes (set by ValidationMiddleware)
+        $dto = $request->getAttribute('validated_dto');
+        
+        if (!$dto instanceof UpdateClientRequest) {
+            // Fallback: create DTO from request body
+            $dto = UpdateClientRequest::fromArray($request->body);
+        }
+        
+        // Only pass provided fields to use case
+        $data = $dto->getProvidedFields();
+        
+        if (empty($data)) {
+            return ApiResponse::error('No fields provided for update', 400);
+        }
+        
         $client = $this->update->execute($id, $data);
-        return $client
-            ? JsonResponse::ok($client)
-            : JsonResponse::error("Client not found", 404);
+        
+        if (!$client) {
+            return ApiResponse::notFound('Client not found');
+        }
+        
+        $clientResponse = ClientResponse::fromEntity($client);
+        return ApiResponse::success($clientResponse);
     }
 
-    public function delete(int $id)
+    /**
+     * Delete a client
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function destroy(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
+        
+        // Check if client exists before deleting
+        $client = $this->getById->execute($id);
+        
+        if (!$client) {
+            return ApiResponse::notFound('Client not found');
+        }
+        
         $this->delete->execute($id);
-        return JsonResponse::ok(['message' => 'Deleted successfully']);
+        
+        return ApiResponse::success([
+            'message' => 'Client deleted successfully'
+        ]);
     }
 }

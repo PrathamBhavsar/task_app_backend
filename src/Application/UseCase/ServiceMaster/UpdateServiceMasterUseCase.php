@@ -14,11 +14,13 @@ class UpdateServiceMasterUseCase
         $serviceMaster = $this->repo->findById($id);
         if (!$serviceMaster) return null;
 
-        $serviceMaster->setName($data['name']);
-        $serviceMaster->setContactNo($data['contact_no']);
-        $serviceMaster->setAddress($data['address']);
-        $serviceMaster->setFirmName($data['firm_name']);
-        $serviceMaster->setProfileBgColor($data['profile_bg_color']);
+        if (isset($data['name'])) {
+            $serviceMaster->setName($data['name']);
+        }
+        
+        if (isset($data['default_rate'])) {
+            $serviceMaster->setDefaultRate($data['default_rate']);
+        }
 
         return $this->repo->save($serviceMaster);
     }

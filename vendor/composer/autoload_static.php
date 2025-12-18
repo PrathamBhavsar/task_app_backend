@@ -44,6 +44,7 @@ class ComposerStaticInit3ba5865ee439cf319452b0df1a1dfb7c
         ),
         'F' => 
         array (
+            'Framework\\' => 10,
             'Firebase\\JWT\\' => 13,
         ),
         'D' => 
@@ -130,6 +131,10 @@ class ComposerStaticInit3ba5865ee439cf319452b0df1a1dfb7c
         array (
             0 => __DIR__ . '/../..' . '/src/Infrastructure',
         ),
+        'Framework\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Framework',
+        ),
         'Firebase\\JWT\\' => 
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
@@ -184,7 +189,7 @@ class ComposerStaticInit3ba5865ee439cf319452b0df1a1dfb7c
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Deprecated' => __DIR__ . '/..' . '/symfony/polyfill-php84/Resources/stubs/Deprecated.php',
         'Normalizer' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
-        '©' => __DIR__ . '/..' . '/symfony/cache/Traits/ValueWrapper.php',
+        'ï¿½' => __DIR__ . '/..' . '/symfony/cache/Traits/ValueWrapper.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Interface\Controller;
 
 use Application\UseCase\ServiceMaster\{
@@ -9,7 +11,12 @@ use Application\UseCase\ServiceMaster\{
     UpdateServiceMasterUseCase,
     DeleteServiceMasterUseCase
 };
-use Interface\Http\JsonResponse;
+use Framework\Http\Request;
+use Framework\Http\Response;
+use Interface\Http\DTO\ApiResponse;
+use Interface\Http\DTO\Request\CreateServiceMasterRequest;
+use Interface\Http\DTO\Request\UpdateServiceMasterRequest;
+use Interface\Http\DTO\Response\ServiceMasterResponse;
 
 class ServiceMasterController
 {
@@ -21,37 +28,122 @@ class ServiceMasterController
         private DeleteServiceMasterUseCase $delete
     ) {}
 
-    public function index()
+    /**
+     * Get all service masters
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function index(Request $request): Response
     {
         $serviceMasters = $this->getAll->execute();
-        return JsonResponse::list($serviceMasters, 'service_masters');
+        
+        // Convert entities to response DTOs
+        $serviceMasterResponses = array_map(
+            fn($serviceMaster) => ServiceMasterResponse::fromEntity($serviceMaster),
+            $serviceMasters
+        );
+        
+        return ApiResponse::collection($serviceMasterResponses, 'service_masters');
     }
 
-    public function show(int $id)
+    /**
+     * Get a single service master by ID
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function show(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
         $serviceMaster = $this->getById->execute($id);
-        return $serviceMaster
-            ? JsonResponse::ok($serviceMaster)
-            : JsonResponse::error("Service Master not found", 404);
+        
+        if (!$serviceMaster) {
+            return ApiResponse::notFound('Service Master not found');
+        }
+        
+        $serviceMasterResponse = ServiceMasterResponse::fromEntity($serviceMaster);
+        return ApiResponse::success($serviceMasterResponse);
     }
 
-    public function store(array $data)
+    /**
+     * Create a new service master
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request): Response
     {
-        $serviceMaster = $this->create->execute($data);
-        return JsonResponse::ok($serviceMaster);
+        // Get validated DTO from request attributes (set by ValidationMiddleware)
+        $dto = $request->getAttribute('validated_dto');
+        
+        if (!$dto instanceof CreateServiceMasterRequest) {
+            // Fallback: create DTO from request body
+            $dto = CreateServiceMasterRequest::fromArray($request->body);
+        }
+        
+        $serviceMaster = $this->create->execute($dto->toArray());
+        $serviceMasterResponse = ServiceMasterResponse::fromEntity($serviceMaster);
+        
+        return ApiResponse::success($serviceMasterResponse, 201);
     }
 
-    public function update(int $id, array $data)
+    /**
+     * Update an existing service master
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function update(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
+        
+        // Get validated DTO from request attributes (set by ValidationMiddleware)
+        $dto = $request->getAttribute('validated_dto');
+        
+        if (!$dto instanceof UpdateServiceMasterRequest) {
+            // Fallback: create DTO from request body
+            $dto = UpdateServiceMasterRequest::fromArray($request->body);
+        }
+        
+        // Only pass provided fields to use case
+        $data = $dto->getProvidedFields();
+        
+        if (empty($data)) {
+            return ApiResponse::error('No fields provided for update', 400);
+        }
+        
         $serviceMaster = $this->update->execute($id, $data);
-        return $serviceMaster
-            ? JsonResponse::ok($serviceMaster)
-            : JsonResponse::error("Service Master not found", 404);
+        
+        if (!$serviceMaster) {
+            return ApiResponse::notFound('Service Master not found');
+        }
+        
+        $serviceMasterResponse = ServiceMasterResponse::fromEntity($serviceMaster);
+        return ApiResponse::success($serviceMasterResponse);
     }
 
-    public function delete(int $id)
+    /**
+     * Delete a service master
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function destroy(Request $request): Response
     {
+        $id = (int) $request->getAttribute('id');
+        
+        // Check if service master exists before deleting
+        $serviceMaster = $this->getById->execute($id);
+        
+        if (!$serviceMaster) {
+            return ApiResponse::notFound('Service Master not found');
+        }
+        
         $this->delete->execute($id);
-        return JsonResponse::ok(['message' => 'Deleted successfully']);
+        
+        return ApiResponse::success([
+            'message' => 'Service Master deleted successfully'
+        ]);
     }
 }

@@ -1,0 +1,50 @@
+[2025-11-08 09:31:41] Framework\Error\NotFoundException: User not found
+Request: GET /test
+File: U:\code\task_app_backend\test-error-handler.php:35
+Stack trace:
+#0 {main}
+--------------------------------------------------------------------------------
+[2025-11-08 09:31:41] Framework\Error\UnauthorizedException: Invalid token
+Request: GET /test
+File: U:\code\task_app_backend\test-error-handler.php:42
+Stack trace:
+#0 {main}
+--------------------------------------------------------------------------------
+[2025-11-08 09:31:41] Framework\Error\ValidationException: Validation failed
+Request: GET /test
+File: U:\code\task_app_backend\test-error-handler.php:53
+Stack trace:
+#0 {main}
+--------------------------------------------------------------------------------
+[2025-11-08 09:31:41] Framework\Error\ForbiddenException: Access denied
+Request: GET /test
+File: U:\code\task_app_backend\test-error-handler.php:60
+Stack trace:
+#0 {main}
+--------------------------------------------------------------------------------
+[2025-11-08 09:31:41] Framework\Error\RateLimitException: Too many requests
+Request: GET /test
+File: U:\code\task_app_backend\test-error-handler.php:67
+Stack trace:
+#0 {main}
+--------------------------------------------------------------------------------
+[2025-11-08 09:31:41] Framework\Error\ServerException: Database connection failed
+Request: GET /test
+File: U:\code\task_app_backend\test-error-handler.php:75
+Stack trace:
+#0 {main}
+--------------------------------------------------------------------------------
+[2025-11-08 09:31:41] Framework\Error\NotFoundException: Resource not found
+Request: GET /test
+File: U:\code\task_app_backend\test-error-handler.php:83
+Stack trace:
+#0 {main}
+--------------------------------------------------------------------------------
+[2025-11-08 09:31:41] Framework\Error\NotFoundException: Route not found
+Request: GET /test
+File: U:\code\task_app_backend\test-error-handler.php:97
+Stack trace:
+#0 U:\code\task_app_backend\src\Framework\Error\ErrorHandlerMiddleware.php(27): Framework\Middleware\RequestHandler@anonymous->handle(Object(Framework\Http\Request))
+#1 U:\code\task_app_backend\test-error-handler.php(101): Framework\Error\ErrorHandlerMiddleware->process(Object(Framework\Http\Request), Object(Framework\Middleware\RequestHandler@anonymous))
+#2 {main}
+--------------------------------------------------------------------------------
