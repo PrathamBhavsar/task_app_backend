@@ -3,10 +3,10 @@ import { UserService } from './service'
 import { UserModel } from './model'
 import { paginationQuery, parsePagination, formatPaginatedResponse } from '@/core/utils/pagination'
 import { successResponse } from '@/core/utils/response'
-import { requireAuth } from '@/core/middleware/auth'
+import { requireAdmin } from '@/core/middleware/auth'
 
 export const userController = new Elysia({ prefix: '/users', name: 'Users', detail: { tags: ['Users'] } })
-    .use(requireAuth)
+    .use(requireAdmin)
     .get('/', async ({ query }) => {
         const { limit, offset } = parsePagination(query)
         const data = await UserService.getAll(limit, offset)

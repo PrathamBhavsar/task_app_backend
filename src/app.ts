@@ -9,6 +9,7 @@ import {
     designerController,
     serviceMasterController,
     taskController,
+    taskUpdateController,
     measurementController,
     taskServiceController,
     taskMessageController,
@@ -64,6 +65,7 @@ export const app = new Elysia()
             .use(designerController)
             .use(serviceMasterController)
             .use(taskController)
+            .use(taskUpdateController)
             .use(measurementController)
             .use(taskServiceController)
             .use(taskMessageController)

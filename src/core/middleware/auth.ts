@@ -35,3 +35,11 @@ export const requireAdmin = new Elysia({ name: 'RequireAdmin' })
     .onBeforeHandle(({ user }) => {
         if (user?.role !== 'admin') throw new UnauthorizedError('Admin access required')
     })
+
+export const requireAdminOrSalesperson = new Elysia({ name: 'RequireAdminOrSalesperson' })
+    .use(requireAuth)
+    .onBeforeHandle(({ user }) => {
+        if (user?.role !== 'admin' && user?.role !== 'salesperson') {
+            throw new UnauthorizedError('Admin or Salesperson access required')
+        }
+    })

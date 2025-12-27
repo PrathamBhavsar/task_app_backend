@@ -3,10 +3,10 @@ import { DesignerService } from './service'
 import { DesignerModel } from './model'
 import { paginationQuery, parsePagination, formatPaginatedResponse } from '@/core/utils/pagination'
 import { successResponse } from '@/core/utils/response'
-import { requireAuth } from '@/core/middleware/auth'
+import { requireAdminOrSalesperson } from '@/core/middleware/auth'
 
 export const designerController = new Elysia({ prefix: '/designers', name: 'Designers', detail: { tags: ['Designers'] } })
-    .use(requireAuth)
+    .use(requireAdminOrSalesperson)
     .get('/', async ({ query }) => {
         const { limit, offset } = parsePagination(query)
         const data = await DesignerService.getAll(limit, offset)
