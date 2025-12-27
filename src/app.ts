@@ -15,7 +15,8 @@ import {
     timelineController,
     quoteController,
     billController,
-    configController
+    configController,
+    dashboardController
 } from '@/modules'
 
 export const app = new Elysia()
@@ -30,6 +31,7 @@ export const app = new Elysia()
             },
             tags: [
                 { name: 'Auth', description: 'Authentication & Authorization' },
+                { name: 'Dashboard', description: 'Dashboard analytics and overview' },
                 { name: 'Users', description: 'User management' },
                 { name: 'Clients', description: 'Client management' },
                 { name: 'Designers', description: 'Designer management' },
@@ -53,9 +55,10 @@ export const app = new Elysia()
             .get('/', () => ({
                 status: 'success',
                 message: 'Interior Design API v1',
-                endpoints: ['/auth', '/users', '/clients', '/designers', '/service-master', '/tasks', '/measurements', '/task-services', '/task-messages', '/timelines', '/quotes', '/bills', '/config']
+                endpoints: ['/auth', '/dashboard', '/users', '/clients', '/designers', '/service-master', '/tasks', '/measurements', '/task-services', '/task-messages', '/timelines', '/quotes', '/bills', '/config']
             }))
             .use(authController)
+            .use(dashboardController)
             .use(userController)
             .use(clientController)
             .use(designerController)
