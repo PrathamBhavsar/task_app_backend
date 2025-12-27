@@ -1,15 +1,18 @@
 import { Elysia, t } from 'elysia'
 import { TaskService } from './service'
 import { TaskModel } from './model'
-import { paginationQuery, parsePagination, formatPaginatedResponse } from '@/core/utils/pagination'
+import { paginationQuery, parsePagination, formatPaginatedResponse, formatSearchResponse } from '@/core/utils/pagination'
 import { successResponse } from '@/core/utils/response'
 import { requireAuth, requireAdminOrSalesperson } from '@/core/middleware/auth'
-import { UnauthorizedError } from '@/core/utils/errors'
 
 export const taskController = new Elysia({ prefix: '/tasks', name: 'Tasks', detail: { tags: ['Tasks'] } })
     .use(requireAuth)
     .get('/', async ({ query }) => {
-        const { limit, offset } = parsePagination(query)
+        const { limit, offset, search } = parsePagination(query)
+        if (search) {
+            const data = await TaskService.search(search)
+            return formatSearchResponse(data, 'Tasks search results')
+        }
         const data = await TaskService.getAll(limit, offset)
         const total = await TaskService.countAll()
         return formatPaginatedResponse(data, total, limit, offset, 'Tasks retrieved')

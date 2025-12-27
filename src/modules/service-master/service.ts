@@ -1,12 +1,23 @@
 import { db } from '@/core/db'
 import { serviceMaster } from '@/core/db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq, sql, or, ilike } from 'drizzle-orm'
 import { NotFoundError } from '@/core/utils/errors'
 import type { ServiceMasterModel } from './model'
 
 export abstract class ServiceMasterService {
     static async getAll(limit: number, offset: number) {
         return await db.select().from(serviceMaster).limit(limit).offset(offset).orderBy(serviceMaster.createdAt)
+    }
+
+    static async search(query: string) {
+        const searchPattern = `%${query}%`
+        return await db.select().from(serviceMaster)
+            .where(or(
+                ilike(serviceMaster.name, searchPattern),
+                ilike(serviceMaster.description, searchPattern),
+                ilike(serviceMaster.unit, searchPattern)
+            ))
+            .limit(5)
     }
 
     static async countAll(): Promise<number> {

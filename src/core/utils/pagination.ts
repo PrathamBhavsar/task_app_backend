@@ -4,12 +4,14 @@ export const PAGINATION_DEFAULTS = {
     LIMIT: 20,
     LIMIT_MIN: 1,
     LIMIT_MAX: 100,
-    OFFSET_MIN: 0
+    OFFSET_MIN: 0,
+    SEARCH_LIMIT: 5
 }
 
 export const paginationQuery = t.Object({
     limit: t.Optional(t.Numeric({ minimum: PAGINATION_DEFAULTS.LIMIT_MIN, maximum: PAGINATION_DEFAULTS.LIMIT_MAX })),
-    offset: t.Optional(t.Numeric({ minimum: PAGINATION_DEFAULTS.OFFSET_MIN }))
+    offset: t.Optional(t.Numeric({ minimum: PAGINATION_DEFAULTS.OFFSET_MIN })),
+    search: t.Optional(t.String())
 })
 
 export type PaginationQuery = typeof paginationQuery.static
@@ -18,6 +20,7 @@ export interface PaginationParams {
     limit: number
     offset: number
     page: number
+    search?: string
 }
 
 export interface PaginationMeta {
@@ -37,6 +40,12 @@ export interface PaginatedResponse<T> {
     message: string
 }
 
+export interface SearchResponse<T> {
+    status: 'success'
+    data: T[]
+    message: string
+}
+
 export function parsePagination(query: Partial<PaginationQuery>): PaginationParams {
     let limit = query.limit ?? PAGINATION_DEFAULTS.LIMIT
     let offset = query.offset ?? PAGINATION_DEFAULTS.OFFSET_MIN
@@ -44,7 +53,7 @@ export function parsePagination(query: Partial<PaginationQuery>): PaginationPara
     if (limit > PAGINATION_DEFAULTS.LIMIT_MAX) limit = PAGINATION_DEFAULTS.LIMIT_MAX
     if (offset < PAGINATION_DEFAULTS.OFFSET_MIN) offset = PAGINATION_DEFAULTS.OFFSET_MIN
     const page = Math.floor(offset / limit) + 1
-    return { limit, offset, page }
+    return { limit, offset, page, search: query.search }
 }
 
 export function calculatePaginationMeta(limit: number, offset: number, total: number): PaginationMeta {
@@ -58,6 +67,10 @@ export function calculatePaginationMeta(limit: number, offset: number, total: nu
 export function formatPaginatedResponse<T>(data: T[], total: number, limit: number, offset: number, message: string = 'Data retrieved'): PaginatedResponse<T> {
     const pagination = calculatePaginationMeta(limit, offset, total)
     return { status: 'success', data, pagination, message }
+}
+
+export function formatSearchResponse<T>(data: T[], message: string = 'Search results'): SearchResponse<T> {
+    return { status: 'success', data, message }
 }
 
 export function paginatedResponse<T extends any>(dataModel: T) {

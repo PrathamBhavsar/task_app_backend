@@ -1,12 +1,25 @@
 import { db } from '@/core/db'
 import { tasks, config, taskTimelines } from '@/core/db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq, sql, or, ilike } from 'drizzle-orm'
 import { NotFoundError } from '@/core/utils/errors'
 import type { TaskModel } from './model'
 
 export abstract class TaskService {
     static async getAll(limit: number, offset: number) {
         return await db.select().from(tasks).limit(limit).offset(offset).orderBy(tasks.createdAt)
+    }
+
+    static async search(query: string) {
+        const searchPattern = `%${query}%`
+        return await db.select().from(tasks)
+            .where(or(
+                ilike(tasks.name, searchPattern),
+                ilike(tasks.dealNo, searchPattern),
+                ilike(tasks.remarks, searchPattern),
+                ilike(tasks.status, searchPattern),
+                ilike(tasks.priority, searchPattern)
+            ))
+            .limit(5)
     }
 
     static async countAll(): Promise<number> {

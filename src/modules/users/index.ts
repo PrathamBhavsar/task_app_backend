@@ -1,14 +1,18 @@
 import { Elysia, t } from 'elysia'
 import { UserService } from './service'
 import { UserModel } from './model'
-import { paginationQuery, parsePagination, formatPaginatedResponse } from '@/core/utils/pagination'
+import { paginationQuery, parsePagination, formatPaginatedResponse, formatSearchResponse } from '@/core/utils/pagination'
 import { successResponse } from '@/core/utils/response'
 import { requireAdmin } from '@/core/middleware/auth'
 
 export const userController = new Elysia({ prefix: '/users', name: 'Users', detail: { tags: ['Users'] } })
     .use(requireAdmin)
     .get('/', async ({ query }) => {
-        const { limit, offset } = parsePagination(query)
+        const { limit, offset, search } = parsePagination(query)
+        if (search) {
+            const data = await UserService.search(search)
+            return formatSearchResponse(data, 'Users search results')
+        }
         const data = await UserService.getAll(limit, offset)
         const total = await UserService.countAll()
         return formatPaginatedResponse(data, total, limit, offset, 'Users retrieved')

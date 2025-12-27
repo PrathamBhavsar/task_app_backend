@@ -1,12 +1,24 @@
 import { db } from '@/core/db'
 import { clients } from '@/core/db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq, sql, or, ilike } from 'drizzle-orm'
 import { NotFoundError } from '@/core/utils/errors'
 import type { ClientModel } from './model'
 
 export abstract class ClientService {
     static async getAll(limit: number, offset: number) {
         return await db.select().from(clients).limit(limit).offset(offset).orderBy(clients.createdAt)
+    }
+
+    static async search(query: string) {
+        const searchPattern = `%${query}%`
+        return await db.select().from(clients)
+            .where(or(
+                ilike(clients.name, searchPattern),
+                ilike(clients.email, searchPattern),
+                ilike(clients.contactNo, searchPattern),
+                ilike(clients.address, searchPattern)
+            ))
+            .limit(5)
     }
 
     static async countAll(): Promise<number> {

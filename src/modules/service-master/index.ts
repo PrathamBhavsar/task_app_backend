@@ -1,14 +1,18 @@
 import { Elysia, t } from 'elysia'
 import { ServiceMasterService } from './service'
 import { ServiceMasterModel } from './model'
-import { paginationQuery, parsePagination, formatPaginatedResponse } from '@/core/utils/pagination'
+import { paginationQuery, parsePagination, formatPaginatedResponse, formatSearchResponse } from '@/core/utils/pagination'
 import { successResponse } from '@/core/utils/response'
 import { requireAuth } from '@/core/middleware/auth'
 
 export const serviceMasterController = new Elysia({ prefix: '/service-master', name: 'ServiceMaster', detail: { tags: ['Service Master'] } })
     .use(requireAuth)
     .get('/', async ({ query }) => {
-        const { limit, offset } = parsePagination(query)
+        const { limit, offset, search } = parsePagination(query)
+        if (search) {
+            const data = await ServiceMasterService.search(search)
+            return formatSearchResponse(data, 'Services search results')
+        }
         const data = await ServiceMasterService.getAll(limit, offset)
         const total = await ServiceMasterService.countAll()
         return formatPaginatedResponse(data, total, limit, offset, 'Services retrieved')

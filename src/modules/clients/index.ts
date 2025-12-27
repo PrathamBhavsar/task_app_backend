@@ -1,14 +1,18 @@
 import { Elysia, t } from 'elysia'
 import { ClientService } from './service'
 import { ClientModel } from './model'
-import { paginationQuery, parsePagination, formatPaginatedResponse } from '@/core/utils/pagination'
+import { paginationQuery, parsePagination, formatPaginatedResponse, formatSearchResponse } from '@/core/utils/pagination'
 import { successResponse } from '@/core/utils/response'
 import { requireAdminOrSalesperson } from '@/core/middleware/auth'
 
 export const clientController = new Elysia({ prefix: '/clients', name: 'Clients', detail: { tags: ['Clients'] } })
     .use(requireAdminOrSalesperson)
     .get('/', async ({ query }) => {
-        const { limit, offset } = parsePagination(query)
+        const { limit, offset, search } = parsePagination(query)
+        if (search) {
+            const data = await ClientService.search(search)
+            return formatSearchResponse(data, 'Clients search results')
+        }
         const data = await ClientService.getAll(limit, offset)
         const total = await ClientService.countAll()
         return formatPaginatedResponse(data, total, limit, offset, 'Clients retrieved')

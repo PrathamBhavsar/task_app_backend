@@ -1,14 +1,18 @@
 import { Elysia, t } from 'elysia'
 import { DesignerService } from './service'
 import { DesignerModel } from './model'
-import { paginationQuery, parsePagination, formatPaginatedResponse } from '@/core/utils/pagination'
+import { paginationQuery, parsePagination, formatPaginatedResponse, formatSearchResponse } from '@/core/utils/pagination'
 import { successResponse } from '@/core/utils/response'
 import { requireAdminOrSalesperson } from '@/core/middleware/auth'
 
 export const designerController = new Elysia({ prefix: '/designers', name: 'Designers', detail: { tags: ['Designers'] } })
     .use(requireAdminOrSalesperson)
     .get('/', async ({ query }) => {
-        const { limit, offset } = parsePagination(query)
+        const { limit, offset, search } = parsePagination(query)
+        if (search) {
+            const data = await DesignerService.search(search)
+            return formatSearchResponse(data, 'Designers search results')
+        }
         const data = await DesignerService.getAll(limit, offset)
         const total = await DesignerService.countAll()
         return formatPaginatedResponse(data, total, limit, offset, 'Designers retrieved')

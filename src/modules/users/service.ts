@@ -1,6 +1,6 @@
 import { db } from '@/core/db'
 import { users } from '@/core/db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq, sql, or, ilike } from 'drizzle-orm'
 import { NotFoundError, DuplicateError } from '@/core/utils/errors'
 import type { UserModel } from './model'
 
@@ -18,6 +18,29 @@ export abstract class UserService {
             createdAt: users.createdAt,
             lastLoginAt: users.lastLoginAt
         }).from(users).limit(limit).offset(offset).orderBy(users.createdAt)
+    }
+
+    static async search(query: string) {
+        const searchPattern = `%${query}%`
+        return await db.select({
+            userId: users.userId,
+            name: users.name,
+            email: users.email,
+            contactNo: users.contactNo,
+            address: users.address,
+            role: users.role,
+            profileBgColor: users.profileBgColor,
+            isActive: users.isActive,
+            createdAt: users.createdAt,
+            lastLoginAt: users.lastLoginAt
+        }).from(users)
+            .where(or(
+                ilike(users.name, searchPattern),
+                ilike(users.email, searchPattern),
+                ilike(users.contactNo, searchPattern),
+                ilike(users.role, searchPattern)
+            ))
+            .limit(5)
     }
 
     static async countAll(): Promise<number> {

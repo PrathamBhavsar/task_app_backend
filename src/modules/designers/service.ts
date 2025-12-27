@@ -1,12 +1,24 @@
 import { db } from '@/core/db'
 import { designers } from '@/core/db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq, sql, or, ilike } from 'drizzle-orm'
 import { NotFoundError } from '@/core/utils/errors'
 import type { DesignerModel } from './model'
 
 export abstract class DesignerService {
     static async getAll(limit: number, offset: number) {
         return await db.select().from(designers).limit(limit).offset(offset).orderBy(designers.createdAt)
+    }
+
+    static async search(query: string) {
+        const searchPattern = `%${query}%`
+        return await db.select().from(designers)
+            .where(or(
+                ilike(designers.name, searchPattern),
+                ilike(designers.firmName, searchPattern),
+                ilike(designers.contactNo, searchPattern),
+                ilike(designers.address, searchPattern)
+            ))
+            .limit(5)
     }
 
     static async countAll(): Promise<number> {
