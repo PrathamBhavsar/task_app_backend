@@ -29,13 +29,19 @@ export const app = new Elysia()
                 description: 'API for Interior Design & Task Management System'
             },
             tags: [
-                { name: 'Auth', description: 'Authentication endpoints' },
+                { name: 'Auth', description: 'Authentication & Authorization' },
                 { name: 'Users', description: 'User management' },
                 { name: 'Clients', description: 'Client management' },
                 { name: 'Designers', description: 'Designer management' },
+                { name: 'Service Master', description: 'Service catalog management' },
                 { name: 'Tasks', description: 'Task/Project management' },
+                { name: 'Measurements', description: 'Task measurements' },
+                { name: 'Task Services', description: 'Services linked to tasks' },
+                { name: 'Task Messages', description: 'Task communication' },
+                { name: 'Timelines', description: 'Task timeline tracking' },
                 { name: 'Quotes', description: 'Quote management' },
-                { name: 'Bills', description: 'Bill management' }
+                { name: 'Bills', description: 'Bill management' },
+                { name: 'Config', description: 'System configuration' }
             ]
         }
     }))

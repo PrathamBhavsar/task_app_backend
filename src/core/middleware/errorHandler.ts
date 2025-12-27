@@ -6,25 +6,25 @@ export function errorHandler() {
         .onError({ as: 'global' }, ({ error, set }) => {
             if (error instanceof ValidationError) {
                 set.status = 422
-                return { status: 'error', code: 'VALIDATION_ERROR', message: error.message, details: error.details }
+                return { message: error.message }
             }
             if (error instanceof DuplicateError) {
                 set.status = 409
-                return { status: 'error', code: 'DUPLICATE_ERROR', message: error.message }
+                return { message: error.message }
             }
             if (error instanceof NotFoundError) {
                 set.status = 404
-                return { status: 'error', code: 'NOT_FOUND', message: error.message }
+                return { message: error.message }
             }
             if (error instanceof UnauthorizedError) {
                 set.status = 401
-                return { status: 'error', code: 'UNAUTHORIZED', message: error.message }
+                return { message: error.message }
             }
             if (error instanceof ForbiddenError) {
                 set.status = 403
-                return { status: 'error', code: 'FORBIDDEN', message: error.message }
+                return { message: error.message }
             }
             set.status = 500
-            return { status: 'error', code: 'INTERNAL_SERVER_ERROR', message: 'An unexpected error occurred' }
+            return { message: 'An unexpected error occurred' }
         })
 }

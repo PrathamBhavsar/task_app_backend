@@ -5,28 +5,28 @@ import { paginationQuery, parsePagination, formatPaginatedResponse } from '@/cor
 import { successResponse } from '@/core/utils/response'
 import { requireAuth } from '@/core/middleware/auth'
 
-export const clientController = new Elysia({ prefix: '/clients', name: 'Clients' })
+export const clientController = new Elysia({ prefix: '/clients', name: 'Clients', detail: { tags: ['Clients'] } })
     .use(requireAuth)
     .get('/', async ({ query }) => {
         const { limit, offset } = parsePagination(query)
         const data = await ClientService.getAll(limit, offset)
         const total = await ClientService.countAll()
         return formatPaginatedResponse(data, total, limit, offset, 'Clients retrieved')
-    }, { query: paginationQuery })
+    }, { query: paginationQuery, detail: { tags: ['Clients'] } })
     .get('/:id', async ({ params: { id } }) => {
         const data = await ClientService.getById(Number(id))
         return successResponse(data, 'Client retrieved')
-    }, { params: t.Object({ id: t.Numeric() }) })
+    }, { params: t.Object({ id: t.Numeric() }), detail: { tags: ['Clients'] } })
     .post('/', async ({ body, set }) => {
         set.status = 201
         const data = await ClientService.create(body)
         return successResponse(data, 'Client created')
-    }, { body: ClientModel.create })
+    }, { body: ClientModel.create, detail: { tags: ['Clients'] } })
     .patch('/:id', async ({ params: { id }, body }) => {
         const data = await ClientService.update(Number(id), body)
         return successResponse(data, 'Client updated')
-    }, { params: t.Object({ id: t.Numeric() }), body: ClientModel.update })
+    }, { params: t.Object({ id: t.Numeric() }), body: ClientModel.update, detail: { tags: ['Clients'] } })
     .delete('/:id', async ({ params: { id } }) => {
         await ClientService.delete(Number(id))
         return successResponse(null, 'Client deleted')
-    }, { params: t.Object({ id: t.Numeric() }) })
+    }, { params: t.Object({ id: t.Numeric() }), detail: { tags: ['Clients'] } })
