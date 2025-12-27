@@ -1,0 +1,76 @@
+import { Elysia } from 'elysia'
+import { cors } from '@elysiajs/cors'
+import { swagger } from '@elysiajs/swagger'
+import { errorHandler } from '@/core/middleware/errorHandler'
+import {
+    authController,
+    userController,
+    clientController,
+    designerController,
+    serviceMasterController,
+    taskController,
+    taskUpdateController,
+    measurementController,
+    taskServiceController,
+    taskMessageController,
+    timelineController,
+    quoteController,
+    billController,
+    configController,
+    dashboardController
+} from '@/modules'
+
+export const app = new Elysia()
+    .use(cors())
+    .use(swagger({
+        path: '/swagger',
+        documentation: {
+            info: {
+                title: 'Interior Design API',
+                version: '1.0.0',
+                description: 'API for Interior Design & Task Management System'
+            },
+            tags: [
+                { name: 'Auth', description: 'Authentication & Authorization' },
+                { name: 'Dashboard', description: 'Dashboard analytics and overview' },
+                { name: 'Users', description: 'User management' },
+                { name: 'Clients', description: 'Client management' },
+                { name: 'Designers', description: 'Designer management' },
+                { name: 'Service Master', description: 'Service catalog management' },
+                { name: 'Tasks', description: 'Task/Project management' },
+                { name: 'Measurements', description: 'Task measurements' },
+                { name: 'Task Services', description: 'Services linked to tasks' },
+                { name: 'Task Messages', description: 'Task communication' },
+                { name: 'Timelines', description: 'Task timeline tracking' },
+                { name: 'Quotes', description: 'Quote management' },
+                { name: 'Bills', description: 'Bill management' },
+                { name: 'Config', description: 'System configuration' }
+            ]
+        }
+    }))
+    .use(errorHandler())
+    .get('/', () => ({ status: 'success', message: 'Interior Design API v1.0', timestamp: new Date().toISOString() }))
+    .get('/health', () => ({ status: 'healthy', timestamp: new Date().toISOString() }))
+    .group('/api/v1', (app) =>
+        app
+            .get('/', () => ({
+                status: 'success',
+                message: 'Interior Design API v1',
+                endpoints: ['/auth', '/dashboard', '/users', '/clients', '/designers', '/service-master', '/tasks', '/measurements', '/task-services', '/task-messages', '/timelines', '/quotes', '/bills', '/config']
+            }))
+            .use(authController)
+            .use(dashboardController)
+            .use(userController)
+            .use(clientController)
+            .use(designerController)
+            .use(serviceMasterController)
+            .use(taskController)
+            .use(taskUpdateController)
+            .use(measurementController)
+            .use(taskServiceController)
+            .use(taskMessageController)
+            .use(timelineController)
+            .use(quoteController)
+            .use(billController)
+            .use(configController)
+    )
