@@ -1,0 +1,32 @@
+import { Elysia, t } from 'elysia'
+import { DesignerService } from './service'
+import { DesignerModel } from './model'
+import { paginationQuery, parsePagination, formatPaginatedResponse } from '@/core/utils/pagination'
+import { successResponse } from '@/core/utils/response'
+import { requireAuth } from '@/core/middleware/auth'
+
+export const designerController = new Elysia({ prefix: '/designers', name: 'Designers' })
+    .use(requireAuth)
+    .get('/', async ({ query }) => {
+        const { limit, offset } = parsePagination(query)
+        const data = await DesignerService.getAll(limit, offset)
+        const total = await DesignerService.countAll()
+        return formatPaginatedResponse(data, total, limit, offset, 'Designers retrieved')
+    }, { query: paginationQuery })
+    .get('/:id', async ({ params: { id } }) => {
+        const data = await DesignerService.getById(Number(id))
+        return successResponse(data, 'Designer retrieved')
+    }, { params: t.Object({ id: t.Numeric() }) })
+    .post('/', async ({ body, set }) => {
+        set.status = 201
+        const data = await DesignerService.create(body)
+        return successResponse(data, 'Designer created')
+    }, { body: DesignerModel.create })
+    .patch('/:id', async ({ params: { id }, body }) => {
+        const data = await DesignerService.update(Number(id), body)
+        return successResponse(data, 'Designer updated')
+    }, { params: t.Object({ id: t.Numeric() }), body: DesignerModel.update })
+    .delete('/:id', async ({ params: { id } }) => {
+        await DesignerService.delete(Number(id))
+        return successResponse(null, 'Designer deleted')
+    }, { params: t.Object({ id: t.Numeric() }) })
